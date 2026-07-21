@@ -1,6 +1,6 @@
 # Hospital prototype
 
-A dependency-free browser prototype for a hidden-information hospital engine builder.
+A dependency-free browser prototype for a hidden-information hospital engine builder, presented as a top-down facility map.
 
 ## Play
 
@@ -10,7 +10,7 @@ Open `index.html` in a modern browser, or serve this folder with any static web 
 
 1. Investigate hidden patient cards with Doctor actions.
 2. Generate Nursing Care, Medication, and Surgery through staff and facilities.
-3. Partially treat patients in ED; admit ward-required patients when a bed is available.
+3. Partially treat patients in ED; admit ward-required patients to a specific ward bed.
 4. Complete every revealed need and discharge patients for money and reputation.
 5. Buy staff and facilities, then end the round. Patient demand rises over time.
 
@@ -23,4 +23,4 @@ Nursing Care is limited to one icon per patient per round. Surgery needs both a 
 - `src/app.js` — browser rendering and interaction layer
 - `tests/engine.test.mjs` — core rule smoke tests
 
-The game content is data-driven so new cards can be added without changing the rendering layer.
+Every purchased facility becomes a separate room on the hospital map. Staff remain assigned to their room between rounds and provide room-specific abilities. The game content is data-driven so new cards, rooms, staff roles, and ward abilities can be added without changing the rendering layer.
