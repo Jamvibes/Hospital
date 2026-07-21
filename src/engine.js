@@ -1,4 +1,4 @@
-import {PATIENTS, STAFF, FACILITIES} from './data.js';
+import {PATIENTS, STAFF, FACILITIES} from './data.js?v=2';
 const clone=value=>JSON.parse(JSON.stringify(value));
 
 export function createGame(seed=1){
