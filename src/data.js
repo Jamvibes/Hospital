@@ -12,20 +12,21 @@ export const PATIENTS = [
 ];
 
 export const STAFF = {
-  doctor:{name:'Doctor',icon:'D',cost:7,effect:'Investigate one patient each round.',action:'investigate'},
-  nurse:{name:'Nurse',icon:'N',cost:6,effect:'Generate 2 Nursing Care each round.',production:{nursing:2}},
-  pharmacist:{name:'Pharmacist',icon:'P',cost:6,effect:'Generate 1 Medication each round.',production:{medication:1}},
-  surgeon:{name:'Surgeon',icon:'S',cost:10,effect:'With a Theatre, generate 1 Surgery each round.',requires:'theatre',production:{surgery:1}}
+  doctor:{name:'Doctor',monogram:'DR',cost:7,role:'doctor',effect:'Investigate 1 patient in the assigned facility each round.'},
+  nurse:{name:'Ward Nurse',monogram:'RN',cost:6,role:'nurse',effect:'Provides 2 Nursing Care in the assigned patient-care facility.'},
+  pharmacist:{name:'Pharmacist',monogram:'RX',cost:6,role:'pharmacist',effect:'Generates 1 Medication; generates 2 when assigned to Pharmacy.'},
+  surgeon:{name:'Surgeon',monogram:'SG',cost:10,role:'surgeon',effect:'Generates 1 Surgery while assigned to an Operating Theatre.'}
 };
 
 export const FACILITIES = {
-  ed:{name:'Emergency Department',icon:'ED',cost:0,effect:'Holds 4 patients for investigation and partial treatment.',capacity:{ed:4}},
-  ward:{name:'General Ward',icon:'W',cost:8,effect:'Provides 2 beds. Patients receive at most 1 Nursing Care per round.',capacity:{ward:2}},
-  pharmacy:{name:'Pharmacy',icon:'Rx',cost:7,effect:'Generate 1 additional Medication each round.',production:{medication:1}},
-  theatre:{name:'Operating Theatre',icon:'OT',cost:12,effect:'Enables a Surgeon to generate Surgery.',capacity:{theatre:1}}
+  ed:{name:'Emergency Department',short:'ED',cost:0,kind:'clinical',beds:4,slots:['doctor','nurse','pharmacist'],colour:'blue',effect:'Investigate and partially treat patients before admission.'},
+  ward:{name:'General Ward',short:'GW',cost:8,kind:'ward',beds:2,slots:['nurse','doctor'],colour:'sage',effect:'Flexible inpatient beds. Patients can complete treatment here.'},
+  shortStay:{name:'Short Stay Ward',short:'SS',cost:9,kind:'ward',beds:2,slots:['nurse'],colour:'amber',effect:'Patients with one Nursing need receive +1 care when admitted.'},
+  pharmacy:{name:'Pharmacy',short:'RX',cost:7,kind:'support',beds:0,slots:['pharmacist'],colour:'mint',effect:'A Pharmacist assigned here generates 2 Medication.'},
+  theatre:{name:'Operating Theatre',short:'OT',cost:12,kind:'support',beds:0,slots:['surgeon'],colour:'rose',effect:'A Surgeon assigned here generates 1 Surgery.'}
 };
 
 export const MARKET = [
-  {kind:'staff',key:'doctor'}, {kind:'staff',key:'nurse'}, {kind:'staff',key:'pharmacist'},
-  {kind:'staff',key:'surgeon'}, {kind:'facility',key:'ward'}, {kind:'facility',key:'pharmacy'}, {kind:'facility',key:'theatre'}
+  {kind:'staff',key:'doctor'},{kind:'staff',key:'nurse'},{kind:'staff',key:'pharmacist'},{kind:'staff',key:'surgeon'},
+  {kind:'facility',key:'ward'},{kind:'facility',key:'shortStay'},{kind:'facility',key:'pharmacy'},{kind:'facility',key:'theatre'}
 ];
