@@ -1,0 +1,5 @@
+import assert from 'node:assert/strict';
+import {createGame,capacities,investigate,treat,admit,discharge,buy,endRound} from '../src/engine.js';
+let g=createGame(1);assert.deepEqual(capacities(g),{ed:4,ward:2});assert.equal(g.ed.length,2);assert.deepEqual(g.resources,{nursing:2,medication:1,surgery:0});const p=g.ed[0];assert.equal(investigate(g,p.id),true);assert.equal(p.revealed,true);assert.equal(investigate(g,g.ed[1].id),false);if(p.needs.nursing){assert.equal(treat(g,p.id,'nursing'),true);assert.equal(treat(g,p.id,'nursing'),false)}if(p.wardRequired)assert.equal(admit(g,p.id),true);assert.equal(buy(g,'staff','nurse'),true);const round=g.round;endRound(g);assert.equal(g.round,round+1);assert.equal(g.resources.nursing,4);
+let simple=createGame(2);const q=simple.ed[0];q.revealed=true;q.needs={nursing:0,medication:0,surgery:0};q.wardRequired=false;const oldMoney=simple.money;assert.equal(discharge(simple,q.id),true);assert.equal(simple.money,oldMoney+q.reward);
+console.log('engine tests passed');
