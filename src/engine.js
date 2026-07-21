@@ -3,12 +3,12 @@ const clone=value=>JSON.parse(JSON.stringify(value));
 
 export function createGame(seed=1){
   const state={round:1,money:10,reputation:5,deck:shuffle(clone(PATIENTS),seed),discard:[],facilities:[],staff:[],resources:{medication:0,surgery:0},log:[],gameOver:false,nextId:1};
-  const ed=addFacility(state,'ed'); const ward=addFacility(state,'ward');
+  const ed=addFacility(state,'ed',0); const ward=addFacility(state,'ward',1);
   addStaff(state,'doctor',ed.id); addStaff(state,'nurse',ward.id); addStaff(state,'pharmacist',ed.id);
   drawPatients(state,2); startRound(state); state.log.unshift('Round 1: two patients arrived in Emergency.'); return state;
 }
 
-export function addFacility(state,key){const facility={id:`f${state.nextId++}`,key,patients:[],nursing:0};state.facilities.push(facility);return facility}
+export function addFacility(state,key,slotIndex=null){const facility={id:`f${state.nextId++}`,key,patients:[],nursing:0,slotIndex};state.facilities.push(facility);return facility}
 export function addStaff(state,key,facilityId=null){const member={id:`s${state.nextId++}`,key,facilityId,used:false};state.staff.push(member);return member}
 export function getFacility(state,id){return state.facilities.find(f=>f.id===id)}
 export function facilityDefinition(f){return FACILITIES[f.key]}
@@ -18,6 +18,8 @@ export function startRound(state){state.resources={medication:0,surgery:0};for(c
 
 export function compatible(state,staffId,facilityId){const member=state.staff.find(s=>s.id===staffId);const facility=getFacility(state,facilityId);if(!member||!facility)return false;const role=STAFF[member.key].role;const def=FACILITIES[facility.key];if(!def.slots.includes(role))return false;return !state.staff.some(s=>s.id!==staffId&&s.facilityId===facilityId&&STAFF[s.key].role===role)}
 export function assignStaff(state,staffId,facilityId){const member=state.staff.find(s=>s.id===staffId);if(!member||!compatible(state,staffId,facilityId))return false;const old=getFacility(state,member.facilityId);member.facilityId=facilityId;member.used=true;state.log.unshift(`${STAFF[member.key].name} moved from ${old?FACILITIES[old.key].name:'the staff pool'} to ${FACILITIES[getFacility(state,facilityId).key].name}. Their new assignment activates next round.`);return true}
+export function returnStaff(state,staffId){const member=state.staff.find(s=>s.id===staffId),old=getFacility(state,member?.facilityId);if(!member||!old)return false;member.facilityId=null;member.used=true;state.log.unshift(`${STAFF[member.key].name} returned from ${FACILITIES[old.key].name} to available staff.`);return true}
+export function placeFacility(state,facilityId,slotIndex){const facility=getFacility(state,facilityId),slot=Number(slotIndex);if(!facility||facility.slotIndex!==null||slot<0||slot>=6||state.facilities.some(f=>f.slotIndex===slot))return false;facility.slotIndex=slot;state.log.unshift(`${FACILITIES[facility.key].name} placed on the hospital map.`);return true}
 
 export function investigate(state,patientId){const facility=patientFacility(state,patientId);const patient=facility?.patients.find(p=>p.id===patientId);if(!patient||patient.revealed)return false;const doctor=state.staff.find(s=>s.facilityId===facility.id&&STAFF[s.key].role==='doctor'&&!s.used);if(!doctor)return false;patient.revealed=true;doctor.used=true;state.log.unshift(`Patient ${patient.portrait} investigated in ${FACILITIES[facility.key].name}.`);return true}
 export function treat(state,patientId,type){const facility=patientFacility(state,patientId);const patient=facility?.patients.find(p=>p.id===patientId);if(!patient?.revealed||!['nursing','medication','surgery'].includes(type))return false;const done=patient.completed[type]||0;if(done>=patient.needs[type])return false;if(type==='nursing'){if(facility.nursing<1||patient.nursingRound===state.round)return false;facility.nursing--;patient.nursingRound=state.round}else{if(state.resources[type]<1)return false;state.resources[type]--}patient.completed[type]=done+1;state.log.unshift(`${label(type)} provided to patient ${patient.portrait}.`);return true}
