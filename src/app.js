@@ -1,4 +1,4 @@
-import {createGame,investigate,treat,admit,discharge,buy,endRound,assignStaff,returnStaff,placeFacility,compatible,getFacility} from './engine.js?v=4';
+import {createGame,investigate,treat,admit,discharge,buy,endRound,assignStaff,returnStaff,placeFacility,compatible,getFacility} from './engine.js?v=5';
 import {STAFF,FACILITIES,MARKET} from './data.js?v=2';
 
 let game=createGame(),selectedStaff=null,selectedAdmission=null,selectedFacility=null;
@@ -24,16 +24,21 @@ function buildPlot(slot){return selectedFacility?`<button class="build-plot plac
 function facilityTile(f){
   const d=FACILITIES[f.key],assigned=game.staff.filter(s=>s.facilityId===f.id);
   const beds=d.beds?Array.from({length:d.beds},(_,i)=>bed(f,f.patients[i],i)).join(''):`<div class="equipment ${f.key}"><div class="equipment-core">${d.short}</div><span>${f.key==='pharmacy'?'Medication store':'Operating table'}</span></div>`;
-  const slots=d.slots.map(role=>{const s=assigned.find(x=>STAFF[x.key].role===role);return s?`<button class="staff-slot filled selectable-staff" data-action="selectStaff" data-staff="${s.id}" title="Select ${STAFF[s.key].name}"><span>${STAFF[s.key].monogram}</span><small>${STAFF[s.key].name}</small></button>`:`<div class="staff-slot"><span>${role.toUpperCase()}</span><small>${role} slot</small></div>`}).join('');
-  const canAssign=selectedStaff&&compatible(game,selectedStaff,f.id);
-  return `<article class="facility ${d.colour}" data-facility="${f.id}" data-map-slot="${f.slotIndex}"><header><div><span class="room-code">${d.short}</span><h3>${d.name}</h3></div><span class="occupancy">${d.beds?`${f.patients.length}/${d.beds} beds`:`plot ${f.slotIndex+1}`}</span></header><div class="room-art"><div class="floor-lines"></div><div class="beds">${beds}</div><div class="station"><div class="desk"></div><small>${d.kind==='ward'?'Nurse station':d.kind==='clinical'?'Assessment desk':'Work area'}</small></div></div><div class="room-footer"><div class="slots">${slots}</div><div class="room-actions">${canAssign?`<button data-action="assign" data-staff="${selectedStaff}" data-facility="${f.id}">Assign selected staff</button>`:''}<small>${d.effect}</small></div></div></article>`;
+  const selectedMember=game.staff.find(s=>s.id===selectedStaff),selectedRole=selectedMember&&STAFF[selectedMember.key].role;
+  const slots=d.slots.map(role=>{
+    const s=assigned.find(x=>STAFF[x.key].role===role);
+    if(s)return `<button class="staff-slot filled selectable-staff" data-action="selectStaff" data-staff="${s.id}" title="Select ${STAFF[s.key].name}"><span>${STAFF[s.key].monogram}</span><small>${STAFF[s.key].name}</small></button>`;
+    if(selectedStaff&&role===selectedRole&&compatible(game,selectedStaff,f.id))return `<button class="staff-slot assignment-target" data-action="assign" data-staff="${selectedStaff}" data-facility="${f.id}" title="Move ${STAFF[selectedMember.key].name} here"><span>+</span><small>Move here</small></button>`;
+    return `<div class="staff-slot"><span>${role.toUpperCase()}</span><small>${role} slot</small></div>`;
+  }).join('');
+  return `<article class="facility ${d.colour}" data-facility="${f.id}" data-map-slot="${f.slotIndex}"><header><div><span class="room-code">${d.short}</span><h3>${d.name}</h3></div><span class="occupancy">${d.beds?`${f.patients.length}/${d.beds} beds`:`plot ${f.slotIndex+1}`}</span></header><div class="room-art"><div class="floor-lines"></div><div class="beds">${beds}</div><div class="station"><div class="desk"></div><small>${d.kind==='ward'?'Nurse station':d.kind==='clinical'?'Assessment desk':'Work area'}</small></div></div><div class="room-footer"><div class="slots">${slots}</div><div class="room-actions"><small>${d.effect}</small></div></div></article>`;
 }
 
 function bed(f,p,i){
   if(!p){const target=selectedAdmission&&FACILITIES[f.key].kind==='ward';return target?`<button class="bed empty admission-target" data-action="admit" data-id="${selectedAdmission}" data-target="${f.id}"><div class="pillow"></div><span>Admit to bed ${i+1}</span></button>`:`<div class="bed empty"><div class="pillow"></div><span>Bed ${i+1}</span></div>`}
   const needs=p.revealed?Object.entries(p.needs).filter(([,n])=>n).flatMap(([k,n])=>Array.from({length:n},(_,x)=>`<span class="need ${k} ${x<(p.completed[k]||0)?'done':''}">${names[k][0]}</span>`)).join(''):'<span class="need unknown">?</span>';
   let actions=!p.revealed?`<button data-action="investigate" data-id="${p.id}">Investigate</button>`:Object.keys(names).filter(k=>(p.completed[k]||0)<p.needs[k]).map(k=>`<button data-action="treat" data-type="${k}" data-id="${p.id}">${names[k]}</button>`).join('');
-  if(p.revealed&&f.key==='ed'&&p.wardRequired)actions+=`<button data-action="startAdmission" data-id="${p.id}" ${hasVacantWard()?'':'disabled'}>Admit to ward</button>`;
+  if(f.key==='ed')actions+=`<button data-action="startAdmission" data-id="${p.id}" ${hasVacantWard()?'':'disabled'}>Admit to ward</button>`;
   if(p.revealed)actions+=`<button data-action="discharge" data-id="${p.id}">Discharge</button>`;
   return `<div class="bed occupied"><div class="pillow"></div><div class="patient-token">${p.portrait}</div><div class="patient-popover"><strong>Patient ${p.portrait}</strong><small>${p.revealed?`$${p.reward} · +${p.reputation} rep`:'Needs hidden'}</small><div class="needs">${needs}</div><div class="patient-actions">${actions}</div></div></div>`;
 }
