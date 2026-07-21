@@ -1,0 +1,13 @@
+/* Interaction layer: overlays must escape their room and highlighted beds become targets. */
+.facility{position:relative;overflow:visible}
+.facility:hover,.facility:focus-within{z-index:12}
+.facility>header{border-radius:8px 8px 0 0}
+.room-art{overflow:visible}
+.bed:hover{z-index:25}
+.patient-popover{z-index:30;left:-8px;top:56px;width:240px}
+.bed.admission-target{width:100%;margin:0;padding:0;background:#fffdf7;color:var(--teal);border:3px solid #25a58f;outline:4px solid #6cd7c255;box-shadow:0 0 0 7px #25a58f22,3px 3px 0 #19766744;animation:pulse-bed 1.3s ease-in-out infinite}
+.bed.admission-target:hover{transform:translateY(-2px);background:#e1f4ee}
+.briefing.admission-mode{background:#145c56}
+.briefing.admission-mode>div{display:flex;align-items:center;gap:12px}
+.briefing.admission-mode button{background:white;color:var(--teal)}
+@keyframes pulse-bed{50%{outline-color:#6cd7c288;box-shadow:0 0 0 10px #25a58f10,3px 3px 0 #19766744}}
