@@ -33,6 +33,11 @@
 .bed-needs .need{width:18px;height:18px;border-width:1px}
 .bed-needs .need .treatment-icon{width:12px;height:12px}
 .bed-needs .need.done::after{right:-2px;bottom:-2px;width:9px;height:9px;font-size:7px}
+.patient-risk{position:absolute;z-index:4;top:3px;right:3px;padding:2px 5px;border-radius:5px;background:#dfe9e2;color:#315b3d;font-size:8px;font-weight:900;line-height:1.2;text-transform:uppercase;letter-spacing:.02em}
+.patient-risk.deteriorate{background:#f2d9a9;color:#724b0e}
+.patient-risk.death{background:#efd0d0;color:#862f2f}
+.patient-popover .patient-risk{position:static;display:block;width:max-content;margin-top:7px;padding:4px 7px;font-size:9px}
+.risk-rules{margin-top:5px;color:var(--muted);font-size:9px}
 .bed.ability-target{width:100%;margin:0;padding:0;color:var(--ink);border:3px solid #25a58f;outline:4px solid #6cd7c255;background:#fffdf7;animation:pulse-bed 1.3s ease-in-out infinite}
 .bed.ability-target:hover{background:#e1f4ee;transform:translateY(-2px)}
 .bed.ability-target .target-label{position:absolute;top:3px;right:4px;color:var(--teal);font-size:8px;font-weight:900;text-transform:uppercase}
