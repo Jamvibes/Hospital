@@ -1,11 +1,30 @@
 import assert from 'node:assert/strict';
 import {
   createGame, investigate, treat, admit, buy, assignStaff, returnStaff,
-  placeFacility, advancePhase, compatible, calculateRewards, previewResolution
+  placeFacility, advancePhase, compatible, calculateRewards, previewResolution,
+  unmetNeeds, patientRisk
 } from '../src/engine.js';
+import {PATIENTS} from '../src/data.js';
+
+assert.equal(PATIENTS.length,30);
+assert.equal(new Set(PATIENTS.map(p=>p.id)).size,PATIENTS.length);
+for(const patient of PATIENTS){
+  const total=Object.values(patient.needs).reduce((sum,value)=>sum+value,0);
+  assert.ok(total>=1&&total<=6,`${patient.id} must begin with 1–6 needs`);
+}
+const seededOrder=seed=>{const game=createGame(seed),ed=game.facilities.find(f=>f.key==='ed');return [...ed.patients,...game.deck].map(p=>p.id)};
+assert.deepEqual(seededOrder(42),seededOrder(42));
+assert.notDeepEqual(seededOrder(42),seededOrder(43));
 
 assert.deepEqual(calculateRewards({nursing:1,medication:2,surgery:1}),{value:3,reward:6,reputation:3});
 assert.deepEqual(calculateRewards({nursing:1,medication:1,surgery:1}),{value:2.5,reward:5,reputation:3});
+const riskPatient={revealed:true,needs:{nursing:4,medication:2,surgery:1},completed:{nursing:1,medication:1,surgery:0}};
+assert.equal(unmetNeeds(riskPatient),5);
+assert.deepEqual(patientRisk(riskPatient),{key:'deteriorate',label:'Will deteriorate',unmet:5});
+riskPatient.completed.nursing=3;
+assert.deepEqual(patientRisk(riskPatient),{key:'stable',label:'Stable',unmet:3});
+riskPatient.completed={nursing:0,medication:0,surgery:0};
+assert.deepEqual(patientRisk(riskPatient),{key:'death',label:'Will die',unmet:7});
 
 const g=createGame(1);
 const ed=g.facilities.find(f=>f.key==='ed');
@@ -77,4 +96,44 @@ assert.equal(resolutionEd.patients.includes(completedPatient),false);
 assert.equal(resolutionGame.money,moneyBefore+completedPatient.reward);
 assert.equal(resolutionGame.reputation,reputationBefore+completedPatient.reputation);
 assert.deepEqual(completedPatient.baseNeeds,completedPatient.needs);
+
+const deteriorationGame=createGame(5);
+const deteriorationPatient=deteriorationGame.facilities.find(f=>f.key==='ed').patients[0];
+deteriorationPatient.revealed=true;
+deteriorationPatient.needs={nursing:2,medication:1,surgery:1};
+deteriorationPatient.completed={nursing:0,medication:0,surgery:0};
+advancePhase(deteriorationGame);
+assert.equal(previewResolution(deteriorationGame).worsening,1);
+const needsBefore=unmetNeeds(deteriorationPatient);
+advancePhase(deteriorationGame);
+assert.equal(unmetNeeds(deteriorationPatient),needsBefore+1);
+
+const deathGame=createGame(6);
+const deathEd=deathGame.facilities.find(f=>f.key==='ed');
+const deathPatient=deathEd.patients[0];
+deathPatient.revealed=true;
+deathPatient.needs={nursing:4,medication:2,surgery:1};
+deathPatient.completed={nursing:0,medication:0,surgery:0};
+advancePhase(deathGame);
+assert.equal(previewResolution(deathGame).deaths,1);
+advancePhase(deathGame);
+assert.equal(deathEd.patients.includes(deathPatient),false);
+
+const hiddenGame=createGame(7);
+const hiddenEd=hiddenGame.facilities.find(f=>f.key==='ed');
+const hiddenRiskPatient=hiddenEd.patients[0];
+hiddenRiskPatient.revealed=false;
+hiddenRiskPatient.needs={nursing:2,medication:1,surgery:1};
+hiddenRiskPatient.completed={nursing:0,medication:0,surgery:0};
+advancePhase(hiddenGame);
+const hiddenPreview=previewResolution(hiddenGame);
+assert.equal(hiddenPreview.worsening,0);
+assert.equal(hiddenPreview.hiddenAtRisk,1);
+const hiddenNeedsBefore=unmetNeeds(hiddenRiskPatient);
+advancePhase(hiddenGame);
+assert.equal(unmetNeeds(hiddenRiskPatient),hiddenNeedsBefore+1);
+assert.equal(hiddenRiskPatient.revealed,false);
+assert.equal(hiddenGame.resolutionEvents.length,1);
+assert.equal(hiddenGame.resolutionEvents[0].type,'deteriorate');
+assert.equal(hiddenGame.resolutionEvents[0].hidden,true);
 console.log('engine tests passed');
