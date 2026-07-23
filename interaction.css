@@ -37,3 +37,11 @@
 .bed.ability-target:hover{background:#e1f4ee;transform:translateY(-2px)}
 .bed.ability-target .target-label{position:absolute;top:3px;right:4px;color:var(--teal);font-size:8px;font-weight:900;text-transform:uppercase}
 .briefing.ability-mode{background:#365a75}.briefing.ability-mode>div{display:flex;align-items:center;gap:12px}.briefing.ability-mode button{background:white;color:#365a75}
+
+/* Live preview of the patient-resolution economy. */
+.activation-sidebar{display:grid;gap:7px;justify-items:end}
+.resolution-preview{display:flex;align-items:center;justify-content:flex-end;gap:6px;flex-wrap:wrap}
+.resolution-preview>b{font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:#c5d4d0}
+.resolution-preview>span{padding:4px 7px;border-radius:7px;background:#ffffff16;color:white;font-size:11px;font-weight:750}
+.resolution-preview>span strong{color:white}.resolution-preview .risk{background:#c68a2e55}.resolution-preview .danger{background:#b947475f}
+@media(max-width:900px){.activation-sidebar{justify-items:start}.resolution-preview{justify-content:flex-start}}
