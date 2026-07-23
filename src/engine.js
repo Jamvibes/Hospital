@@ -14,7 +14,15 @@ export function getFacility(state,id){return state.facilities.find(f=>f.id===id)
 export function facilityDefinition(f){return FACILITIES[f.key]}
 export function patientFacility(state,patientId){return state.facilities.find(f=>f.patients.some(p=>p.id===patientId))}
 export function calculateRewards(needs){const value=(needs.nursing||0)+(needs.medication||0)/2+(needs.surgery||0);return {value,reward:value*2,reputation:Math.ceil(value)}}
-export function previewResolution(state){const result={ready:0,money:0,reputation:0,worsening:0,deaths:0,reputationLoss:0};for(const f of state.facilities)for(const p of f.patients){if(canDischarge(f,p)){result.ready++;result.money+=p.reward;result.reputation+=p.reputation;continue}if(p.revealed&&p.wait+1>=p.deterioratesAfter){if(p.deteriorations+1>=2){result.deaths++;result.reputationLoss+=2}else result.worsening++}}return result}
+export function unmetNeeds(patient){return Object.keys(patient.needs).reduce((total,key)=>total+Math.max(0,(patient.needs[key]||0)-(patient.completed[key]||0)),0)}
+export function patientRisk(patient){
+  if(!patient.revealed)return {key:'unknown',label:'Risk hidden',unmet:null};
+  const unmet=unmetNeeds(patient);
+  if(unmet>=7)return {key:'death',label:'Will die',unmet};
+  if(unmet>=4)return {key:'deteriorate',label:'Will deteriorate',unmet};
+  return {key:'stable',label:'Stable',unmet};
+}
+export function previewResolution(state){const result={ready:0,money:0,reputation:0,worsening:0,deaths:0,reputationLoss:0};for(const f of state.facilities)for(const p of f.patients){if(canDischarge(f,p)){result.ready++;result.money+=p.reward;result.reputation+=p.reputation;continue}const risk=patientRisk(p);if(risk.key==='death'){result.deaths++;result.reputationLoss+=2}else if(risk.key==='deteriorate')result.worsening++}return result}
 
 export function activateStaff(state){state.resources={medication:0,surgery:0};for(const f of state.facilities)f.nursing=0;for(const member of state.staff){member.used=false;const facility=getFacility(state,member.facilityId);if(!facility)continue;const def=FACILITIES[facility.key];const role=STAFF[member.key].role;if(role==='nurse'&&def.kind!=='support')facility.nursing+=2;if(role==='pharmacist')state.resources.medication+=facility.key==='pharmacy'?2:1;if(role==='surgeon'&&facility.key==='theatre')state.resources.surgery+=1}}
 
@@ -42,8 +50,8 @@ export function advancePhase(state){
   return false
 }
 
-function drawPatients(state,count){const ed=state.facilities.find(f=>f.key==='ed');for(let i=0;i<count;i++){if(!state.deck.length)break;if(ed.patients.length>=FACILITIES.ed.beds){state.reputation=Math.max(0,state.reputation-1);state.log.unshift('Emergency is full: an arriving patient was turned away. -1 reputation.');continue}const p=state.deck.shift(),baseNeeds=clone(p.needs),rewards=calculateRewards(baseNeeds);Object.assign(p,{baseNeeds,...rewards,revealed:false,completed:{nursing:0,medication:0,surgery:0},wait:0,deteriorations:0});ed.patients.push(p)}}
+function drawPatients(state,count){const ed=state.facilities.find(f=>f.key==='ed');for(let i=0;i<count;i++){if(!state.deck.length)break;if(ed.patients.length>=FACILITIES.ed.beds){state.reputation=Math.max(0,state.reputation-1);state.log.unshift('Emergency is full: an arriving patient was turned away. -1 reputation.');continue}const p=state.deck.shift(),baseNeeds=clone(p.needs),rewards=calculateRewards(baseNeeds);Object.assign(p,{baseNeeds,...rewards,revealed:false,completed:{nursing:0,medication:0,surgery:0}});ed.patients.push(p)}}
 function resolvePatients(state){for(const f of state.facilities)for(const p of [...f.patients])discharge(state,p.id);deteriorate(state)}
 function canDischarge(f,p){const complete=Object.keys(p.needs).every(k=>(p.completed[k]||0)>=p.needs[k]);return p.revealed&&complete&&(!p.wardRequired||f.key!=='ed')}
-function deteriorate(state){for(const f of state.facilities)for(const p of [...f.patients]){if(!p.revealed)continue;p.wait++;if(p.wait>=p.deterioratesAfter){p.wait=0;p.deteriorations++;if(p.deteriorations>=2){f.patients.splice(f.patients.indexOf(p),1);state.reputation=Math.max(0,state.reputation-2);state.log.unshift(`Patient ${p.portrait} died. -2 reputation.`)}else{p.needs.nursing++;state.log.unshift(`Patient ${p.portrait} worsened and gained a Nursing Care need.`)}}}}
+function deteriorate(state){for(const f of state.facilities)for(const p of [...f.patients]){const risk=patientRisk(p);if(risk.key==='death'){f.patients.splice(f.patients.indexOf(p),1);state.reputation=Math.max(0,state.reputation-2);state.log.unshift(`Patient ${p.portrait} died with ${risk.unmet} unmet needs. -2 reputation.`)}else if(risk.key==='deteriorate'){const types=['nursing','medication','surgery'],type=types[Math.floor(Math.random()*types.length)];p.needs[type]++;state.log.unshift(`Patient ${p.portrait} deteriorated with ${risk.unmet} unmet needs and gained a ${label(type)} need.`)}}}
 function label(x){return x[0].toUpperCase()+x.slice(1)}function shuffle(a,seed){let x=seed;for(let i=a.length-1;i>0;i--){x=(x*9301+49297)%233280;const j=Math.floor(x/233280*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
