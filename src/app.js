@@ -1,7 +1,7 @@
 import {createGame,investigate,treat,admit,buy,advancePhase,assignStaff,returnStaff,placeFacility,compatible,getFacility} from './engine.js?v=6';
 import {STAFF,FACILITIES,MARKET} from './data.js?v=2';
 
-let game=createGame(),selectedStaff=null,selectedAdmission=null,selectedFacility=null;
+let game=createGame(),selectedStaff=null,selectedAdmission=null,selectedFacility=null,selectedAbility=null;
 const $=id=>document.getElementById(id),names={nursing:'Nursing',medication:'Medication',surgery:'Surgery'};
 const treatmentIcons={
   nursing:'<svg class="treatment-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20.2 4.8 13C1 9.2 3.7 4 8.1 4c1.7 0 3.1.8 3.9 2 1-1.2 2.3-2 4-2 4.4 0 7 5.2 3.2 9L12 20.2Z"/><path d="M12 8.2v6.3M8.9 11.35h6.2"/></svg>',
@@ -16,12 +16,13 @@ const phaseCopy={
 };
 
 function render(){
-  const nursing=game.facilities.reduce((n,f)=>n+f.nursing,0),mode=selectedAdmission?'admission':selectedFacility?'building':null,phase=phaseCopy[game.phase];
+  const nursing=game.facilities.reduce((n,f)=>n+f.nursing,0),mode=selectedAdmission?'admission':selectedFacility?'building':selectedAbility?'ability':null,phase=phaseCopy[game.phase];
   $('stats').innerHTML=stat('Round',game.round)+stat('Stage',phase.name)+stat('Reputation',game.reputation)+stat('Money','$'+game.money);
   $('briefing').className=`briefing ${mode?`${mode}-mode`:''}`;
   $('briefing').innerHTML=selectedAdmission
     ?`<div><strong>Choose a bed</strong><span>Vacant ward beds are highlighted for Patient ${patientPortrait(selectedAdmission)}.</span><button data-action="cancelMode">Cancel</button></div>`
     :selectedFacility?`<div><strong>Place ${FACILITIES[getFacility(game,selectedFacility).key].name}</strong><span>Choose any highlighted plot. Its grid position will support future adjacency effects.</span><button data-action="cancelFacility">Cancel purchase</button></div>`
+    :selectedAbility?`<div><strong>Use ${STAFF[game.staff.find(s=>s.id===selectedAbility).key].name}</strong><span>Choose one of the highlighted patients in this staff member’s assigned facility.</span><button data-action="cancelAbility">Cancel</button></div>`
     :`<div><strong>${phase.name}</strong><span>${phase.help}</span></div>${game.phase==='activation'?`<div class="resource-bank"><b>Available</b>${resourceBadge('nursing',nursing)}${resourceBadge('medication',game.resources.medication)}${resourceBadge('surgery',game.resources.surgery)}</div>`:''}`;
   $('hospitalMap').innerHTML=Array.from({length:6},(_,slot)=>{const f=game.facilities.find(x=>x.slotIndex===slot);return f?facilityTile(f):buildPlot(slot)}).join('');
   $('staff').innerHTML=game.staff.map(staffCard).join('');
@@ -50,24 +51,35 @@ function facilityTile(f){
 function bed(f,p,i){
   if(!p){const target=selectedAdmission&&FACILITIES[f.key].kind==='ward';return target?`<button class="bed empty admission-target" data-action="admit" data-id="${selectedAdmission}" data-target="${f.id}"><div class="pillow"></div><span>Admit to bed ${i+1}</span></button>`:`<div class="bed empty"><div class="pillow"></div><span>Bed ${i+1}</span></div>`}
   const needs=p.revealed?Object.entries(p.needs).filter(([,n])=>n).flatMap(([k,n])=>Array.from({length:n},(_,x)=>`<span class="need ${k} ${x<(p.completed[k]||0)?'done':''}" title="${names[k]}${x<(p.completed[k]||0)?' completed':''}">${treatmentIcons[k]}</span>`)).join(''):'<span class="need unknown" title="Needs hidden">?</span>';
+  if(selectedAbility&&canTargetPatient(selectedAbility,p,f)){
+    const member=game.staff.find(s=>s.id===selectedAbility),role=STAFF[member.key].role;
+    return `<button class="bed occupied ability-target" data-action="useStaffAbility" data-staff="${member.id}" data-id="${p.id}"><div class="pillow"></div><div class="patient-token">${p.portrait}</div><div class="bed-needs">${needs}</div><span class="target-label">${role==='doctor'?'Investigate':'Give care'}</span></button>`;
+  }
   let actions=game.phase!=='activation'?'<small>Available during staff actions</small>':!p.revealed?`<button data-action="investigate" data-id="${p.id}">Investigate</button>`:Object.keys(names).filter(k=>(p.completed[k]||0)<p.needs[k]).map(k=>`<button class="treatment-button ${k}" data-action="treat" data-type="${k}" data-id="${p.id}">${treatmentIcons[k]}<span>${names[k]}</span></button>`).join('');
   if(game.phase==='activation'&&f.key==='ed')actions+=`<button data-action="startAdmission" data-id="${p.id}" ${hasVacantWard()?'':'disabled'}>Admit to ward</button>`;
-  return `<div class="bed occupied"><div class="pillow"></div><div class="patient-token">${p.portrait}</div><div class="patient-popover"><strong>Patient ${p.portrait}</strong><small>${p.revealed?`$${p.reward} &middot; +${p.reputation} rep`:'Needs hidden'}</small><div class="needs">${needs}</div><div class="patient-actions">${actions}</div></div></div>`;
+  return `<div class="bed occupied ${p.revealed?'revealed':''}"><div class="pillow"></div><div class="patient-token">${p.portrait}</div>${p.revealed?`<div class="bed-needs">${needs}</div>`:''}<div class="patient-popover"><strong>Patient ${p.portrait}</strong><small>${p.revealed?`$${p.reward} &middot; +${p.reputation} rep`:'Needs hidden'}</small><div class="needs">${needs}</div><div class="patient-actions">${actions}</div></div></div>`;
 }
 
-function staffCard(s){const d=STAFF[s.key],f=getFacility(game,s.facilityId),assignment=game.phase==='assignment';return `<article class="staff-card ${selectedStaff===s.id?'selected':''} ${s.used?'used':''}"><div class="staff-portrait">${d.monogram}</div><strong>${d.name}</strong><small>${f?FACILITIES[f.key].name:'Available staff'}</small><p>${d.effect}</p><button data-action="selectStaff" data-staff="${s.id}" ${assignment?'':'disabled'}>${assignment?(selectedStaff===s.id?'Selected':'Move / assign'):'Assignment closed'}</button>${assignment&&f?`<button class="secondary" data-action="returnStaff" data-staff="${s.id}">Return to available</button>`:''}</article>`}
+function staffCard(s){
+  const d=STAFF[s.key],f=getFacility(game,s.facilityId),assignment=game.phase==='assignment';
+  let controls=assignment?`<button data-action="selectStaff" data-staff="${s.id}">${selectedStaff===s.id?'Selected':'Move / assign'}</button>${f?`<button class="secondary" data-action="returnStaff" data-staff="${s.id}">Return to available</button>`:''}`:staffAbilityControl(s,f);
+  return `<article class="staff-card ${selectedStaff===s.id||selectedAbility===s.id?'selected':''} ${s.used?'used':''}"><div class="staff-portrait">${d.monogram}</div><strong>${d.name}</strong><small>${f?FACILITIES[f.key].name:'Available staff'}</small><p>${d.effect}</p>${controls}</article>`
+}
 function marketCard(m){const d=m.kind==='staff'?STAFF[m.key]:FACILITIES[m.key],noPlot=m.kind==='facility'&&!hasFreePlot(),open=game.phase==='purchasing';return `<article class="market-card"><span class="market-icon">${d.monogram||d.short}</span><strong>${d.name}</strong><small>${d.effect}</small><button data-action="buy" data-kind="${m.kind}" data-key="${m.key}" ${!open||game.money<d.cost||noPlot||selectedFacility?'disabled':''}>${open?'Buy':'Purchasing closed'} &middot; $${d.cost}</button></article>`}
 
 function bind(){document.querySelectorAll('[data-action]').forEach(b=>b.onclick=e=>{e.stopPropagation();const x=b.dataset,a=x.action;let ok=true;
   if(a==='selectStaff'){selectedStaff=x.staff;selectedAdmission=null;render();return}
   if(a==='startAdmission'){selectedAdmission=x.id;selectedStaff=null;render();return}
   if(a==='cancelMode'){selectedAdmission=null;render();return}
+  if(a==='startStaffAbility'){selectedAbility=x.staff;selectedStaff=selectedAdmission=null;render();return}
+  if(a==='cancelAbility'){selectedAbility=null;render();return}
   if(a==='cancelFacility'){const f=getFacility(game,selectedFacility);if(f&&f.slotIndex===null){game.money+=FACILITIES[f.key].cost;game.facilities.splice(game.facilities.indexOf(f),1)}selectedFacility=null;render();return}
   if(a==='assign'){ok=assignStaff(game,x.staff,x.facility);if(ok)selectedStaff=null}
   else if(a==='returnStaff'){ok=returnStaff(game,x.staff);if(ok&&selectedStaff===x.staff)selectedStaff=null}
   else if(a==='placeFacility'){ok=placeFacility(game,x.facility,x.slot);if(ok)selectedFacility=null}
   else if(a==='investigate')ok=investigate(game,x.id);
   else if(a==='treat')ok=treat(game,x.id,x.type);
+  else if(a==='useStaffAbility'){const member=game.staff.find(s=>s.id===x.staff),role=STAFF[member?.key]?.role;ok=role==='doctor'?investigate(game,x.id):role==='nurse'?treat(game,x.id,'nursing'):false;if(ok)selectedAbility=null}
   else if(a==='admit'){ok=admit(game,x.id,x.target);if(ok)selectedAdmission=null}
   else if(a==='buy'){ok=buy(game,x.kind,x.key);if(ok&&x.kind==='facility')selectedFacility=game.facilities.find(f=>f.slotIndex===null)?.id||null}
   if(!ok)toast('That action is not available during this stage, or its requirements are not met.');render();})}
@@ -76,10 +88,27 @@ function hasVacantWard(){return game.facilities.some(f=>f.slotIndex!==null&&FACI
 function hasFreePlot(){return game.facilities.filter(f=>f.slotIndex!==null).length<6}
 function patientPortrait(id){for(const f of game.facilities){const p=f.patients.find(x=>x.id===id);if(p)return p.portrait}return '?'}
 function resourceBadge(type,value){return `<span class="resource ${type}">${treatmentIcons[type]}<span>${names[type]} ${value}</span></span>`}
+function canTargetPatient(staffId,p,f){
+  const member=game.staff.find(s=>s.id===staffId);if(game.phase!=='activation'||!member||member.facilityId!==f.id)return false;
+  const role=STAFF[member.key].role;
+  if(role==='doctor')return !member.used&&!p.revealed;
+  if(role==='nurse')return p.revealed&&f.nursing>0&&(p.completed.nursing||0)<p.needs.nursing&&p.nursingRound!==game.round;
+  return false
+}
+function staffAbilityControl(s,f){
+  if(game.phase!=='activation')return '<button disabled>Available next round</button>';
+  const role=STAFF[s.key].role;
+  if(!f)return '<button disabled>Assign to a facility next round</button>';
+  if(role==='doctor'){const available=!s.used&&f.patients.some(p=>!p.revealed);return `<button data-action="startStaffAbility" data-staff="${s.id}" ${available?'':'disabled'}>${s.used?'Ability used':available?'Investigate patient':'No hidden patients here'}</button>`}
+  if(role==='nurse'){const available=f.nursing>0&&f.patients.some(p=>p.revealed&&(p.completed.nursing||0)<p.needs.nursing&&p.nursingRound!==game.round);return `<button data-action="startStaffAbility" data-staff="${s.id}" ${available?'':'disabled'}>${available?`Allocate Nursing (${f.nursing} left)`:'No eligible patients'}</button>`}
+  if(role==='pharmacist')return `<button disabled>Generated ${f.key==='pharmacy'?2:1} Medication</button>`;
+  if(role==='surgeon')return `<button disabled>${f.key==='theatre'?'Generated 1 Surgery':'Requires Operating Theatre'}</button>`;
+  return '<button disabled>Ability resolved</button>'
+}
 function stat(k,v){return `<span class="stat">${k} ${v}</span>`}
 function toast(t){$('toast').textContent=t;$('toast').classList.add('show');setTimeout(()=>$('toast').classList.remove('show'),1700)}
 
-$('endTurn').onclick=()=>{if(!advancePhase(game))toast('Place every purchased facility before starting the next round.');selectedStaff=selectedAdmission=selectedFacility=null;render()};
-$('reset').onclick=()=>{game=createGame(Date.now()%1000);selectedStaff=selectedAdmission=selectedFacility=null;render()};
+$('endTurn').onclick=()=>{if(!advancePhase(game))toast('Place every purchased facility before starting the next round.');selectedStaff=selectedAdmission=selectedFacility=selectedAbility=null;render()};
+$('reset').onclick=()=>{game=createGame(Date.now()%1000);selectedStaff=selectedAdmission=selectedFacility=selectedAbility=null;render()};
 $('clearSelection').onclick=()=>{selectedStaff=null;render()};
 render();
