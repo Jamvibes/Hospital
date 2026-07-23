@@ -1,7 +1,7 @@
-import {PATIENTS, STAFF, FACILITIES} from './data.js?v=3';
+import {PATIENTS, STAFF, FACILITIES} from './data.js?v=4';
 const clone=value=>JSON.parse(JSON.stringify(value));
 
-export function createGame(seed=1){
+export function createGame(seed=null){
   const state={round:1,phase:'assignment',money:10,reputation:5,deck:shuffle(clone(PATIENTS),seed),discard:[],facilities:[],staff:[],resources:{medication:0,surgery:0},log:[],resolutionEvents:[],gameOver:false,nextId:1};
   const ed=addFacility(state,'ed',0); const ward=addFacility(state,'ward',1);
   addStaff(state,'doctor',ed.id); addStaff(state,'nurse',ward.id); addStaff(state,'pharmacist',ed.id);
@@ -57,4 +57,8 @@ function drawPatients(state,count){const ed=state.facilities.find(f=>f.key==='ed
 function resolvePatients(state){state.resolutionEvents=[];for(const f of state.facilities)for(const p of [...f.patients])discharge(state,p.id);deteriorate(state)}
 function canDischarge(f,p){const complete=Object.keys(p.needs).every(k=>(p.completed[k]||0)>=p.needs[k]);return p.revealed&&complete&&(!p.wardRequired||f.key!=='ed')}
 function deteriorate(state){for(const f of state.facilities)for(const p of [...f.patients]){const risk=resolutionRisk(p);if(risk.key==='death'){f.patients.splice(f.patients.indexOf(p),1);state.reputation=Math.max(0,state.reputation-2);state.resolutionEvents.push({type:'death',patientId:p.id,portrait:p.portrait,facilityId:f.id,unmet:risk.unmet,reputationLoss:2,hidden:!p.revealed});state.log.unshift(`Patient ${p.portrait} died with ${risk.unmet} unmet needs. -2 reputation.`)}else if(risk.key==='deteriorate'){const types=['nursing','medication','surgery'],type=types[Math.floor(Math.random()*types.length)];p.needs[type]++;state.resolutionEvents.push({type:'deteriorate',patientId:p.id,portrait:p.portrait,facilityId:f.id,unmet:risk.unmet,need:type,hidden:!p.revealed});state.log.unshift(p.revealed?`Patient ${p.portrait} deteriorated with ${risk.unmet} unmet needs and gained a ${label(type)} need.`:`Uninvestigated patient ${p.portrait} deteriorated and gained a hidden need.`)}}}
-function label(x){return x[0].toUpperCase()+x.slice(1)}function shuffle(a,seed){let x=seed;for(let i=a.length-1;i>0;i--){x=(x*9301+49297)%233280;const j=Math.floor(x/233280*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+function label(x){return x[0].toUpperCase()+x.slice(1)}
+function shuffle(a,seed){
+  if(seed===null||seed===undefined){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+  let x=Number(seed)||1;for(let i=a.length-1;i>0;i--){x=(x*9301+49297)%233280;const j=Math.floor(x/233280*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a
+}
