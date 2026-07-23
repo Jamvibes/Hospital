@@ -1,5 +1,5 @@
-import {createGame,investigate,treat,admit,buy,advancePhase,assignStaff,returnStaff,placeFacility,compatible,getFacility,previewResolution,patientRisk} from './engine.js?v=11';
-import {STAFF,FACILITIES,MARKET} from './data.js?v=3';
+import {createGame,investigate,treat,admit,buy,advancePhase,assignStaff,returnStaff,placeFacility,compatible,getFacility,previewResolution,patientRisk} from './engine.js?v=12';
+import {STAFF,FACILITIES,MARKET} from './data.js?v=4';
 
 let game=createGame(),selectedStaff=null,selectedAdmission=null,selectedFacility=null,selectedAbility=null,resolutionAnimating=false;
 const $=id=>document.getElementById(id),names={nursing:'Nursing',medication:'Medication',surgery:'Surgery'};
@@ -138,6 +138,6 @@ $('endTurn').onclick=async()=>{
   if(!advancePhase(game))toast('Place every purchased facility before starting the next round.');
   selectedStaff=selectedAdmission=selectedFacility=selectedAbility=null;render()
 };
-$('reset').onclick=()=>{game=createGame(Date.now()%1000);selectedStaff=selectedAdmission=selectedFacility=selectedAbility=null;render()};
+$('reset').onclick=()=>{game=createGame();selectedStaff=selectedAdmission=selectedFacility=selectedAbility=null;render()};
 $('clearSelection').onclick=()=>{selectedStaff=null;render()};
 render();
