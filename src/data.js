@@ -1,14 +1,14 @@
 export const PATIENTS = [
-  {id:'p1',portrait:'A',needs:{nursing:1,medication:1,surgery:0},wardRequired:false,reward:4,reputation:1,deterioratesAfter:3},
-  {id:'p2',portrait:'B',needs:{nursing:2,medication:0,surgery:0},wardRequired:true,reward:5,reputation:1,deterioratesAfter:2},
-  {id:'p3',portrait:'C',needs:{nursing:1,medication:1,surgery:1},wardRequired:true,reward:9,reputation:2,deterioratesAfter:2},
-  {id:'p4',portrait:'D',needs:{nursing:3,medication:0,surgery:0},wardRequired:true,reward:7,reputation:2,deterioratesAfter:3},
-  {id:'p5',portrait:'E',needs:{nursing:0,medication:2,surgery:0},wardRequired:false,reward:5,reputation:1,deterioratesAfter:2},
-  {id:'p6',portrait:'F',needs:{nursing:2,medication:1,surgery:0},wardRequired:true,reward:7,reputation:2,deterioratesAfter:2},
-  {id:'p7',portrait:'G',needs:{nursing:1,medication:0,surgery:1},wardRequired:true,reward:8,reputation:2,deterioratesAfter:2},
-  {id:'p8',portrait:'H',needs:{nursing:1,medication:2,surgery:0},wardRequired:true,reward:7,reputation:1,deterioratesAfter:3},
-  {id:'p9',portrait:'I',needs:{nursing:0,medication:1,surgery:0},wardRequired:false,reward:3,reputation:1,deterioratesAfter:3},
-  {id:'p10',portrait:'J',needs:{nursing:2,medication:1,surgery:1},wardRequired:true,reward:11,reputation:3,deterioratesAfter:2}
+  {id:'p1',portrait:'A',needs:{nursing:1,medication:1,surgery:0},wardRequired:false,deterioratesAfter:3},
+  {id:'p2',portrait:'B',needs:{nursing:2,medication:0,surgery:0},wardRequired:true,deterioratesAfter:2},
+  {id:'p3',portrait:'C',needs:{nursing:1,medication:1,surgery:1},wardRequired:true,deterioratesAfter:2},
+  {id:'p4',portrait:'D',needs:{nursing:3,medication:0,surgery:0},wardRequired:true,deterioratesAfter:3},
+  {id:'p5',portrait:'E',needs:{nursing:0,medication:2,surgery:0},wardRequired:false,deterioratesAfter:2},
+  {id:'p6',portrait:'F',needs:{nursing:2,medication:1,surgery:0},wardRequired:true,deterioratesAfter:2},
+  {id:'p7',portrait:'G',needs:{nursing:1,medication:0,surgery:1},wardRequired:true,deterioratesAfter:2},
+  {id:'p8',portrait:'H',needs:{nursing:1,medication:2,surgery:0},wardRequired:true,deterioratesAfter:3},
+  {id:'p9',portrait:'I',needs:{nursing:0,medication:1,surgery:0},wardRequired:false,deterioratesAfter:3},
+  {id:'p10',portrait:'J',needs:{nursing:2,medication:1,surgery:1},wardRequired:true,deterioratesAfter:2}
 ];
 
 export const STAFF = {
