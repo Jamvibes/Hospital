@@ -49,4 +49,5 @@
 .resolution-preview>b{font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:#c5d4d0}
 .resolution-preview>span{padding:4px 7px;border-radius:7px;background:#ffffff16;color:white;font-size:11px;font-weight:750}
 .resolution-preview>span strong{color:white}.resolution-preview .risk{background:#c68a2e55}.resolution-preview .danger{background:#b947475f}
+.resolution-preview .unknown-risk{background:#69787566}
 @media(max-width:900px){.activation-sidebar{justify-items:start}.resolution-preview{justify-content:flex-start}}
