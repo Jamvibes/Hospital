@@ -43,13 +43,14 @@ export const STAFF = {
 
 export const FACILITIES = {
   ed:{name:'Emergency Department',short:'ED',cost:0,kind:'clinical',beds:4,slots:['doctor','nurse','pharmacist'],colour:'blue',effect:'Investigate and partially treat patients before admission.'},
-  ward:{name:'General Ward',short:'GW',cost:8,kind:'ward',beds:2,slots:['nurse','doctor'],colour:'sage',effect:'Flexible inpatient beds. Patients can complete treatment here.'},
-  shortStay:{name:'Short Stay Ward',short:'SS',cost:9,kind:'ward',beds:2,slots:['nurse'],colour:'amber',effect:'Patients with one Nursing need receive +1 care when admitted.'},
+  ward:{name:'General Ward',short:'GW',cost:8,kind:'ward',beds:4,slots:['nurse','doctor'],colour:'sage',effect:'Four flexible inpatient beds with no special ability.'},
+  shortStay:{name:'Short Stay Ward',short:'SS',cost:9,kind:'ward',beds:2,slots:['nurse'],colour:'amber',effect:'On admission, patients with 3 or fewer unmet needs receive 1 Nursing Care.'},
+  icu:{name:'Intensive Care Unit',short:'ICU',cost:13,kind:'ward',beds:1,slots:['nurse','doctor'],colour:'rose',effect:'Prevents deterioration during resolution, but cannot prevent death at 7+ unmet needs.'},
   pharmacy:{name:'Pharmacy',short:'RX',cost:7,kind:'support',beds:0,slots:['pharmacist'],colour:'mint',effect:'A Pharmacist assigned here generates 2 Medication.'},
   theatre:{name:'Operating Theatre',short:'OT',cost:12,kind:'support',beds:0,slots:['surgeon'],colour:'rose',effect:'A Surgeon assigned here generates 1 Surgery.'}
 };
 
 export const MARKET = [
   {kind:'staff',key:'doctor'},{kind:'staff',key:'nurse'},{kind:'staff',key:'pharmacist'},{kind:'staff',key:'surgeon'},
-  {kind:'facility',key:'ward'},{kind:'facility',key:'shortStay'},{kind:'facility',key:'pharmacy'},{kind:'facility',key:'theatre'}
+  {kind:'facility',key:'ward'},{kind:'facility',key:'shortStay'},{kind:'facility',key:'icu'},{kind:'facility',key:'pharmacy'},{kind:'facility',key:'theatre'}
 ];
