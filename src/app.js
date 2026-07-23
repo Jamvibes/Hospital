@@ -3,6 +3,11 @@ import {STAFF,FACILITIES,MARKET} from './data.js?v=2';
 
 let game=createGame(),selectedStaff=null,selectedAdmission=null,selectedFacility=null;
 const $=id=>document.getElementById(id),names={nursing:'Nursing',medication:'Medication',surgery:'Surgery'};
+const treatmentIcons={
+  nursing:'<svg class="treatment-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20.2 4.8 13C1 9.2 3.7 4 8.1 4c1.7 0 3.1.8 3.9 2 1-1.2 2.3-2 4-2 4.4 0 7 5.2 3.2 9L12 20.2Z"/><path d="M12 8.2v6.3M8.9 11.35h6.2"/></svg>',
+  medication:'<svg class="treatment-icon" viewBox="0 0 24 24" aria-hidden="true"><g transform="rotate(-35 12 12)"><rect x="4" y="8" width="16" height="8" rx="4"/><path d="M12 8v8"/></g></svg>',
+  surgery:'<svg class="treatment-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m4 20 1.3-5L15 5.3l3.7 3.7-9.8 9.7L4 20Z"/><path d="m14 6.3 3.7 3.7M9 18.6l-3.6-3.5M17.2 4.2l2.6 2.6"/></svg>'
+};
 const phaseCopy={
   assignment:{name:'Staff assignment',help:'New patients have arrived. Move staff between compatible vacant facility slots, then activate the team.',button:'Activate staff'},
   activation:{name:'Staff actions',help:'Use staff abilities, investigate patients, allocate treatment, and admit patients to wards.',button:'Resolve patients'},
@@ -17,7 +22,7 @@ function render(){
   $('briefing').innerHTML=selectedAdmission
     ?`<div><strong>Choose a bed</strong><span>Vacant ward beds are highlighted for Patient ${patientPortrait(selectedAdmission)}.</span><button data-action="cancelMode">Cancel</button></div>`
     :selectedFacility?`<div><strong>Place ${FACILITIES[getFacility(game,selectedFacility).key].name}</strong><span>Choose any highlighted plot. Its grid position will support future adjacency effects.</span><button data-action="cancelFacility">Cancel purchase</button></div>`
-    :`<div><strong>${phase.name}</strong><span>${phase.help}</span></div>${game.phase==='activation'?`<div class="resource-bank"><b>Available</b><span class="resource nursing">Nursing ${nursing}</span><span class="resource medication">Medication ${game.resources.medication}</span><span class="resource surgery">Surgery ${game.resources.surgery}</span></div>`:''}`;
+    :`<div><strong>${phase.name}</strong><span>${phase.help}</span></div>${game.phase==='activation'?`<div class="resource-bank"><b>Available</b>${resourceBadge('nursing',nursing)}${resourceBadge('medication',game.resources.medication)}${resourceBadge('surgery',game.resources.surgery)}</div>`:''}`;
   $('hospitalMap').innerHTML=Array.from({length:6},(_,slot)=>{const f=game.facilities.find(x=>x.slotIndex===slot);return f?facilityTile(f):buildPlot(slot)}).join('');
   $('staff').innerHTML=game.staff.map(staffCard).join('');
   $('market').innerHTML=MARKET.map(marketCard).join('');
@@ -44,8 +49,8 @@ function facilityTile(f){
 
 function bed(f,p,i){
   if(!p){const target=selectedAdmission&&FACILITIES[f.key].kind==='ward';return target?`<button class="bed empty admission-target" data-action="admit" data-id="${selectedAdmission}" data-target="${f.id}"><div class="pillow"></div><span>Admit to bed ${i+1}</span></button>`:`<div class="bed empty"><div class="pillow"></div><span>Bed ${i+1}</span></div>`}
-  const needs=p.revealed?Object.entries(p.needs).filter(([,n])=>n).flatMap(([k,n])=>Array.from({length:n},(_,x)=>`<span class="need ${k} ${x<(p.completed[k]||0)?'done':''}">${names[k][0]}</span>`)).join(''):'<span class="need unknown">?</span>';
-  let actions=game.phase!=='activation'?'<small>Available during staff actions</small>':!p.revealed?`<button data-action="investigate" data-id="${p.id}">Investigate</button>`:Object.keys(names).filter(k=>(p.completed[k]||0)<p.needs[k]).map(k=>`<button data-action="treat" data-type="${k}" data-id="${p.id}">${names[k]}</button>`).join('');
+  const needs=p.revealed?Object.entries(p.needs).filter(([,n])=>n).flatMap(([k,n])=>Array.from({length:n},(_,x)=>`<span class="need ${k} ${x<(p.completed[k]||0)?'done':''}" title="${names[k]}${x<(p.completed[k]||0)?' completed':''}">${treatmentIcons[k]}</span>`)).join(''):'<span class="need unknown" title="Needs hidden">?</span>';
+  let actions=game.phase!=='activation'?'<small>Available during staff actions</small>':!p.revealed?`<button data-action="investigate" data-id="${p.id}">Investigate</button>`:Object.keys(names).filter(k=>(p.completed[k]||0)<p.needs[k]).map(k=>`<button class="treatment-button ${k}" data-action="treat" data-type="${k}" data-id="${p.id}">${treatmentIcons[k]}<span>${names[k]}</span></button>`).join('');
   if(game.phase==='activation'&&f.key==='ed')actions+=`<button data-action="startAdmission" data-id="${p.id}" ${hasVacantWard()?'':'disabled'}>Admit to ward</button>`;
   return `<div class="bed occupied"><div class="pillow"></div><div class="patient-token">${p.portrait}</div><div class="patient-popover"><strong>Patient ${p.portrait}</strong><small>${p.revealed?`$${p.reward} &middot; +${p.reputation} rep`:'Needs hidden'}</small><div class="needs">${needs}</div><div class="patient-actions">${actions}</div></div></div>`;
 }
@@ -70,6 +75,7 @@ function bind(){document.querySelectorAll('[data-action]').forEach(b=>b.onclick=
 function hasVacantWard(){return game.facilities.some(f=>f.slotIndex!==null&&FACILITIES[f.key].kind==='ward'&&f.patients.length<FACILITIES[f.key].beds)}
 function hasFreePlot(){return game.facilities.filter(f=>f.slotIndex!==null).length<6}
 function patientPortrait(id){for(const f of game.facilities){const p=f.patients.find(x=>x.id===id);if(p)return p.portrait}return '?'}
+function resourceBadge(type,value){return `<span class="resource ${type}">${treatmentIcons[type]}<span>${names[type]} ${value}</span></span>`}
 function stat(k,v){return `<span class="stat">${k} ${v}</span>`}
 function toast(t){$('toast').textContent=t;$('toast').classList.add('show');setTimeout(()=>$('toast').classList.remove('show'),1700)}
 
