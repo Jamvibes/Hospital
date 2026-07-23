@@ -1,4 +1,4 @@
-import {createGame,investigate,treat,admit,buy,advancePhase,assignStaff,returnStaff,placeFacility,compatible,getFacility,previewResolution} from './engine.js?v=7';
+import {createGame,investigate,treat,admit,buy,advancePhase,assignStaff,returnStaff,placeFacility,compatible,getFacility,previewResolution,patientRisk} from './engine.js?v=8';
 import {STAFF,FACILITIES,MARKET} from './data.js?v=3';
 
 let game=createGame(),selectedStaff=null,selectedAdmission=null,selectedFacility=null,selectedAbility=null;
@@ -51,13 +51,14 @@ function facilityTile(f){
 function bed(f,p,i){
   if(!p){const target=selectedAdmission&&FACILITIES[f.key].kind==='ward';return target?`<button class="bed empty admission-target" data-action="admit" data-id="${selectedAdmission}" data-target="${f.id}"><div class="pillow"></div><span>Admit to bed ${i+1}</span></button>`:`<div class="bed empty"><div class="pillow"></div><span>Bed ${i+1}</span></div>`}
   const needs=p.revealed?Object.entries(p.needs).filter(([,n])=>n).flatMap(([k,n])=>Array.from({length:n},(_,x)=>`<span class="need ${k} ${x<(p.completed[k]||0)?'done':''}" title="${names[k]}${x<(p.completed[k]||0)?' completed':''}">${treatmentIcons[k]}</span>`)).join(''):'<span class="need unknown" title="Needs hidden">?</span>';
+  const risk=patientRisk(p),riskBadge=p.revealed?`<span class="patient-risk ${risk.key}" title="${risk.unmet} unmet needs">${risk.unmet} unmet · ${risk.label}</span>`:'';
   if(selectedAbility&&canTargetPatient(selectedAbility,p,f)){
     const member=game.staff.find(s=>s.id===selectedAbility),role=STAFF[member.key].role;
     return `<button class="bed occupied ability-target" data-action="useStaffAbility" data-staff="${member.id}" data-id="${p.id}"><div class="pillow"></div><div class="patient-token">${p.portrait}</div><div class="bed-needs">${needs}</div><span class="target-label">${role==='doctor'?'Investigate':'Give care'}</span></button>`;
   }
   let actions=game.phase!=='activation'?'<small>Available during staff actions</small>':!p.revealed?`<button data-action="investigate" data-id="${p.id}">Investigate</button>`:Object.keys(names).filter(k=>(p.completed[k]||0)<p.needs[k]).map(k=>`<button class="treatment-button ${k}" data-action="treat" data-type="${k}" data-id="${p.id}">${treatmentIcons[k]}<span>${names[k]}</span></button>`).join('');
   if(game.phase==='activation'&&f.key==='ed')actions+=`<button data-action="startAdmission" data-id="${p.id}" ${hasVacantWard()?'':'disabled'}>Admit to ward</button>`;
-  return `<div class="bed occupied ${p.revealed?'revealed':''}"><div class="pillow"></div><div class="patient-token">${p.portrait}</div>${p.revealed?`<div class="bed-needs">${needs}</div>`:''}<div class="patient-popover"><strong>Patient ${p.portrait}</strong><small>${p.revealed?`$${p.reward} &middot; +${p.reputation} rep`:'Needs hidden'}</small><div class="needs">${needs}</div><div class="patient-actions">${actions}</div></div></div>`;
+  return `<div class="bed occupied ${p.revealed?'revealed':''}"><div class="pillow"></div><div class="patient-token">${p.portrait}</div>${riskBadge}${p.revealed?`<div class="bed-needs">${needs}</div>`:''}<div class="patient-popover"><strong>Patient ${p.portrait}</strong><small>${p.revealed?`${p.reward} &middot; +${p.reputation} rep`:'Needs hidden'}</small>${riskBadge}<div class="risk-rules">0–3 stable · 4–6 deteriorates · 7+ dies</div><div class="needs">${needs}</div><div class="patient-actions">${actions}</div></div></div>`;
 }
 
 function staffCard(s){
