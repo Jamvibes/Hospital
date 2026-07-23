@@ -1,5 +1,5 @@
-import {createGame,investigate,treat,admit,buy,advancePhase,assignStaff,returnStaff,placeFacility,compatible,getFacility,previewResolution,patientRisk} from './engine.js?v=13';
-import {STAFF,FACILITIES,MARKET} from './data.js?v=5';
+import {createGame,investigate,treat,admit,buy,advancePhase,assignStaff,returnStaff,placeFacility,compatible,getFacility,previewResolution,patientRisk} from './engine.js?v=14';
+import {STAFF,FACILITIES} from './data.js?v=5';
 
 let game=createGame(),selectedStaff=null,selectedAdmission=null,selectedFacility=null,selectedAbility=null,resolutionAnimating=false;
 const $=id=>document.getElementById(id),names={nursing:'Nursing',medication:'Medication',surgery:'Surgery'};
@@ -26,7 +26,7 @@ function render(){
     :`<div><strong>${phase.name}</strong><span>${phase.help}</span></div>${game.phase==='activation'?`<div class="activation-sidebar"><div class="resource-bank"><b>Available</b>${resourceBadge('nursing',nursing)}${resourceBadge('medication',game.resources.medication)}${resourceBadge('surgery',game.resources.surgery)}</div>${resolutionPreview(preview)}</div>`:''}`;
   $('hospitalMap').innerHTML=Array.from({length:6},(_,slot)=>{const f=game.facilities.find(x=>x.slotIndex===slot);return f?facilityTile(f):buildPlot(slot)}).join('');
   $('staff').innerHTML=game.staff.map(staffCard).join('');
-  $('market').innerHTML=MARKET.map(marketCard).join('');
+  $('market').innerHTML=game.market.length?game.market.map(marketCard).join(''):'<div class="market-empty">All of this round’s offers have been purchased.</div>';
   $('log').innerHTML=game.log.slice(0,9).map(x=>`<li>${x}</li>`).join('');
   $('endTurn').textContent=phase.button;
   $('endTurn').disabled=resolutionAnimating||game.gameOver||Boolean(mode)||(game.phase==='purchasing'&&game.facilities.some(f=>f.slotIndex===null));
