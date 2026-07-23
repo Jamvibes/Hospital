@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import {
-  createGame, investigate, treat, admit, buy, assignStaff, returnStaff,
+  createGame, addFacility, investigate, treat, admit, buy, assignStaff, returnStaff,
   placeFacility, advancePhase, compatible, calculateRewards, previewResolution,
   unmetNeeds, patientRisk
 } from '../src/engine.js';
@@ -29,6 +29,8 @@ assert.deepEqual(patientRisk(riskPatient),{key:'death',label:'Will die',unmet:7}
 const g=createGame(1);
 const ed=g.facilities.find(f=>f.key==='ed');
 const ward=g.facilities.find(f=>f.key==='ward');
+assert.equal(ward.patients.length,0);
+assert.equal((await import('../src/data.js')).FACILITIES.ward.beds,4);
 assert.equal(g.phase,'assignment');
 assert.equal(ed.patients.length,2);
 assert.equal(ward.nursing,0);
@@ -136,4 +138,52 @@ assert.equal(hiddenRiskPatient.revealed,false);
 assert.equal(hiddenGame.resolutionEvents.length,1);
 assert.equal(hiddenGame.resolutionEvents[0].type,'deteriorate');
 assert.equal(hiddenGame.resolutionEvents[0].hidden,true);
+
+const shortStayGame=createGame(20);
+const shortStayEd=shortStayGame.facilities.find(f=>f.key==='ed');
+const shortStay=addFacility(shortStayGame,'shortStay',2);
+const shortStayPatient=shortStayEd.patients[0];
+shortStayPatient.needs={nursing:1,medication:2,surgery:0};
+shortStayPatient.completed={nursing:0,medication:0,surgery:0};
+advancePhase(shortStayGame);
+assert.equal(admit(shortStayGame,shortStayPatient.id,shortStay.id),true);
+assert.equal(shortStayPatient.completed.nursing,1);
+
+const complexShortStayGame=createGame(21);
+const complexEd=complexShortStayGame.facilities.find(f=>f.key==='ed');
+const complexShortStay=addFacility(complexShortStayGame,'shortStay',2);
+const complexPatient=complexEd.patients[0];
+complexPatient.needs={nursing:1,medication:3,surgery:0};
+complexPatient.completed={nursing:0,medication:0,surgery:0};
+advancePhase(complexShortStayGame);
+assert.equal(admit(complexShortStayGame,complexPatient.id,complexShortStay.id),true);
+assert.equal(complexPatient.completed.nursing,0);
+
+const icuGame=createGame(22);
+const icuEd=icuGame.facilities.find(f=>f.key==='ed');
+const icu=addFacility(icuGame,'icu',2);
+const icuPatient=icuEd.patients[0];
+icuPatient.revealed=true;
+icuPatient.needs={nursing:2,medication:1,surgery:1};
+icuPatient.completed={nursing:0,medication:0,surgery:0};
+advancePhase(icuGame);
+assert.equal(admit(icuGame,icuPatient.id,icu.id),true);
+const icuNeedsBefore=unmetNeeds(icuPatient);
+assert.equal(previewResolution(icuGame).protected,1);
+advancePhase(icuGame);
+assert.equal(unmetNeeds(icuPatient),icuNeedsBefore);
+assert.equal(icuGame.resolutionEvents.some(event=>event.type==='protected'),true);
+
+const icuDeathGame=createGame(23);
+const icuDeathEd=icuDeathGame.facilities.find(f=>f.key==='ed');
+const deathIcu=addFacility(icuDeathGame,'icu',2);
+const icuDeathPatient=icuDeathEd.patients[0];
+icuDeathPatient.revealed=true;
+icuDeathPatient.needs={nursing:4,medication:2,surgery:1};
+icuDeathPatient.completed={nursing:0,medication:0,surgery:0};
+advancePhase(icuDeathGame);
+assert.equal(admit(icuDeathGame,icuDeathPatient.id,deathIcu.id),true);
+advancePhase(icuDeathGame);
+assert.equal(deathIcu.patients.includes(icuDeathPatient),false);
+assert.equal(icuDeathGame.resolutionEvents.some(event=>event.type==='death'),true);
 console.log('engine tests passed');
