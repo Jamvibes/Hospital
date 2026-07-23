@@ -1,5 +1,5 @@
-import {createGame,investigate,treat,admit,buy,advancePhase,assignStaff,returnStaff,placeFacility,compatible,getFacility} from './engine.js?v=6';
-import {STAFF,FACILITIES,MARKET} from './data.js?v=2';
+import {createGame,investigate,treat,admit,buy,advancePhase,assignStaff,returnStaff,placeFacility,compatible,getFacility,previewResolution} from './engine.js?v=7';
+import {STAFF,FACILITIES,MARKET} from './data.js?v=3';
 
 let game=createGame(),selectedStaff=null,selectedAdmission=null,selectedFacility=null,selectedAbility=null;
 const $=id=>document.getElementById(id),names={nursing:'Nursing',medication:'Medication',surgery:'Surgery'};
@@ -16,14 +16,14 @@ const phaseCopy={
 };
 
 function render(){
-  const nursing=game.facilities.reduce((n,f)=>n+f.nursing,0),mode=selectedAdmission?'admission':selectedFacility?'building':selectedAbility?'ability':null,phase=phaseCopy[game.phase];
+  const nursing=game.facilities.reduce((n,f)=>n+f.nursing,0),mode=selectedAdmission?'admission':selectedFacility?'building':selectedAbility?'ability':null,phase=phaseCopy[game.phase],preview=game.phase==='activation'&&previewResolution(game);
   $('stats').innerHTML=stat('Round',game.round)+stat('Stage',phase.name)+stat('Reputation',game.reputation)+stat('Money','$'+game.money);
   $('briefing').className=`briefing ${mode?`${mode}-mode`:''}`;
   $('briefing').innerHTML=selectedAdmission
     ?`<div><strong>Choose a bed</strong><span>Vacant ward beds are highlighted for Patient ${patientPortrait(selectedAdmission)}.</span><button data-action="cancelMode">Cancel</button></div>`
     :selectedFacility?`<div><strong>Place ${FACILITIES[getFacility(game,selectedFacility).key].name}</strong><span>Choose any highlighted plot. Its grid position will support future adjacency effects.</span><button data-action="cancelFacility">Cancel purchase</button></div>`
     :selectedAbility?`<div><strong>Use ${STAFF[game.staff.find(s=>s.id===selectedAbility).key].name}</strong><span>Choose one of the highlighted patients in this staff member’s assigned facility.</span><button data-action="cancelAbility">Cancel</button></div>`
-    :`<div><strong>${phase.name}</strong><span>${phase.help}</span></div>${game.phase==='activation'?`<div class="resource-bank"><b>Available</b>${resourceBadge('nursing',nursing)}${resourceBadge('medication',game.resources.medication)}${resourceBadge('surgery',game.resources.surgery)}</div>`:''}`;
+    :`<div><strong>${phase.name}</strong><span>${phase.help}</span></div>${game.phase==='activation'?`<div class="activation-sidebar"><div class="resource-bank"><b>Available</b>${resourceBadge('nursing',nursing)}${resourceBadge('medication',game.resources.medication)}${resourceBadge('surgery',game.resources.surgery)}</div>${resolutionPreview(preview)}</div>`:''}`;
   $('hospitalMap').innerHTML=Array.from({length:6},(_,slot)=>{const f=game.facilities.find(x=>x.slotIndex===slot);return f?facilityTile(f):buildPlot(slot)}).join('');
   $('staff').innerHTML=game.staff.map(staffCard).join('');
   $('market').innerHTML=MARKET.map(marketCard).join('');
@@ -88,6 +88,7 @@ function hasVacantWard(){return game.facilities.some(f=>f.slotIndex!==null&&FACI
 function hasFreePlot(){return game.facilities.filter(f=>f.slotIndex!==null).length<6}
 function patientPortrait(id){for(const f of game.facilities){const p=f.patients.find(x=>x.id===id);if(p)return p.portrait}return '?'}
 function resourceBadge(type,value){return `<span class="resource ${type}">${treatmentIcons[type]}<span>${names[type]} ${value}</span></span>`}
+function resolutionPreview(p){return `<div class="resolution-preview"><b>If resolved now</b><span>Discharge <strong>${p.ready}</strong></span><span>+$${p.money}</span><span>+${p.reputation} rep</span><span class="${p.worsening?'risk':''}">Worsen ${p.worsening}</span><span class="${p.deaths?'danger':''}">Deaths ${p.deaths}</span></div>`}
 function canTargetPatient(staffId,p,f){
   const member=game.staff.find(s=>s.id===staffId);if(game.phase!=='activation'||!member||member.facilityId!==f.id)return false;
   const role=STAFF[member.key].role;
