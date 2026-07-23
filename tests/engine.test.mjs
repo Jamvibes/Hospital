@@ -1,8 +1,11 @@
 import assert from 'node:assert/strict';
 import {
   createGame, investigate, treat, admit, buy, assignStaff, returnStaff,
-  placeFacility, advancePhase, compatible
+  placeFacility, advancePhase, compatible, calculateRewards, previewResolution
 } from '../src/engine.js';
+
+assert.deepEqual(calculateRewards({nursing:1,medication:2,surgery:1}),{value:3,reward:6,reputation:3});
+assert.deepEqual(calculateRewards({nursing:1,medication:1,surgery:1}),{value:2.5,reward:5,reputation:3});
 
 const g=createGame(1);
 const ed=g.facilities.find(f=>f.key==='ed');
@@ -64,9 +67,14 @@ completedPatient.wardRequired=false;
 completedPatient.completed={...completedPatient.needs};
 const moneyBefore=resolutionGame.money,reputationBefore=resolutionGame.reputation;
 advancePhase(resolutionGame);
+const resolutionPreview=previewResolution(resolutionGame);
+assert.equal(resolutionPreview.ready,1);
+assert.equal(resolutionPreview.money,completedPatient.reward);
+assert.equal(resolutionPreview.reputation,completedPatient.reputation);
 advancePhase(resolutionGame);
 assert.equal(resolutionGame.phase,'resolution');
 assert.equal(resolutionEd.patients.includes(completedPatient),false);
 assert.equal(resolutionGame.money,moneyBefore+completedPatient.reward);
 assert.equal(resolutionGame.reputation,reputationBefore+completedPatient.reputation);
+assert.deepEqual(completedPatient.baseNeeds,completedPatient.needs);
 console.log('engine tests passed');
