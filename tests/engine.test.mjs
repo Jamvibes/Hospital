@@ -15,6 +15,9 @@ for(const patient of PATIENTS){
 const seededOrder=seed=>{const game=createGame(seed),ed=game.facilities.find(f=>f.key==='ed');return [...ed.patients,...game.deck].map(p=>p.id)};
 assert.deepEqual(seededOrder(42),seededOrder(42));
 assert.notDeepEqual(seededOrder(42),seededOrder(43));
+const seededMarket=seed=>createGame(seed).market.map(card=>`${card.kind}:${card.key}`);
+assert.deepEqual(seededMarket(42),seededMarket(42));
+assert.notDeepEqual(seededMarket(42),seededMarket(43));
 
 assert.deepEqual(calculateRewards({nursing:1,medication:2,surgery:1}),{value:3,reward:6,reputation:3});
 assert.deepEqual(calculateRewards({nursing:1,medication:1,surgery:1}),{value:2.5,reward:5,reputation:3});
@@ -35,6 +38,19 @@ assert.equal(g.phase,'assignment');
 assert.equal(ed.patients.length,2);
 assert.equal(ward.nursing,0);
 assert.equal(g.resources.medication,0);
+assert.equal(g.market.filter(card=>card.kind==='staff').length,3);
+assert.equal(g.market.filter(card=>card.kind==='facility').length,3);
+assert.equal(new Set(g.market.map(card=>`${card.kind}:${card.key}`)).size,6);
+
+const marketGame=createGame(99);
+const firstOffers=marketGame.market.map(card=>`${card.kind}:${card.key}`);
+advancePhase(marketGame);
+advancePhase(marketGame);
+advancePhase(marketGame);
+advancePhase(marketGame);
+const secondOffers=marketGame.market.map(card=>`${card.kind}:${card.key}`);
+assert.equal(secondOffers.length,6);
+assert.notDeepEqual(secondOffers,firstOffers);
 
 const nurse=g.staff.find(s=>s.key==='nurse');
 assert.equal(compatible(g,nurse.id,ed.id),true);
@@ -66,7 +82,9 @@ assert.equal(g.phase,'resolution');
 assert.equal(advancePhase(g),true);
 assert.equal(g.phase,'purchasing');
 
+g.market=[{kind:'facility',key:'pharmacy'}];
 assert.equal(buy(g,'facility','pharmacy'),true);
+assert.equal(g.market.length,0);
 const pharmacy=g.facilities.find(f=>f.key==='pharmacy');
 assert.equal(pharmacy.slotIndex,null);
 assert.equal(placeFacility(g,pharmacy.id,4),true);
