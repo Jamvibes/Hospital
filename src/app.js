@@ -1,7 +1,7 @@
-import {createGame,investigate,treat,admit,buy,advancePhase,assignStaff,returnStaff,placeFacility,compatible,getFacility,previewResolution,patientRisk} from './engine.js?v=9';
+import {createGame,investigate,treat,admit,buy,advancePhase,assignStaff,returnStaff,placeFacility,compatible,getFacility,previewResolution,patientRisk} from './engine.js?v=10';
 import {STAFF,FACILITIES,MARKET} from './data.js?v=3';
 
-let game=createGame(),selectedStaff=null,selectedAdmission=null,selectedFacility=null,selectedAbility=null;
+let game=createGame(),selectedStaff=null,selectedAdmission=null,selectedFacility=null,selectedAbility=null,resolutionAnimating=false;
 const $=id=>document.getElementById(id),names={nursing:'Nursing',medication:'Medication',surgery:'Surgery'};
 const treatmentIcons={
   nursing:'<svg class="treatment-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20.2 4.8 13C1 9.2 3.7 4 8.1 4c1.7 0 3.1.8 3.9 2 1-1.2 2.3-2 4-2 4.4 0 7 5.2 3.2 9L12 20.2Z"/><path d="M12 8.2v6.3M8.9 11.35h6.2"/></svg>',
@@ -29,7 +29,7 @@ function render(){
   $('market').innerHTML=MARKET.map(marketCard).join('');
   $('log').innerHTML=game.log.slice(0,9).map(x=>`<li>${x}</li>`).join('');
   $('endTurn').textContent=phase.button;
-  $('endTurn').disabled=game.gameOver||Boolean(mode)||(game.phase==='purchasing'&&game.facilities.some(f=>f.slotIndex===null));
+  $('endTurn').disabled=resolutionAnimating||game.gameOver||Boolean(mode)||(game.phase==='purchasing'&&game.facilities.some(f=>f.slotIndex===null));
   bind();
 }
 
@@ -58,7 +58,7 @@ function bed(f,p,i){
   }
   let actions=game.phase!=='activation'?'<small>Available during staff actions</small>':!p.revealed?`<button data-action="investigate" data-id="${p.id}">Investigate</button>`:Object.keys(names).filter(k=>(p.completed[k]||0)<p.needs[k]).map(k=>`<button class="treatment-button ${k}" data-action="treat" data-type="${k}" data-id="${p.id}">${treatmentIcons[k]}<span>${names[k]}</span></button>`).join('');
   if(game.phase==='activation'&&f.key==='ed')actions+=`<button data-action="startAdmission" data-id="${p.id}" ${hasVacantWard()?'':'disabled'}>Admit to ward</button>`;
-  return `<div class="bed occupied ${p.revealed?'revealed':''}"><div class="pillow"></div><div class="patient-token">${p.portrait}</div>${riskBadge}${p.revealed?`<div class="bed-needs">${needs}</div>`:''}<div class="patient-popover"><strong>Patient ${p.portrait}</strong><small>${p.revealed?`${p.reward} &middot; +${p.reputation} rep`:'Needs hidden'}</small>${riskBadge}<div class="risk-rules">0–3 stable · 4–6 deteriorates · 7+ dies</div><div class="needs">${needs}</div><div class="patient-actions">${actions}</div></div></div>`;
+  return `<div class="bed occupied ${p.revealed?'revealed':''}" data-patient-id="${p.id}"><div class="pillow"></div><div class="patient-token">${p.portrait}</div>${riskBadge}${p.revealed?`<div class="bed-needs">${needs}</div>`:''}<div class="patient-popover"><strong>Patient ${p.portrait}</strong><small>${p.revealed?`${p.reward} &middot; +${p.reputation} rep`:'Needs hidden'}</small>${riskBadge}<div class="risk-rules">0–3 stable · 4–6 deteriorates · 7+ dies</div><div class="needs">${needs}</div><div class="patient-actions">${actions}</div></div></div>`;
 }
 
 function staffCard(s){
@@ -110,7 +110,34 @@ function staffAbilityControl(s,f){
 function stat(k,v){return `<span class="stat">${k} ${v}</span>`}
 function toast(t){$('toast').textContent=t;$('toast').classList.add('show');setTimeout(()=>$('toast').classList.remove('show'),1700)}
 
-$('endTurn').onclick=()=>{if(!advancePhase(game))toast('Place every purchased facility before starting the next round.');selectedStaff=selectedAdmission=selectedFacility=selectedAbility=null;render()};
+function capturePatientRects(){return Object.fromEntries([...document.querySelectorAll('[data-patient-id]')].map(el=>{const r=el.getBoundingClientRect();return [el.dataset.patientId,{left:r.left,top:r.top,width:r.width,height:r.height}]}))}
+const pause=ms=>new Promise(resolve=>setTimeout(resolve,ms));
+function resolutionBanner(text,tone){const el=document.createElement('div');el.className=`resolution-banner ${tone}`;el.textContent=text;document.body.appendChild(el);requestAnimationFrame(()=>el.classList.add('show'));setTimeout(()=>el.classList.remove('show'),620);setTimeout(()=>el.remove(),850)}
+function patientGhost(event,rect,tone,label){if(!rect)return;const el=document.createElement('div');el.className=`patient-ghost ${tone}`;Object.assign(el.style,{left:`${rect.left}px`,top:`${rect.top}px`,width:`${rect.width}px`,height:`${rect.height}px`});el.innerHTML=`<span>${event.portrait}</span><b>${label}</b>`;document.body.appendChild(el);requestAnimationFrame(()=>el.classList.add('animate'));setTimeout(()=>el.remove(),850)}
+function rewardFly(text,kind,rect){if(!rect)return;const el=document.createElement('span');el.className=`reward-fly ${kind}`;el.textContent=text;el.style.left=`${rect.left+rect.width/2}px`;el.style.top=`${rect.top}px`;document.body.appendChild(el);requestAnimationFrame(()=>el.classList.add('animate'));setTimeout(()=>el.remove(),900)}
+async function playResolutionEvents(events,rects){
+  document.body.classList.add('resolving');
+  if(!events.length){resolutionBanner('No patient outcomes this round','neutral');await pause(700)}
+  for(const event of events){
+    const rect=rects[event.patientId];
+    if(event.type==='discharge'){patientGhost(event,rect,'discharge','Discharged');rewardFly(`+${event.reward}`,'money',rect);if(rect)rewardFly(`+${event.reputation} rep`,'reputation',{...rect,top:rect.top+22});resolutionBanner(`Patient ${event.portrait} discharged`,'success')}
+    if(event.type==='deteriorate'){const bed=document.querySelector(`[data-patient-id="${event.patientId}"]`);bed?.classList.add('resolution-deteriorate');const need=event.hidden?'?':names[event.need];resolutionBanner(`Patient ${event.portrait} deteriorated · +${need}`,'warning');if(bed){const burst=document.createElement('span');burst.className=`need-burst ${event.hidden?'unknown':event.need}`;burst.innerHTML=event.hidden?'?':treatmentIcons[event.need];bed.appendChild(burst);setTimeout(()=>{burst.remove();bed.classList.remove('resolution-deteriorate')},850)}}
+    if(event.type==='death'){patientGhost(event,rect,'death','Patient lost');rewardFly(`-${event.reputationLoss} rep`,'loss',rect);resolutionBanner(`Patient ${event.portrait} died`,'danger')}
+    await pause(760);
+  }
+  document.body.classList.remove('resolving');
+}
+$('endTurn').onclick=async()=>{
+  if(resolutionAnimating)return;
+  if(game.phase==='activation'){
+    const rects=capturePatientRects();resolutionAnimating=true;
+    if(!advancePhase(game)){resolutionAnimating=false;return}
+    selectedStaff=selectedAdmission=selectedFacility=selectedAbility=null;render();
+    await playResolutionEvents(game.resolutionEvents,rects);resolutionAnimating=false;render();return
+  }
+  if(!advancePhase(game))toast('Place every purchased facility before starting the next round.');
+  selectedStaff=selectedAdmission=selectedFacility=selectedAbility=null;render()
+};
 $('reset').onclick=()=>{game=createGame(Date.now()%1000);selectedStaff=selectedAdmission=selectedFacility=selectedAbility=null;render()};
 $('clearSelection').onclick=()=>{selectedStaff=null;render()};
 render();
