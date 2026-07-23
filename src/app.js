@@ -1,4 +1,4 @@
-import {createGame,investigate,treat,admit,buy,advancePhase,assignStaff,returnStaff,placeFacility,compatible,getFacility,previewResolution,patientRisk} from './engine.js?v=10';
+import {createGame,investigate,treat,admit,buy,advancePhase,assignStaff,returnStaff,placeFacility,compatible,getFacility,previewResolution,patientRisk} from './engine.js?v=11';
 import {STAFF,FACILITIES,MARKET} from './data.js?v=3';
 
 let game=createGame(),selectedStaff=null,selectedAdmission=null,selectedFacility=null,selectedAbility=null,resolutionAnimating=false;
@@ -58,7 +58,7 @@ function bed(f,p,i){
   }
   let actions=game.phase!=='activation'?'<small>Available during staff actions</small>':!p.revealed?`<button data-action="investigate" data-id="${p.id}">Investigate</button>`:Object.keys(names).filter(k=>(p.completed[k]||0)<p.needs[k]).map(k=>`<button class="treatment-button ${k}" data-action="treat" data-type="${k}" data-id="${p.id}">${treatmentIcons[k]}<span>${names[k]}</span></button>`).join('');
   if(game.phase==='activation'&&f.key==='ed')actions+=`<button data-action="startAdmission" data-id="${p.id}" ${hasVacantWard()?'':'disabled'}>Admit to ward</button>`;
-  return `<div class="bed occupied ${p.revealed?'revealed':''}" data-patient-id="${p.id}"><div class="pillow"></div><div class="patient-token">${p.portrait}</div>${riskBadge}${p.revealed?`<div class="bed-needs">${needs}</div>`:''}<div class="patient-popover"><strong>Patient ${p.portrait}</strong><small>${p.revealed?`${p.reward} &middot; +${p.reputation} rep`:'Needs hidden'}</small>${riskBadge}<div class="risk-rules">0–3 stable · 4–6 deteriorates · 7+ dies</div><div class="needs">${needs}</div><div class="patient-actions">${actions}</div></div></div>`;
+  return `<div class="bed occupied ${p.revealed?'revealed':''}" data-patient-id="${p.id}"><div class="pillow"></div><div class="patient-token">${p.portrait}</div>${riskBadge}${p.revealed?`<div class="bed-needs">${needs}</div>`:''}<div class="patient-popover"><strong>Patient ${p.portrait}</strong><small>${p.revealed?`$${p.reward} &middot; +${p.reputation} rep`:'Needs hidden'}</small>${riskBadge}<div class="risk-rules">0–3 stable · 4–6 deteriorates · 7+ dies</div><div class="needs">${needs}</div><div class="patient-actions">${actions}</div></div></div>`;
 }
 
 function staffCard(s){
@@ -120,7 +120,7 @@ async function playResolutionEvents(events,rects){
   if(!events.length){resolutionBanner('No patient outcomes this round','neutral');await pause(700)}
   for(const event of events){
     const rect=rects[event.patientId];
-    if(event.type==='discharge'){patientGhost(event,rect,'discharge','Discharged');rewardFly(`+${event.reward}`,'money',rect);if(rect)rewardFly(`+${event.reputation} rep`,'reputation',{...rect,top:rect.top+22});resolutionBanner(`Patient ${event.portrait} discharged`,'success')}
+    if(event.type==='discharge'){patientGhost(event,rect,'discharge','Discharged');rewardFly(`+$${event.reward}`,'money',rect);if(rect)rewardFly(`+${event.reputation} rep`,'reputation',{...rect,top:rect.top+22});resolutionBanner(`Patient ${event.portrait} discharged`,'success')}
     if(event.type==='deteriorate'){const bed=document.querySelector(`[data-patient-id="${event.patientId}"]`);bed?.classList.add('resolution-deteriorate');const need=event.hidden?'?':names[event.need];resolutionBanner(`Patient ${event.portrait} deteriorated · +${need}`,'warning');if(bed){const burst=document.createElement('span');burst.className=`need-burst ${event.hidden?'unknown':event.need}`;burst.innerHTML=event.hidden?'?':treatmentIcons[event.need];bed.appendChild(burst);setTimeout(()=>{burst.remove();bed.classList.remove('resolution-deteriorate')},850)}}
     if(event.type==='death'){patientGhost(event,rect,'death','Patient lost');rewardFly(`-${event.reputationLoss} rep`,'loss',rect);resolutionBanner(`Patient ${event.portrait} died`,'danger')}
     await pause(760);
