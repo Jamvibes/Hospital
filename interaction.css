@@ -71,3 +71,4 @@ body.resolving button{pointer-events:none}
 @keyframes need-pop{0%{opacity:0;transform:translate(-50%,-50%) scale(.3)}35%{opacity:1;transform:translate(-50%,-65%) scale(1.15)}100%{opacity:0;transform:translate(-50%,-110%) scale(.8)}}
 @media(prefers-reduced-motion:reduce){.patient-ghost,.reward-fly,.resolution-banner{transition-duration:.01ms}.bed.resolution-deteriorate,.bed.resolution-protected,.need-burst{animation-duration:.01ms}}
 @media(max-width:900px){.activation-sidebar{justify-items:start}.resolution-preview{justify-content:flex-start}}
+.market-empty{grid-column:1/-1;padding:28px;border:1px dashed var(--line);border-radius:10px;text-align:center;color:var(--muted)}
