@@ -50,4 +50,22 @@
 .resolution-preview>span{padding:4px 7px;border-radius:7px;background:#ffffff16;color:white;font-size:11px;font-weight:750}
 .resolution-preview>span strong{color:white}.resolution-preview .risk{background:#c68a2e55}.resolution-preview .danger{background:#b947475f}
 .resolution-preview .unknown-risk{background:#69787566}
+
+/* Resolution choreography is independent of portrait and facility artwork. */
+body.resolving button{pointer-events:none}
+.resolution-banner{position:fixed;left:50%;top:86px;z-index:100;max-width:min(460px,85vw);padding:10px 18px;border-radius:999px;background:#34413f;color:white;font-weight:900;box-shadow:0 12px 35px #17282755;opacity:0;transform:translate(-50%,-12px) scale(.96);transition:.2s}
+.resolution-banner.show{opacity:1;transform:translate(-50%,0) scale(1)}
+.resolution-banner.success{background:#24705d}.resolution-banner.warning{background:#9a6922}.resolution-banner.danger{background:#8a3737}
+.patient-ghost{position:fixed;z-index:90;display:grid;place-items:center;border:2px solid #71817c;border-radius:8px;background:#f8f7f1;box-shadow:0 8px 25px #17282744;pointer-events:none;transition:opacity .7s,transform .7s,filter .7s}
+.patient-ghost>span{display:grid;place-items:center;width:28px;height:28px;border-radius:50%;background:var(--ink);color:white;font:700 14px Georgia,serif}.patient-ghost>b{font-size:9px;text-transform:uppercase;letter-spacing:.08em}
+.patient-ghost.discharge.animate{opacity:0;transform:translateY(-75px) scale(.72)}
+.patient-ghost.death.animate{opacity:0;transform:scale(.78);filter:grayscale(1)}
+.reward-fly{position:fixed;z-index:105;padding:3px 7px;border-radius:6px;background:white;font-weight:950;pointer-events:none;opacity:0;transform:translate(-50%,0);transition:opacity .2s,transform .8s}
+.reward-fly.animate{opacity:1;transform:translate(-50%,-72px)}.reward-fly.money{color:#87651d}.reward-fly.reputation{color:#28695a}.reward-fly.loss{color:#9b3333}
+.bed.resolution-deteriorate{z-index:40;animation:deterioration-shake .65s ease;background:#f5ddb5;box-shadow:0 0 0 6px #d28a2d44}
+.need-burst{position:absolute;z-index:45;left:50%;top:50%;display:grid;place-items:center;width:38px;height:38px;border:2px solid currentColor;border-radius:50%;background:white;transform:translate(-50%,-50%);animation:need-pop .8s ease forwards}
+.need-burst .treatment-icon{width:23px;height:23px}.need-burst.nursing{color:#765a0c}.need-burst.medication{color:#315b3d}.need-burst.surgery{color:#79372f}.need-burst.unknown{color:#5f6765;font-size:20px;font-weight:950}
+@keyframes deterioration-shake{20%,60%{transform:translateX(-5px)}40%,80%{transform:translateX(5px)}}
+@keyframes need-pop{0%{opacity:0;transform:translate(-50%,-50%) scale(.3)}35%{opacity:1;transform:translate(-50%,-65%) scale(1.15)}100%{opacity:0;transform:translate(-50%,-110%) scale(.8)}}
+@media(prefers-reduced-motion:reduce){.patient-ghost,.reward-fly,.resolution-banner{transition-duration:.01ms}.bed.resolution-deteriorate,.need-burst{animation-duration:.01ms}}
 @media(max-width:900px){.activation-sidebar{justify-items:start}.resolution-preview{justify-content:flex-start}}
