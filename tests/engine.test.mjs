@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import {
   createGame, addFacility, addStaff, investigate, treat, admit, buy, assignStaff, returnStaff,
   placeFacility, advancePhase, compatible, calculateRewards, previewResolution,
-  unmetNeeds, patientRisk, scheduleSurgery
+  unmetNeeds, patientRisk, scheduleSurgery, placePostoperativePatient
 } from '../src/engine.js';
 import {PATIENTS} from '../src/data.js';
 
@@ -140,13 +140,34 @@ advancePhase(surgeryGame);
 assert.equal(surgeryGame.phase,'scheduling');
 assert.equal(scheduleSurgery(surgeryGame,surgicalPatient.id,theatre.id),true);
 assert.equal(scheduleSurgery(surgeryGame,surgicalPatient.id,theatre.id),false);
-assert.equal(theatre.scheduledPatients.length,1);
-assert.equal(surgeryEd.patients.includes(surgicalPatient),true);
+assert.equal(theatre.patients.length,1);
+assert.equal(surgeryEd.patients.includes(surgicalPatient),false);
 advancePhase(surgeryGame);
 advancePhase(surgeryGame);
 assert.equal(surgicalPatient.completed.surgery,1);
-assert.equal(theatre.scheduledPatients.length,0);
+assert.equal(surgeryGame.phase,'postoperative');
+assert.equal(theatre.patients.length,1);
+const surgeryWard=surgeryGame.facilities.find(f=>f.key==='ward');
+assert.equal(placePostoperativePatient(surgeryGame,surgicalPatient.id,surgeryWard.id),true);
+assert.equal(theatre.patients.length,0);
+assert.equal(surgeryWard.patients.includes(surgicalPatient),true);
+assert.equal(surgeryGame.phase,'assignment');
 assert.equal(surgeon.facilityId,theatre.id);
+
+const noRecoveryBedGame=createGame(32);
+const noBedEd=noRecoveryBedGame.facilities.find(f=>f.key==='ed');
+const noBedWard=noRecoveryBedGame.facilities.find(f=>f.key==='ward');
+const noBedTheatre=noRecoveryBedGame.facilities.find(f=>f.key==='theatre');
+const noBedPatient=noBedEd.patients[0];
+noBedPatient.revealed=true;
+noBedPatient.needs={nursing:0,medication:0,surgery:1};
+noBedPatient.completed={nursing:0,medication:0,surgery:0};
+advancePhase(noRecoveryBedGame);
+advancePhase(noRecoveryBedGame);
+advancePhase(noRecoveryBedGame);
+noBedWard.patients=Array.from({length:4},(_,i)=>({id:`full-${i}`}));
+assert.equal(scheduleSurgery(noRecoveryBedGame,noBedPatient.id,noBedTheatre.id),false);
+assert.equal(noBedEd.patients.includes(noBedPatient),true);
 
 const deteriorationGame=createGame(5);
 const deteriorationPatient=deteriorationGame.facilities.find(f=>f.key==='ed').patients[0];
