@@ -32,8 +32,13 @@ assert.deepEqual(patientRisk(riskPatient),{key:'death',label:'Will die',unmet:7}
 const g=createGame(1);
 const ed=g.facilities.find(f=>f.key==='ed');
 const ward=g.facilities.find(f=>f.key==='ward');
+const startingTheatre=g.facilities.find(f=>f.key==='theatre');
 assert.equal(ward.patients.length,0);
 assert.equal((await import('../src/data.js')).FACILITIES.ward.beds,4);
+assert.equal((await import('../src/data.js')).FACILITIES.theatre.patientSpaces,1);
+assert.equal(startingTheatre.slotIndex,2);
+assert.equal(g.staff.filter(s=>s.key==='surgeon'&&s.facilityId===startingTheatre.id).length,1);
+assert.deepEqual(g.staff.map(s=>s.key),['doctor','nurse','pharmacist','surgeon']);
 assert.equal(g.phase,'assignment');
 assert.equal(ed.patients.length,2);
 assert.equal(ward.nursing,0);
@@ -122,8 +127,8 @@ assert.deepEqual(completedPatient.baseNeeds,completedPatient.needs);
 
 const surgeryGame=createGame(31);
 const surgeryEd=surgeryGame.facilities.find(f=>f.key==='ed');
-const theatre=addFacility(surgeryGame,'theatre',2);
-const surgeon=addStaff(surgeryGame,'surgeon',theatre.id);
+const theatre=surgeryGame.facilities.find(f=>f.key==='theatre');
+const surgeon=surgeryGame.staff.find(s=>s.key==='surgeon');
 const surgicalPatient=surgeryEd.patients[0];
 surgicalPatient.revealed=true;
 surgicalPatient.needs={nursing:0,medication:0,surgery:2};
