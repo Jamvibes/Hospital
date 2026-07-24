@@ -37,10 +37,6 @@
 .patient-risk.deteriorate{background:#f2d9a9;color:#724b0e}
 .patient-risk.death{background:#efd0d0;color:#862f2f}
 .patient-popover .patient-risk{position:static;display:block;width:max-content;margin-top:7px;padding:4px 7px;font-size:9px}
-.patient-category{position:absolute;z-index:4;top:3px;left:3px;padding:2px 5px;border-radius:5px;background:#dceae6;color:#235d56;font-size:8px;font-weight:900;line-height:1.2;text-transform:uppercase;letter-spacing:.04em}
-.patient-category.standard{background:#e6dfc4;color:#69551d}
-.patient-category.complex{background:#e6d4e8;color:#6a356f}
-.patient-popover .patient-category,.queue-patient .patient-category{position:static;display:block;width:max-content;margin:4px 0}
 .risk-rules{margin-top:5px;color:var(--muted);font-size:9px}
 .bed.ability-target{width:100%;margin:0;padding:0;color:var(--ink);border:3px solid #25a58f;outline:4px solid #6cd7c255;background:#fffdf7;animation:pulse-bed 1.3s ease-in-out infinite}
 .bed.ability-target:hover{background:#e1f4ee;transform:translateY(-2px)}
