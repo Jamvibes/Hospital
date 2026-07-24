@@ -1,4 +1,4 @@
-import {PATIENTS, STAFF, FACILITIES, MARKET} from './data.js?v=7';
+import {PATIENTS, STAFF, FACILITIES, MARKET} from './data.js?v=8';
 const clone=value=>JSON.parse(JSON.stringify(value));
 
 export function createGame(seed=null){
@@ -14,7 +14,17 @@ export function addStaff(state,key,facilityId=null){const member={id:`s${state.n
 export function getFacility(state,id){return state.facilities.find(f=>f.id===id)}
 export function facilityDefinition(f){return FACILITIES[f.key]}
 export function patientFacility(state,patientId){return state.facilities.find(f=>f.patients.some(p=>p.id===patientId))}
-export function calculateRewards(needs){const value=(needs.nursing||0)+(needs.medication||0)/2+(needs.surgery||0);return {value,reward:value*2,reputation:Math.ceil(value)}}
+export function patientCategory(needs){
+  const total=Object.values(needs).reduce((sum,count)=>sum+(count||0),0);
+  if(total<=2)return {key:'quick',label:'Quick',multiplier:1};
+  if(total<=4)return {key:'standard',label:'Standard',multiplier:1.5};
+  return {key:'complex',label:'Complex',multiplier:2};
+}
+export function calculateRewards(needs){
+  const value=(needs.nursing||0)+(needs.medication||0)/2+(needs.surgery||0);
+  const category=patientCategory(needs);
+  return {value,reward:Math.ceil(value*2*category.multiplier),reputation:Math.ceil(value*category.multiplier),category:category.key};
+}
 export function unmetNeeds(patient){return Object.keys(patient.needs).reduce((total,key)=>total+Math.max(0,(patient.needs[key]||0)-(patient.completed[key]||0)),0)}
 export function patientRisk(patient){
   if(!patient.revealed)return {key:'unknown',label:'Risk hidden',unmet:null};
