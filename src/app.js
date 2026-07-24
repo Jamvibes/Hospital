@@ -1,4 +1,4 @@
-import {createGame,investigate,treat,admit,buy,advancePhase,assignStaff,returnStaff,placeFacility,compatible,getFacility,previewResolution,patientRisk,scheduleSurgery,cancelSurgery,placePostoperativePatient,surgeryEligibility} from './engine.js?v=18';
+import {createGame,investigate,treat,admit,buy,advancePhase,assignStaff,returnStaff,placeFacility,compatible,getFacility,previewResolution,patientRisk,scheduleSurgery,cancelSurgery,placePostoperativePatient,surgeryEligibility} from './engine.js?v=19';
 import {STAFF,FACILITIES} from './data.js?v=7';
 
 let game=createGame(),selectedStaff=null,selectedAdmission=null,selectedFacility=null,selectedAbility=null,selectedSurgery=null,resolutionAnimating=false;
@@ -12,7 +12,7 @@ const phaseCopy={
   assignment:{name:'Staff assignment',help:'New patients have arrived. Move staff between compatible vacant facility slots, then activate the team.',button:'Activate staff'},
   activation:{name:'Staff actions',help:'Use staff abilities, investigate patients, allocate treatment, and admit patients to wards.',button:'Resolve patients'},
   resolution:{name:'Patient resolution',help:'Completed patients were discharged, rewards resolved, and remaining patients were checked for deterioration.',button:'Schedule surgery'},
-  scheduling:{name:'Surgery scheduling',help:'Choose revealed patients with unmet Surgery needs, then place them in vacant spaces in staffed Operating Theatres.',button:'Open purchasing'},
+  scheduling:{name:'Surgery scheduling',help:'Schedule Surgery. When this stage ends, waiting patients fill vacant Emergency spaces and each patient left in the queue costs 1 reputation.',button:'Resolve arrival queue'},
   postoperative:{name:'Postoperative placement',help:'Surgery is complete. Place every Theatre patient into a vacant ward bed before new patients arrive.',button:'Place Theatre patients'},
   purchasing:{name:'Purchasing',help:'Spend this round’s money on staff and facilities. New cards become available next round.',button:'Start next round'}
 };
@@ -20,7 +20,7 @@ const phaseCopy={
 function render(){
   if(game.phase==='postoperative'&&!selectedAdmission)selectedAdmission=postoperativePatients()[0]?.id||null;
   const nursing=game.facilities.reduce((n,f)=>n+f.nursing,0),mode=selectedAdmission?'admission':selectedFacility?'building':selectedAbility?'ability':selectedSurgery?'surgery':null,phase=phaseCopy[game.phase],preview=game.phase==='activation'&&previewResolution(game);
-  $('stats').innerHTML=stat('Round',game.round)+stat('Stage',phase.name)+stat('Reputation',game.reputation)+stat('Money','$'+game.money);
+  $('stats').innerHTML=stat('Round',game.round)+stat('Stage',phase.name)+stat('Queue',game.queue.length)+stat('Reputation',game.reputation)+stat('Money','$'+game.money);
   $('briefing').className=`briefing ${mode?`${mode}-mode`:''}`;
   $('briefing').innerHTML=selectedAdmission
     ?`<div><strong>${game.phase==='postoperative'?'Postoperative placement':'Choose a ward bed'}</strong><span>Vacant ward beds are highlighted for Patient ${patientPortrait(selectedAdmission)}.${game.phase==='postoperative'?` ${postoperativePatients().length} patient${postoperativePatients().length===1?'':'s'} remaining.`:''}</span>${game.phase==='postoperative'?'':'<button data-action="cancelMode">Cancel</button>'}</div>`
@@ -29,6 +29,7 @@ function render(){
     :selectedSurgery?`<div><strong>Choose an Operating Theatre</strong><span>Vacant spaces in staffed Theatres are highlighted for Patient ${patientPortrait(selectedSurgery)}. Their previous space will become vacant.</span><button data-action="cancelSurgerySelection">Cancel</button></div>`
     :`<div><strong>${phase.name}</strong><span>${phase.help}</span></div>${game.phase==='activation'?`<div class="activation-sidebar"><div class="resource-bank"><b>Available</b>${resourceBadge('nursing',nursing)}${resourceBadge('medication',game.resources.medication)}</div>${resolutionPreview(preview)}</div>`:''}`;
   $('hospitalMap').innerHTML=Array.from({length:6},(_,slot)=>{const f=game.facilities.find(x=>x.slotIndex===slot);return f?facilityTile(f):buildPlot(slot)}).join('');
+  $('arrivalQueue').innerHTML=game.queue.length?game.queue.map(queueCard).join(''):'<div class="queue-empty">No patients waiting</div>';
   $('staff').innerHTML=game.staff.map(staffCard).join('');
   $('market').innerHTML=game.market.length?game.market.map(marketCard).join(''):'<div class="market-empty">All of this round’s offers have been purchased.</div>';
   $('log').innerHTML=game.log.slice(0,9).map(x=>`<li>${x}</li>`).join('');
@@ -38,6 +39,7 @@ function render(){
 }
 
 function buildPlot(slot){return selectedFacility?`<button class="build-plot placement-target" data-action="placeFacility" data-facility="${selectedFacility}" data-slot="${slot}"><span>+</span><small>Build here</small></button>`:'<div class="build-plot"><span>+</span><small>Future facility</small></div>'}
+function queueCard(p){return `<div class="queue-patient"><div class="patient-token">${p.portrait}</div><div><strong>Waiting</strong><small>Needs hidden</small></div></div>`}
 
 function facilityTile(f){
   const d=FACILITIES[f.key],assigned=game.staff.filter(s=>s.facilityId===f.id);
@@ -102,7 +104,7 @@ function postoperativePatients(){return game.facilities.filter(f=>FACILITIES[f.k
 function isScheduled(patientId){return game.facilities.some(f=>FACILITIES[f.key].kind==='theatre'&&f.patients.some(x=>x.id===patientId))}
 function hasVacantStaffedTheatre(){return game.facilities.some(f=>FACILITIES[f.key].kind==='theatre'&&f.patients.length<(FACILITIES[f.key].patientSpaces||0)&&game.staff.some(s=>s.facilityId===f.id&&STAFF[s.key].role==='surgeon'))}
 function hasFreePlot(){return game.facilities.filter(f=>f.slotIndex!==null).length<6}
-function patientPortrait(id){for(const f of game.facilities){const p=f.patients.find(x=>x.id===id);if(p)return p.portrait}return '?'}
+function patientPortrait(id){for(const f of game.facilities){const p=f.patients.find(x=>x.id===id);if(p)return p.portrait}return game.queue.find(p=>p.id===id)?.portrait||'?'}
 function resourceBadge(type,value){return `<span class="resource ${type}">${treatmentIcons[type]}<span>${names[type]} ${value}</span></span>`}
 function resolutionPreview(p){return `<div class="resolution-preview"><b>If resolved now</b><span>Discharge <strong>${p.ready}</strong></span><span>+$${p.money}</span><span>+${p.reputation} rep</span><span class="${p.worsening?'risk':''}">Worsen ${p.worsening}</span>${p.protected?`<span class="protected">ICU protects ${p.protected}</span>`:''}<span class="${p.deaths?'danger':''}">Deaths ${p.deaths}</span>${p.hiddenAtRisk?`<span class="unknown-risk">${p.hiddenAtRisk} hidden patient${p.hiddenAtRisk===1?'':'s'} at unknown risk</span>`:''}</div>`}
 function canTargetPatient(staffId,p,f){
