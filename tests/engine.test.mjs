@@ -170,6 +170,22 @@ assert.equal(scheduleSurgery(noRecoveryBedGame,noBedPatient.id,noBedTheatre.id),
 assert.equal(surgeryEligibility(noRecoveryBedGame,noBedPatient.id,noBedTheatre.id).reason,'A vacant postoperative ward bed must be guaranteed before this patient can enter Theatre.');
 assert.equal(noBedEd.patients.includes(noBedPatient),true);
 
+const queueGame=createGame(33);
+advancePhase(queueGame);
+advancePhase(queueGame);
+advancePhase(queueGame);
+assert.equal(queueGame.phase,'scheduling');
+const queueEd=queueGame.facilities.find(f=>f.key==='ed');
+while(queueEd.patients.length<3)queueEd.patients.push({id:`ed-fill-${queueEd.patients.length}`,portrait:'ED'});
+queueGame.queue.push({id:'q1',portrait:'Q1'},{id:'q2',portrait:'Q2'});
+const queueReputation=queueGame.reputation;
+advancePhase(queueGame);
+assert.equal(queueGame.phase,'purchasing');
+assert.equal(queueEd.patients.some(p=>p.id==='q1'),true);
+assert.equal(queueGame.queue.length,1);
+assert.equal(queueGame.queue[0].id,'q2');
+assert.equal(queueGame.reputation,queueReputation-1);
+
 const deteriorationGame=createGame(5);
 const deteriorationPatient=deteriorationGame.facilities.find(f=>f.key==='ed').patients[0];
 deteriorationPatient.revealed=true;
