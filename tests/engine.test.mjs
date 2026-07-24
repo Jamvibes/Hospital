@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import {
   createGame, addFacility, addStaff, investigate, treat, admit, buy, assignStaff, returnStaff,
-  placeFacility, advancePhase, compatible, calculateRewards, previewResolution,
+  placeFacility, advancePhase, compatible, calculateRewards, patientCategory, previewResolution,
   unmetNeeds, patientRisk, scheduleSurgery, placePostoperativePatient, surgeryEligibility
 } from '../src/engine.js';
 import {PATIENTS} from '../src/data.js';
@@ -11,6 +11,8 @@ assert.equal(new Set(PATIENTS.map(p=>p.id)).size,PATIENTS.length);
 for(const patient of PATIENTS){
   const total=Object.values(patient.needs).reduce((sum,value)=>sum+value,0);
   assert.ok(total>=1&&total<=6,`${patient.id} must begin with 1–6 needs`);
+  const expected=total<=2?'quick':total<=4?'standard':'complex';
+  assert.equal(patientCategory(patient.needs).key,expected);
 }
 const seededOrder=seed=>{const game=createGame(seed),ed=game.facilities.find(f=>f.key==='ed');return [...ed.patients,...game.deck].map(p=>p.id)};
 assert.deepEqual(seededOrder(42),seededOrder(42));
@@ -19,8 +21,9 @@ const seededMarket=seed=>createGame(seed).market.map(card=>`${card.kind}:${card.
 assert.deepEqual(seededMarket(42),seededMarket(42));
 assert.notDeepEqual(seededMarket(42),seededMarket(43));
 
-assert.deepEqual(calculateRewards({nursing:1,medication:2,surgery:1}),{value:3,reward:6,reputation:3});
-assert.deepEqual(calculateRewards({nursing:1,medication:1,surgery:1}),{value:2.5,reward:5,reputation:3});
+assert.deepEqual(calculateRewards({nursing:1,medication:1,surgery:0}),{value:1.5,reward:3,reputation:2,category:'quick'});
+assert.deepEqual(calculateRewards({nursing:1,medication:2,surgery:1}),{value:3,reward:9,reputation:5,category:'standard'});
+assert.deepEqual(calculateRewards({nursing:3,medication:2,surgery:1}),{value:5,reward:20,reputation:10,category:'complex'});
 const riskPatient={revealed:true,needs:{nursing:4,medication:2,surgery:1},completed:{nursing:1,medication:1,surgery:0}};
 assert.equal(unmetNeeds(riskPatient),5);
 assert.deepEqual(patientRisk(riskPatient),{key:'deteriorate',label:'Will deteriorate',unmet:5});
