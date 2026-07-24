@@ -5,7 +5,7 @@ import {
   unmetNeeds, patientRisk, scheduleSurgery, placePostoperativePatient, surgeryEligibility,
   theatreCapacity, purchaseCost
 } from '../src/engine.js';
-import {PATIENTS, STAFF} from '../src/data.js';
+import {GAME_CONFIG, PATIENTS, STAFF} from '../src/data.js';
 
 assert.equal(PATIENTS.length,30);
 assert.equal(new Set(PATIENTS.map(p=>p.id)).size,PATIENTS.length);
@@ -35,6 +35,7 @@ assert.deepEqual(patientRisk(riskPatient),{key:'death',label:'Will die',unmet:7}
 
 const g=createGame(1);
 assert.equal(g.reputation,8);
+assert.equal(g.roundLimit,GAME_CONFIG.roundLimit);
 const ed=g.facilities.find(f=>f.key==='ed');
 const ward=g.facilities.find(f=>f.key==='ward');
 const startingTheatre=g.facilities.find(f=>f.key==='theatre');
@@ -51,6 +52,14 @@ assert.equal(g.resources.medication,0);
 assert.equal(g.market.filter(card=>card.kind==='staff').length,3);
 assert.equal(g.market.filter(card=>card.kind==='facility').length,3);
 assert.equal(new Set(g.market.map(card=>`${card.kind}:${card.key}`)).size,6);
+
+const shortCampaign=createGame(400,{roundLimit:1});
+shortCampaign.phase='purchasing';
+assert.equal(advancePhase(shortCampaign),true);
+assert.equal(shortCampaign.gameWon,true);
+assert.equal(shortCampaign.phase,'victory');
+assert.equal(shortCampaign.round,1);
+assert.equal(advancePhase(shortCampaign),false);
 for(const key of ['seniorDoctor','seniorNurse','nursingAssistant','theatreNurse','administrator'])assert.ok(STAFF[key]);
 
 const seniorDoctorGame=createGame(401);
