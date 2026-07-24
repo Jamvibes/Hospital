@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import {
   createGame, addFacility, addStaff, investigate, treat, admit, buy, assignStaff, returnStaff,
   placeFacility, advancePhase, compatible, calculateRewards, previewResolution,
-  unmetNeeds, patientRisk, scheduleSurgery, placePostoperativePatient
+  unmetNeeds, patientRisk, scheduleSurgery, placePostoperativePatient, surgeryEligibility
 } from '../src/engine.js';
 import {PATIENTS} from '../src/data.js';
 
@@ -167,6 +167,7 @@ advancePhase(noRecoveryBedGame);
 advancePhase(noRecoveryBedGame);
 noBedWard.patients=Array.from({length:4},(_,i)=>({id:`full-${i}`}));
 assert.equal(scheduleSurgery(noRecoveryBedGame,noBedPatient.id,noBedTheatre.id),false);
+assert.equal(surgeryEligibility(noRecoveryBedGame,noBedPatient.id,noBedTheatre.id).reason,'A vacant postoperative ward bed must be guaranteed before this patient can enter Theatre.');
 assert.equal(noBedEd.patients.includes(noBedPatient),true);
 
 const deteriorationGame=createGame(5);
