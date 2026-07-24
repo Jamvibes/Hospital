@@ -47,7 +47,7 @@ export const FACILITIES = {
   shortStay:{name:'Short Stay Ward',short:'SS',cost:9,kind:'ward',beds:2,slots:['nurse'],colour:'amber',effect:'On admission, patients with 3 or fewer unmet needs receive 1 Nursing Care.'},
   icu:{name:'Intensive Care Unit',short:'ICU',cost:13,kind:'ward',beds:1,slots:['nurse','doctor'],colour:'rose',effect:'Prevents deterioration during resolution, but cannot prevent death at 7+ unmet needs.'},
   pharmacy:{name:'Pharmacy',short:'RX',cost:7,kind:'support',beds:0,slots:['pharmacist'],colour:'mint',effect:'A Pharmacist assigned here generates 2 Medication.'},
-  theatre:{name:'Operating Theatre',short:'OT',cost:12,kind:'theatre',beds:0,patientSpaces:1,slots:['surgeon'],colour:'rose',effect:'Schedules 1 revealed patient with an unmet Surgery need. Surgery resolves next round if a Surgeon remains assigned.'}
+  theatre:{name:'Operating Theatre',short:'OT',cost:12,kind:'theatre',beds:0,patientSpaces:1,slots:['surgeon'],colour:'rose',effect:'Holds 1 surgical patient. Surgery resolves next round, followed by placement in a ward bed.'}
 };
 
 export const MARKET = [
