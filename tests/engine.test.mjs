@@ -33,6 +33,7 @@ riskPatient.completed={nursing:0,medication:0,surgery:0};
 assert.deepEqual(patientRisk(riskPatient),{key:'death',label:'Will die',unmet:7});
 
 const g=createGame(1);
+assert.equal(g.reputation,8);
 const ed=g.facilities.find(f=>f.key==='ed');
 const ward=g.facilities.find(f=>f.key==='ward');
 const startingTheatre=g.facilities.find(f=>f.key==='theatre');
@@ -180,12 +181,12 @@ advancePhase(queueGame);
 assert.equal(queueGame.phase,'scheduling');
 const queueEd=queueGame.facilities.find(f=>f.key==='ed');
 while(queueEd.patients.length<3)queueEd.patients.push({id:`ed-fill-${queueEd.patients.length}`,portrait:'ED'});
-queueGame.queue.push({id:'q1',portrait:'Q1'},{id:'q2',portrait:'Q2'});
+queueGame.queue.push({id:'q1',portrait:'Q1'},{id:'q2',portrait:'Q2'},{id:'q3',portrait:'Q3'});
 const queueReputation=queueGame.reputation;
 advancePhase(queueGame);
 assert.equal(queueGame.phase,'purchasing');
 assert.equal(queueEd.patients.some(p=>p.id==='q1'),true);
-assert.equal(queueGame.queue.length,1);
+assert.equal(queueGame.queue.length,2);
 assert.equal(queueGame.queue[0].id,'q2');
 assert.equal(queueGame.reputation,queueReputation-1);
 
