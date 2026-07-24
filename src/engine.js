@@ -4,8 +4,8 @@ const clone=value=>JSON.parse(JSON.stringify(value));
 export function createGame(seed=null){
   const resolvedSeed=seed===null||seed===undefined?Math.floor(Math.random()*233279)+1:Number(seed)||1;
   const state={round:1,phase:'assignment',money:10,reputation:5,deck:shuffle(clone(PATIENTS),resolvedSeed),discard:[],facilities:[],staff:[],market:[],resources:{medication:0},log:[],resolutionEvents:[],gameOver:false,nextId:1,rngState:resolvedSeed};
-  const ed=addFacility(state,'ed',0); const ward=addFacility(state,'ward',1);
-  addStaff(state,'doctor',ed.id); addStaff(state,'nurse',ward.id); addStaff(state,'pharmacist',ed.id);
+  const ed=addFacility(state,'ed',0); const ward=addFacility(state,'ward',1); const theatre=addFacility(state,'theatre',2);
+  addStaff(state,'doctor',ed.id); addStaff(state,'nurse',ward.id); addStaff(state,'pharmacist',ed.id); addStaff(state,'surgeon',theatre.id);
   drawPatients(state,2); refreshMarket(state); state.log.unshift('Round 1: two new patient cards entered Emergency. Assign staff, then activate them.'); return state;
 }
 
