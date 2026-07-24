@@ -3,10 +3,10 @@ const clone=value=>JSON.parse(JSON.stringify(value));
 
 export function createGame(seed=null){
   const resolvedSeed=seed===null||seed===undefined?Math.floor(Math.random()*233279)+1:Number(seed)||1;
-  const state={round:1,phase:'assignment',money:10,reputation:5,deck:shuffle(clone(PATIENTS),resolvedSeed),discard:[],facilities:[],staff:[],market:[],resources:{medication:0},log:[],resolutionEvents:[],gameOver:false,nextId:1,rngState:resolvedSeed};
+  const state={round:1,phase:'assignment',money:10,reputation:5,deck:shuffle(clone(PATIENTS),resolvedSeed),queue:[],discard:[],facilities:[],staff:[],market:[],resources:{medication:0},log:[],resolutionEvents:[],gameOver:false,nextId:1,rngState:resolvedSeed};
   const ed=addFacility(state,'ed',0); const ward=addFacility(state,'ward',1); const theatre=addFacility(state,'theatre',2);
   addStaff(state,'doctor',ed.id); addStaff(state,'nurse',ward.id); addStaff(state,'pharmacist',ed.id); addStaff(state,'surgeon',theatre.id);
-  drawPatients(state,2); refreshMarket(state); state.log.unshift('Round 1: two new patient cards entered Emergency. Assign staff, then activate them.'); return state;
+  drawPatients(state,2); refreshMarket(state); state.log.unshift('Round 1: two new patient cards arrived and entered Emergency. Assign staff, then activate them.'); return state;
 }
 
 export function addFacility(state,key,slotIndex=null){const facility={id:`f${state.nextId++}`,key,patients:[],nursing:0,slotIndex};state.facilities.push(facility);return facility}
@@ -50,7 +50,7 @@ export function advancePhase(state){
   if(state.phase==='assignment'){activateStaff(state);state.phase='activation';state.log.unshift('Staff activated. Use their abilities and allocate treatment.');return true}
   if(state.phase==='activation'){resolvePatients(state);state.phase='resolution';if(state.reputation<=0){state.gameOver=true;state.log.unshift('The hospital has lost public confidence.')}else state.log.unshift('Patient resolution complete. Review the outcomes.');return true}
   if(state.phase==='resolution'){state.phase='scheduling';state.log.unshift('Surgery scheduling opened. Assign eligible patients to staffed Theatre spaces.');return true}
-  if(state.phase==='scheduling'){state.phase='purchasing';state.log.unshift('Purchasing stage opened. Spend this round’s rewards.');return true}
+  if(state.phase==='scheduling'){resolveArrivalQueue(state);state.phase='purchasing';if(state.reputation<=0){state.gameOver=true;state.log.unshift('The hospital has lost public confidence.')}else state.log.unshift('Purchasing stage opened. Spend this round’s rewards.');return true}
   if(state.phase==='purchasing'){
     if(state.facilities.some(f=>f.slotIndex===null))return false;
     state.round++;resolveScheduledSurgeries(state);state.resources={medication:0};for(const f of state.facilities)f.nursing=0;
@@ -61,7 +61,9 @@ export function advancePhase(state){
   return false
 }
 
-function drawPatients(state,count){const ed=state.facilities.find(f=>f.key==='ed');for(let i=0;i<count;i++){if(!state.deck.length)break;if(ed.patients.length>=FACILITIES.ed.beds){state.reputation=Math.max(0,state.reputation-1);state.log.unshift('Emergency is full: an arriving patient was turned away. -1 reputation.');continue}const p=state.deck.shift(),baseNeeds=clone(p.needs),rewards=calculateRewards(baseNeeds);Object.assign(p,{baseNeeds,...rewards,revealed:false,completed:{nursing:0,medication:0,surgery:0}});ed.patients.push(p)}}
+function drawPatients(state,count){for(let i=0;i<count;i++){if(!state.deck.length)break;const p=state.deck.shift(),baseNeeds=clone(p.needs),rewards=calculateRewards(baseNeeds);Object.assign(p,{baseNeeds,...rewards,revealed:false,completed:{nursing:0,medication:0,surgery:0},queuedRound:state.round});state.queue.push(p)}fillEmergencyFromQueue(state)}
+function fillEmergencyFromQueue(state){const ed=state.facilities.find(f=>f.key==='ed');let admitted=0;while(state.queue.length&&ed.patients.length<FACILITIES.ed.beds){const patient=state.queue.shift();delete patient.queuedRound;ed.patients.push(patient);admitted++}if(admitted)state.log.unshift(`${admitted} patient${admitted===1?'':'s'} moved from the arrival queue into Emergency.`);return admitted}
+function resolveArrivalQueue(state){fillEmergencyFromQueue(state);const waiting=state.queue.length;if(waiting){state.reputation=Math.max(0,state.reputation-waiting);state.log.unshift(`${waiting} patient${waiting===1?' remains':'s remain'} in the arrival queue. -${waiting} reputation.`)}else state.log.unshift('The arrival queue is clear.')}
 function vacantWardBeds(state){return state.facilities.filter(f=>FACILITIES[f.key].kind==='ward').reduce((total,f)=>total+FACILITIES[f.key].beds-f.patients.length,0)}
 function theatrePatients(state){return state.facilities.filter(f=>FACILITIES[f.key].kind==='theatre').reduce((total,f)=>total+f.patients.length,0)}
 function resolveScheduledSurgeries(state){for(const theatre of state.facilities.filter(f=>FACILITIES[f.key].kind==='theatre')){const staffed=state.staff.some(s=>s.facilityId===theatre.id&&STAFF[s.key].role==='surgeon');for(const patient of theatre.patients){if(staffed&&(patient.completed.surgery||0)<patient.needs.surgery){patient.completed.surgery=(patient.completed.surgery||0)+1;patient.postoperative=true;state.log.unshift(`Patient ${patient.portrait} received Surgery in ${FACILITIES[theatre.key].name} and now requires a ward bed.`)}}}}
