@@ -79,3 +79,9 @@ body.resolving button{pointer-events:none}
 .theatre-space.surgery-target:hover{background:#f6d8d3;transform:translateY(-2px)}
 .briefing.surgery-mode{background:#783c37}.briefing.surgery-mode>div{display:flex;align-items:center;gap:12px}.briefing.surgery-mode button{background:white;color:#783c37}
 @keyframes pulse-surgery{50%{outline-color:#d98b8099;box-shadow:0 0 0 9px #b9574c18}}
+.arrival-area{display:flex;align-items:center;gap:14px;margin-bottom:14px;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:#f6f2e8}
+.arrival-area>div:first-child{display:grid;min-width:112px}.arrival-area strong{font-size:13px}
+.arrival-queue{display:flex;align-items:center;gap:8px;min-height:48px;overflow-x:auto}
+.queue-patient{display:flex;align-items:center;gap:7px;min-width:112px;padding:6px 8px;border:1px solid #a8aaa3;border-radius:8px;background:#fffdf7}
+.queue-patient .patient-token{position:static;flex:none}.queue-patient>div:last-child{display:grid}.queue-patient strong{font-size:10px;text-transform:uppercase}.queue-patient small{font-size:9px;color:var(--muted)}
+.queue-empty{color:var(--muted);font-size:11px;font-style:italic}
