@@ -2,7 +2,7 @@ import {createGame,investigate,treat,admit,buy,advancePhase,assignStaff,returnSt
 import {STAFF,FACILITIES} from './data.js?v=9';
 
 let game=createGame(),selectedStaff=null,selectedAdmission=null,selectedFacility=null,selectedAbility=null,selectedSurgery=null,resolutionAnimating=false;
-const $=id=>document.getElementById(id),names={nursing:'Nursing',medication:'Medication',surgery:'Surgery'};
+const $=id=>document.getElementById(id),names={nursing:'Nursing',medication:'Medication',surgery:'Surgery'},roleNames={doctor:'Doctor',nurse:'Nurse',pharmacist:'Pharmacist',surgeon:'Surgeon',theatreNurse:'Theatre Nurse',administrator:'Administrator'};
 const treatmentIcons={
   nursing:'<svg class="treatment-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20.2 4.8 13C1 9.2 3.7 4 8.1 4c1.7 0 3.1.8 3.9 2 1-1.2 2.3-2 4-2 4.4 0 7 5.2 3.2 9L12 20.2Z"/><path d="M12 8.2v6.3M8.9 11.35h6.2"/></svg>',
   medication:'<svg class="treatment-icon" viewBox="0 0 24 24" aria-hidden="true"><g transform="rotate(-35 12 12)"><rect x="4" y="8" width="16" height="8" rx="4"/><path d="M12 8v8"/></g></svg>',
@@ -50,7 +50,7 @@ function facilityTile(f){
     const s=assigned.find(x=>STAFF[x.key].role===role);
     if(s)return game.phase==='assignment'?`<button class="staff-slot filled selectable-staff" data-action="selectStaff" data-staff="${s.id}" title="Select ${STAFF[s.key].name}"><span>${STAFF[s.key].monogram}</span><small>${STAFF[s.key].name}</small></button>`:`<div class="staff-slot filled"><span>${STAFF[s.key].monogram}</span><small>${STAFF[s.key].name}</small></div>`;
     if(selectedStaff&&role===selectedRole&&compatible(game,selectedStaff,f.id))return `<button class="staff-slot assignment-target" data-action="assign" data-staff="${selectedStaff}" data-facility="${f.id}" title="Move ${STAFF[selectedMember.key].name} here"><span>+</span><small>Move here</small></button>`;
-    return `<div class="staff-slot"><span>${role.toUpperCase()}</span><small>${role} slot</small></div>`;
+    return `<div class="staff-slot"><span>${(roleNames[role]||role).split(' ').map(x=>x[0]).join('')}</span><small>${roleNames[role]||role} slot</small></div>`;
   }).join('');
   return `<article class="facility ${d.colour}" data-facility="${f.id}" data-map-slot="${f.slotIndex}"><header><div><span class="room-code">${d.short}</span><h3>${d.name}</h3></div><span class="occupancy">${d.beds?`${f.patients.length}/${d.beds} beds`:d.kind==='theatre'?`${f.patients.length}/${capacity} occupied`:`plot ${f.slotIndex+1}`}</span></header><div class="room-art"><div class="floor-lines"></div><div class="beds">${beds}</div><div class="station"><div class="desk"></div><small>${d.kind==='ward'?'Nurse station':d.kind==='clinical'?'Assessment desk':d.kind==='theatre'?'Theatre team':'Work area'}</small></div></div><div class="room-footer"><div class="slots">${slots}</div><div class="room-actions"><small>${d.effect}</small></div></div></article>`;
 }
