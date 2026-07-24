@@ -72,3 +72,10 @@ body.resolving button{pointer-events:none}
 @media(prefers-reduced-motion:reduce){.patient-ghost,.reward-fly,.resolution-banner{transition-duration:.01ms}.bed.resolution-deteriorate,.bed.resolution-protected,.need-burst{animation-duration:.01ms}}
 @media(max-width:900px){.activation-sidebar{justify-items:start}.resolution-preview{justify-content:flex-start}}
 .market-empty{grid-column:1/-1;padding:28px;border:1px dashed var(--line);border-radius:10px;text-align:center;color:var(--muted)}
+.theatre-space{position:relative;display:grid;place-items:center;align-content:center;gap:4px;min-height:72px;border:2px solid #a97872;border-radius:8px;background:#f7e4e1;color:#713e38;font-size:9px;font-weight:850;text-transform:uppercase}
+.theatre-space.occupied{background:#efd1cc}.theatre-space .patient-token{position:static}
+.theatre-space button{margin:0;padding:3px 6px;font-size:8px}
+.theatre-space.surgery-target{width:100%;margin:0;border:3px solid #b9574c;outline:4px solid #d98b8055;background:#fff5f2;color:#79372f;animation:pulse-surgery 1.3s ease-in-out infinite}
+.theatre-space.surgery-target:hover{background:#f6d8d3;transform:translateY(-2px)}
+.briefing.surgery-mode{background:#783c37}.briefing.surgery-mode>div{display:flex;align-items:center;gap:12px}.briefing.surgery-mode button{background:white;color:#783c37}
+@keyframes pulse-surgery{50%{outline-color:#d98b8099;box-shadow:0 0 0 9px #b9574c18}}
