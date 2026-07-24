@@ -1,3 +1,7 @@
+export const GAME_CONFIG = {
+  roundLimit: 12
+};
+
 export const PATIENTS = [
   // Quick patients: 1–2 initial needs.
   {id:'p01',portrait:'A',needs:{nursing:0,medication:1,surgery:0},wardRequired:false},
