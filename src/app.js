@@ -1,4 +1,4 @@
-import {createGame,investigate,treat,admit,buy,advancePhase,assignStaff,returnStaff,placeFacility,compatible,getFacility,previewResolution,patientRisk,scheduleSurgery,cancelSurgery,placePostoperativePatient,surgeryEligibility} from './engine.js?v=20';
+import {createGame,investigate,treat,admit,buy,advancePhase,assignStaff,returnStaff,placeFacility,compatible,getFacility,previewResolution,patientRisk,scheduleSurgery,cancelSurgery,placePostoperativePatient,surgeryEligibility} from './engine.js?v=21';
 import {STAFF,FACILITIES} from './data.js?v=7';
 
 let game=createGame(),selectedStaff=null,selectedAdmission=null,selectedFacility=null,selectedAbility=null,selectedSurgery=null,resolutionAnimating=false;
@@ -12,7 +12,7 @@ const phaseCopy={
   assignment:{name:'Staff assignment',help:'New patients have arrived. Move staff between compatible vacant facility slots, then activate the team.',button:'Activate staff'},
   activation:{name:'Staff actions',help:'Use staff abilities, investigate patients, allocate treatment, and admit patients to wards.',button:'Resolve patients'},
   resolution:{name:'Patient resolution',help:'Completed patients were discharged, rewards resolved, and remaining patients were checked for deterioration.',button:'Schedule surgery'},
-  scheduling:{name:'Surgery scheduling',help:'Schedule Surgery. When this stage ends, waiting patients fill vacant Emergency spaces and each patient left in the queue costs 1 reputation.',button:'Resolve arrival queue'},
+  scheduling:{name:'Surgery scheduling',help:'Schedule Surgery. When this stage ends, waiting patients fill vacant Emergency spaces. Lose 1 reputation for every 2 patients still queued, rounded up.',button:'Resolve arrival queue'},
   postoperative:{name:'Postoperative placement',help:'Surgery is complete. Place every Theatre patient into a vacant ward bed before new patients arrive.',button:'Place Theatre patients'},
   purchasing:{name:'Purchasing',help:'Spend this round’s money on staff and facilities. New cards become available next round.',button:'Start next round'}
 };
