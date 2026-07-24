@@ -2,9 +2,10 @@ import assert from 'node:assert/strict';
 import {
   createGame, addFacility, addStaff, investigate, treat, admit, buy, assignStaff, returnStaff,
   placeFacility, advancePhase, compatible, calculateRewards, patientCategory, previewResolution,
-  unmetNeeds, patientRisk, scheduleSurgery, placePostoperativePatient, surgeryEligibility
+  unmetNeeds, patientRisk, scheduleSurgery, placePostoperativePatient, surgeryEligibility,
+  theatreCapacity, purchaseCost
 } from '../src/engine.js';
-import {PATIENTS} from '../src/data.js';
+import {PATIENTS, STAFF} from '../src/data.js';
 
 assert.equal(PATIENTS.length,30);
 assert.equal(new Set(PATIENTS.map(p=>p.id)).size,PATIENTS.length);
@@ -50,6 +51,54 @@ assert.equal(g.resources.medication,0);
 assert.equal(g.market.filter(card=>card.kind==='staff').length,3);
 assert.equal(g.market.filter(card=>card.kind==='facility').length,3);
 assert.equal(new Set(g.market.map(card=>`${card.kind}:${card.key}`)).size,6);
+for(const key of ['seniorDoctor','seniorNurse','nursingAssistant','theatreNurse','administrator'])assert.ok(STAFF[key]);
+
+const seniorDoctorGame=createGame(401);
+const seniorDoctorEd=seniorDoctorGame.facilities.find(f=>f.key==='ed');
+returnStaff(seniorDoctorGame,seniorDoctorGame.staff.find(s=>s.key==='doctor').id);
+const seniorDoctor=addStaff(seniorDoctorGame,'seniorDoctor');
+assert.equal(assignStaff(seniorDoctorGame,seniorDoctor.id,seniorDoctorEd.id),true);
+advancePhase(seniorDoctorGame);
+assert.equal(investigate(seniorDoctorGame,seniorDoctorEd.patients[0].id),true);
+assert.equal(investigate(seniorDoctorGame,seniorDoctorEd.patients[1].id),true);
+assert.equal(seniorDoctor.actionsRemaining,0);
+
+const seniorNurseGame=createGame(402);
+const seniorNurseEd=seniorNurseGame.facilities.find(f=>f.key==='ed');
+const seniorNurse=addStaff(seniorNurseGame,'seniorNurse');
+assert.equal(assignStaff(seniorNurseGame,seniorNurse.id,seniorNurseEd.id),true);
+advancePhase(seniorNurseGame);
+const seniorNursePatient=seniorNurseEd.patients[0];
+seniorNursePatient.revealed=true;
+seniorNursePatient.needs={nursing:2,medication:0,surgery:0};
+assert.equal(treat(seniorNurseGame,seniorNursePatient.id,'nursing'),true);
+assert.equal(treat(seniorNurseGame,seniorNursePatient.id,'nursing'),true);
+
+const assistantGame=createGame(403);
+const assistantWard=assistantGame.facilities.find(f=>f.key==='ward');
+returnStaff(assistantGame,assistantGame.staff.find(s=>s.key==='nurse').id);
+const assistant=addStaff(assistantGame,'nursingAssistant');
+assignStaff(assistantGame,assistant.id,assistantWard.id);
+advancePhase(assistantGame);
+assert.equal(assistantWard.nursing,1);
+
+const specialistGame=createGame(404);
+const specialistTheatre=specialistGame.facilities.find(f=>f.key==='theatre');
+const theatreNurse=addStaff(specialistGame,'theatreNurse');
+assert.equal(assignStaff(specialistGame,theatreNurse.id,specialistTheatre.id),true);
+assert.equal(theatreCapacity(specialistGame,specialistTheatre),2);
+
+const adminGame=createGame(405);
+const adminEd=adminGame.facilities.find(f=>f.key==='ed');
+const administrator=addStaff(adminGame,'administrator');
+assert.equal(assignStaff(adminGame,administrator.id,adminEd.id),true);
+adminGame.phase='purchasing';
+adminGame.market=[{kind:'facility',key:'ward'}];
+assert.equal(purchaseCost(adminGame,'facility','ward'),6);
+const adminMoney=adminGame.money;
+assert.equal(buy(adminGame,'facility','ward'),true);
+assert.equal(adminGame.money,adminMoney-6);
+assert.equal(adminGame.facilityDiscountUsed,true);
 
 const marketGame=createGame(99);
 const firstOffers=marketGame.market.map(card=>`${card.kind}:${card.key}`);
