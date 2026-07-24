@@ -1,5 +1,5 @@
-import {createGame,investigate,treat,admit,buy,advancePhase,assignStaff,returnStaff,placeFacility,compatible,getFacility,previewResolution,patientRisk,scheduleSurgery,cancelSurgery,placePostoperativePatient,surgeryEligibility,theatreCapacity,purchaseCost} from './engine.js?v=22';
-import {STAFF,FACILITIES} from './data.js?v=9';
+import {createGame,investigate,treat,admit,buy,advancePhase,assignStaff,returnStaff,placeFacility,compatible,getFacility,previewResolution,patientRisk,scheduleSurgery,cancelSurgery,placePostoperativePatient,surgeryEligibility,theatreCapacity,purchaseCost} from './engine.js?v=23';
+import {STAFF,FACILITIES} from './data.js?v=10';
 
 let game=createGame(),selectedStaff=null,selectedAdmission=null,selectedFacility=null,selectedAbility=null,selectedSurgery=null,resolutionAnimating=false;
 const $=id=>document.getElementById(id),names={nursing:'Nursing',medication:'Medication',surgery:'Surgery'},roleNames={doctor:'Doctor',nurse:'Nurse',pharmacist:'Pharmacist',surgeon:'Surgeon',theatreNurse:'Theatre Nurse',administrator:'Administrator'};
@@ -16,6 +16,7 @@ const phaseCopy={
   postoperative:{name:'Postoperative placement',help:'Surgery is complete. Place every Theatre patient into a vacant ward bed before new patients arrive.',button:'Place Theatre patients'},
   purchasing:{name:'Purchasing',help:'Spend this round’s money on staff and facilities. New cards become available next round.',button:'Start next round'}
 };
+phaseCopy.victory={name:'Campaign complete',help:'The hospital has completed its campaign. Review the final results.',button:'Campaign complete'};
 
 function render(){
   if(game.phase==='postoperative'&&!selectedAdmission)selectedAdmission=postoperativePatients()[0]?.id||null;
@@ -34,8 +35,15 @@ function render(){
   $('market').innerHTML=game.market.length?game.market.map(marketCard).join(''):'<div class="market-empty">All of this round’s offers have been purchased.</div>';
   $('log').innerHTML=game.log.slice(0,9).map(x=>`<li>${x}</li>`).join('');
   $('endTurn').textContent=phase.button;
-  $('endTurn').disabled=resolutionAnimating||game.gameOver||Boolean(mode)||game.phase==='postoperative'||(game.phase==='purchasing'&&game.facilities.some(f=>f.slotIndex===null));
+  $('endTurn').disabled=resolutionAnimating||game.gameOver||game.gameWon||Boolean(mode)||game.phase==='postoperative'||(game.phase==='purchasing'&&game.facilities.some(f=>f.slotIndex===null));
+  $('victoryScreen').hidden=!game.gameWon;
+  $('victoryScreen').innerHTML=game.gameWon?victoryScreen():'';
   bind();
+}
+
+function victoryScreen(){
+  const rating=game.reputation>=40?'Centre of Excellence':game.reputation>=25?'Highly Regarded Hospital':game.reputation>=12?'Trusted Hospital':'Hospital Sustained';
+  return `<section class="victory-card"><span class="victory-mark">★</span><span class="eyebrow">CAMPAIGN COMPLETE</span><h2>${rating}</h2><p>Your hospital remained operational for all ${game.roundLimit} rounds.</p><div class="victory-results"><div><strong>${game.reputation}</strong><span>Reputation</span></div><div><strong>$${game.money}</strong><span>Money</span></div><div><strong>${game.outcomes.discharged}</strong><span>Discharged</span></div><div><strong>${game.outcomes.deaths}</strong><span>Deaths</span></div></div><button class="primary" data-action="restartGame">Play another campaign</button></section>`
 }
 
 function buildPlot(slot){return selectedFacility?`<button class="build-plot placement-target" data-action="placeFacility" data-facility="${selectedFacility}" data-slot="${slot}"><span>+</span><small>Build here</small></button>`:'<div class="build-plot"><span>+</span><small>Future facility</small></div>'}
@@ -78,6 +86,7 @@ function staffCard(s){
 function marketCard(m){const d=m.kind==='staff'?STAFF[m.key]:FACILITIES[m.key],cost=purchaseCost(game,m.kind,m.key),noPlot=m.kind==='facility'&&!hasFreePlot(),open=game.phase==='purchasing';return `<article class="market-card"><span class="market-icon">${d.monogram||d.short}</span><strong>${d.name}</strong><small>${d.effect}</small><button data-action="buy" data-kind="${m.kind}" data-key="${m.key}" ${!open||game.money<cost||noPlot||selectedFacility?'disabled':''}>${open?'Buy':'Purchasing closed'} &middot; $${cost}</button></article>`}
 
 function bind(){document.querySelectorAll('[data-action]').forEach(b=>b.onclick=e=>{e.stopPropagation();const x=b.dataset,a=x.action;let ok=true;
+  if(a==='restartGame'){game=createGame();selectedStaff=selectedAdmission=selectedFacility=selectedAbility=selectedSurgery=null;render();return}
   if(a==='selectStaff'){selectedStaff=x.staff;selectedAdmission=null;render();return}
   if(a==='startAdmission'){selectedAdmission=x.id;selectedStaff=null;render();return}
   if(a==='startPostoperative'){selectedAdmission=x.id;selectedStaff=null;render();return}
