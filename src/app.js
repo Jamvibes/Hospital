@@ -1,4 +1,4 @@
-import {createGame,investigate,treat,admit,buy,advancePhase,assignStaff,returnStaff,placeFacility,compatible,getFacility,previewResolution,patientRisk,scheduleSurgery,cancelSurgery} from './engine.js?v=15';
+import {createGame,investigate,treat,admit,buy,advancePhase,assignStaff,returnStaff,placeFacility,compatible,getFacility,previewResolution,patientRisk,scheduleSurgery,cancelSurgery} from './engine.js?v=16';
 import {STAFF,FACILITIES} from './data.js?v=6';
 
 let game=createGame(),selectedStaff=null,selectedAdmission=null,selectedFacility=null,selectedAbility=null,selectedSurgery=null,resolutionAnimating=false;
