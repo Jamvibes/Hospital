@@ -1,5 +1,5 @@
 export const PATIENTS = [
-  // Stable cases: 1–3 initial needs.
+  // Quick patients: 1–2 initial needs.
   {id:'p01',portrait:'A',needs:{nursing:0,medication:1,surgery:0},wardRequired:false},
   {id:'p02',portrait:'B',needs:{nursing:1,medication:0,surgery:0},wardRequired:false},
   {id:'p03',portrait:'C',needs:{nursing:0,medication:2,surgery:0},wardRequired:false},
@@ -7,6 +7,8 @@ export const PATIENTS = [
   {id:'p05',portrait:'E',needs:{nursing:2,medication:0,surgery:0},wardRequired:true},
   {id:'p06',portrait:'F',needs:{nursing:1,medication:0,surgery:1},wardRequired:true},
   {id:'p07',portrait:'G',needs:{nursing:0,medication:1,surgery:1},wardRequired:true},
+
+  // Standard patients: 3–4 initial needs.
   {id:'p08',portrait:'H',needs:{nursing:3,medication:0,surgery:0},wardRequired:true},
   {id:'p09',portrait:'I',needs:{nursing:2,medication:1,surgery:0},wardRequired:true},
   {id:'p10',portrait:'J',needs:{nursing:1,medication:2,surgery:0},wardRequired:true},
@@ -18,12 +20,12 @@ export const PATIENTS = [
   {id:'p16',portrait:'P',needs:{nursing:2,medication:1,surgery:0},wardRequired:true},
   {id:'p17',portrait:'Q',needs:{nursing:3,medication:0,surgery:0},wardRequired:true},
   {id:'p18',portrait:'R',needs:{nursing:1,medication:1,surgery:1},wardRequired:true},
-
-  // At-risk cases: 4–6 initial needs. They must be partially treated before resolution.
   {id:'p19',portrait:'S',needs:{nursing:3,medication:1,surgery:0},wardRequired:true},
   {id:'p20',portrait:'T',needs:{nursing:2,medication:2,surgery:0},wardRequired:true},
   {id:'p21',portrait:'U',needs:{nursing:2,medication:1,surgery:1},wardRequired:true},
   {id:'p22',portrait:'V',needs:{nursing:1,medication:2,surgery:1},wardRequired:true},
+
+  // Complex patients: 5–6 initial needs.
   {id:'p23',portrait:'W',needs:{nursing:4,medication:1,surgery:0},wardRequired:true},
   {id:'p24',portrait:'X',needs:{nursing:3,medication:2,surgery:0},wardRequired:true},
   {id:'p25',portrait:'Y',needs:{nursing:3,medication:1,surgery:1},wardRequired:true},
