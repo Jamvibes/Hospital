@@ -4,40 +4,40 @@ export const GAME_CONFIG = {
 
 export const PATIENTS = [
   // Quick patients: 1–2 initial needs.
-  {id:'p01',portrait:'A',art:'patient-feverish-alone.webp',needs:{nursing:0,medication:1,surgery:0},wardRequired:false},
-  {id:'p02',portrait:'B',art:'patient-leaning-forward-alone.webp',needs:{nursing:1,medication:0,surgery:0},wardRequired:false},
-  {id:'p03',portrait:'C',needs:{nursing:0,medication:2,surgery:0},wardRequired:false},
-  {id:'p04',portrait:'D',needs:{nursing:1,medication:1,surgery:0},wardRequired:false},
-  {id:'p05',portrait:'E',needs:{nursing:2,medication:0,surgery:0},wardRequired:true},
-  {id:'p06',portrait:'F',art:'patient-broken-arm-with-partner.webp',needs:{nursing:1,medication:0,surgery:1},wardRequired:true},
-  {id:'p07',portrait:'G',needs:{nursing:0,medication:1,surgery:1},wardRequired:true},
+  {id:'p01',portrait:'A',art:'patient-feverish-alone.webp',needs:{nursing:0,medication:1,surgery:0}},
+  {id:'p02',portrait:'B',art:'patient-leaning-forward-alone.webp',needs:{nursing:1,medication:0,surgery:0}},
+  {id:'p03',portrait:'C',needs:{nursing:0,medication:2,surgery:0}},
+  {id:'p04',portrait:'D',needs:{nursing:1,medication:1,surgery:0}},
+  {id:'p05',portrait:'E',needs:{nursing:2,medication:0,surgery:0}},
+  {id:'p06',portrait:'F',art:'patient-broken-arm-with-partner.webp',needs:{nursing:1,medication:0,surgery:1}},
+  {id:'p07',portrait:'G',needs:{nursing:0,medication:1,surgery:1}},
 
   // Standard patients: 3–4 initial needs.
-  {id:'p08',portrait:'H',art:'patient-older-with-niece.webp',needs:{nursing:3,medication:0,surgery:0},wardRequired:true},
-  {id:'p09',portrait:'I',art:'patient-teen-reclining-with-mother.webp',needs:{nursing:2,medication:1,surgery:0},wardRequired:true},
-  {id:'p10',portrait:'J',needs:{nursing:1,medication:2,surgery:0},wardRequired:true},
-  {id:'p11',portrait:'K',art:'patient-child-with-father.webp',needs:{nursing:1,medication:1,surgery:1},wardRequired:true},
-  {id:'p12',portrait:'L',needs:{nursing:0,medication:3,surgery:0},wardRequired:false},
-  {id:'p13',portrait:'M',needs:{nursing:2,medication:0,surgery:1},wardRequired:true},
-  {id:'p14',portrait:'N',art:'patient-leg-injury-with-sister.webp',needs:{nursing:0,medication:2,surgery:1},wardRequired:true},
-  {id:'p15',portrait:'O',needs:{nursing:1,medication:2,surgery:0},wardRequired:false},
-  {id:'p16',portrait:'P',needs:{nursing:2,medication:1,surgery:0},wardRequired:true},
-  {id:'p17',portrait:'Q',needs:{nursing:3,medication:0,surgery:0},wardRequired:true},
-  {id:'p18',portrait:'R',needs:{nursing:1,medication:1,surgery:1},wardRequired:true},
-  {id:'p19',portrait:'S',needs:{nursing:3,medication:1,surgery:0},wardRequired:true},
-  {id:'p20',portrait:'T',needs:{nursing:2,medication:2,surgery:0},wardRequired:true},
-  {id:'p21',portrait:'U',needs:{nursing:2,medication:1,surgery:1},wardRequired:true},
-  {id:'p22',portrait:'V',needs:{nursing:1,medication:2,surgery:1},wardRequired:true},
+  {id:'p08',portrait:'H',art:'patient-older-with-niece.webp',needs:{nursing:3,medication:0,surgery:0}},
+  {id:'p09',portrait:'I',art:'patient-teen-reclining-with-mother.webp',needs:{nursing:2,medication:1,surgery:0}},
+  {id:'p10',portrait:'J',needs:{nursing:1,medication:2,surgery:0}},
+  {id:'p11',portrait:'K',art:'patient-child-with-father.webp',needs:{nursing:1,medication:1,surgery:1}},
+  {id:'p12',portrait:'L',needs:{nursing:0,medication:3,surgery:0}},
+  {id:'p13',portrait:'M',needs:{nursing:2,medication:0,surgery:1}},
+  {id:'p14',portrait:'N',art:'patient-leg-injury-with-sister.webp',needs:{nursing:0,medication:2,surgery:1}},
+  {id:'p15',portrait:'O',needs:{nursing:1,medication:2,surgery:0}},
+  {id:'p16',portrait:'P',needs:{nursing:2,medication:1,surgery:0}},
+  {id:'p17',portrait:'Q',needs:{nursing:3,medication:0,surgery:0}},
+  {id:'p18',portrait:'R',needs:{nursing:1,medication:1,surgery:1}},
+  {id:'p19',portrait:'S',needs:{nursing:3,medication:1,surgery:0}},
+  {id:'p20',portrait:'T',needs:{nursing:2,medication:2,surgery:0}},
+  {id:'p21',portrait:'U',needs:{nursing:2,medication:1,surgery:1}},
+  {id:'p22',portrait:'V',needs:{nursing:1,medication:2,surgery:1}},
 
   // Complex patients: 5–6 initial needs.
-  {id:'p23',portrait:'W',needs:{nursing:4,medication:1,surgery:0},wardRequired:true},
-  {id:'p24',portrait:'X',needs:{nursing:3,medication:2,surgery:0},wardRequired:true},
-  {id:'p25',portrait:'Y',art:'patient-dizzy-with-son.webp',needs:{nursing:3,medication:1,surgery:1},wardRequired:true},
-  {id:'p26',portrait:'Z',needs:{nursing:2,medication:2,surgery:1},wardRequired:true},
-  {id:'p27',portrait:'AA',needs:{nursing:4,medication:2,surgery:0},wardRequired:true},
-  {id:'p28',portrait:'AB',needs:{nursing:3,medication:2,surgery:1},wardRequired:true},
-  {id:'p29',portrait:'AC',needs:{nursing:2,medication:3,surgery:1},wardRequired:true},
-  {id:'p30',portrait:'AD',needs:{nursing:4,medication:1,surgery:1},wardRequired:true}
+  {id:'p23',portrait:'W',needs:{nursing:4,medication:1,surgery:0}},
+  {id:'p24',portrait:'X',needs:{nursing:3,medication:2,surgery:0}},
+  {id:'p25',portrait:'Y',art:'patient-dizzy-with-son.webp',needs:{nursing:3,medication:1,surgery:1}},
+  {id:'p26',portrait:'Z',needs:{nursing:2,medication:2,surgery:1}},
+  {id:'p27',portrait:'AA',needs:{nursing:4,medication:2,surgery:0}},
+  {id:'p28',portrait:'AB',needs:{nursing:3,medication:2,surgery:1}},
+  {id:'p29',portrait:'AC',needs:{nursing:2,medication:3,surgery:1}},
+  {id:'p30',portrait:'AD',needs:{nursing:4,medication:1,surgery:1}}
 ];
 
 export const STAFF = {
@@ -58,7 +58,7 @@ export const FACILITIES = {
   shortStay:{name:'Short Stay Ward',short:'SS',cost:9,kind:'ward',beds:2,slots:['nurse'],colour:'amber',effect:'On admission, patients with 3 or fewer unmet needs receive 1 Nursing Care.'},
   icu:{name:'Intensive Care Unit',short:'ICU',cost:13,kind:'ward',beds:1,slots:['nurse','doctor'],colour:'rose',effect:'Prevents deterioration during resolution, but cannot prevent death at 7+ unmet needs.'},
   pharmacy:{name:'Pharmacy',short:'RX',cost:7,kind:'support',beds:0,slots:['pharmacist'],colour:'mint',effect:'A Pharmacist assigned here generates 2 Medication.'},
-  theatre:{name:'Operating Theatre',short:'OT',cost:12,kind:'theatre',beds:0,patientSpaces:1,slots:['surgeon','theatreNurse'],colour:'rose',effect:'Holds 1 surgical patient, plus 1 when staffed by a Theatre Nurse. Surgery resolves next round.'}
+  theatre:{name:'Operating Theatre',short:'OT',cost:12,kind:'theatre',beds:0,patientSpaces:1,slots:['surgeon','theatreNurse'],colour:'rose',effect:'Provides 1 surgical patient space. An assigned Surgeon completes 1 Surgery need at the start of the next round.'}
 };
 
 export const MARKET = [
