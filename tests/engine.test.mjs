@@ -3,7 +3,7 @@ import {
   createGame, addFacility, addStaff, investigate, treat, admit, buy, assignStaff, returnStaff,
   placeFacility, advancePhase, compatible, calculateRewards, patientCategory, previewResolution,
   unmetNeeds, patientRisk, scheduleSurgery, placePostoperativePatient, surgeryEligibility,
-  theatreCapacity, purchaseCost
+  theatreCapacity, purchaseCost, generateMedication
 } from '../src/engine.js';
 import {GAME_CONFIG, PATIENTS, STAFF} from '../src/data.js';
 
@@ -14,7 +14,7 @@ assert.ok(PATIENTS.filter(patient=>patient.art).every(patient=>patient.art.endsW
 assert.ok(PATIENTS.every(patient=>!Object.hasOwn(patient,'wardRequired')));
 for(const patient of PATIENTS){
   const total=Object.values(patient.needs).reduce((sum,value)=>sum+value,0);
-  assert.ok(total>=1&&total<=6,`${patient.id} must begin with 1–6 needs`);
+  assert.ok(total>=1&&total<=6,`${patient.id} must begin with 1â€“6 needs`);
   const expected=total<=2?'quick':total<=4?'standard':'complex';
   assert.equal(patientCategory(patient.needs).key,expected);
 }
@@ -48,9 +48,9 @@ assert.equal((await import('../src/data.js')).FACILITIES.theatre.patientSpaces,1
 assert.equal(startingTheatre.slotIndex,2);
 assert.equal(g.staff.filter(s=>s.key==='surgeon'&&s.facilityId===startingTheatre.id).length,1);
 assert.deepEqual(g.staff.map(s=>s.key),['doctor','nurse','pharmacist','surgeon']);
-assert.equal(g.phase,'assignment');
+assert.equal(g.phase,'operations');
 assert.equal(ed.patients.length,2);
-assert.equal(ward.nursing,0);
+assert.equal(ward.nursing,2);
 assert.equal(g.resources.medication,0);
 assert.equal(g.market.filter(card=>card.kind==='staff').length,3);
 assert.equal(g.market.filter(card=>card.kind==='facility').length,3);
@@ -70,16 +70,16 @@ const seniorDoctorEd=seniorDoctorGame.facilities.find(f=>f.key==='ed');
 returnStaff(seniorDoctorGame,seniorDoctorGame.staff.find(s=>s.key==='doctor').id);
 const seniorDoctor=addStaff(seniorDoctorGame,'seniorDoctor');
 assert.equal(assignStaff(seniorDoctorGame,seniorDoctor.id,seniorDoctorEd.id),true);
-advancePhase(seniorDoctorGame);
 assert.equal(investigate(seniorDoctorGame,seniorDoctorEd.patients[0].id),true);
 assert.equal(investigate(seniorDoctorGame,seniorDoctorEd.patients[1].id),true);
 assert.equal(seniorDoctor.actionsRemaining,0);
+assert.equal(seniorDoctor.used,true);
+assert.equal(returnStaff(seniorDoctorGame,seniorDoctor.id),false);
 
 const seniorNurseGame=createGame(402);
 const seniorNurseEd=seniorNurseGame.facilities.find(f=>f.key==='ed');
 const seniorNurse=addStaff(seniorNurseGame,'seniorNurse');
 assert.equal(assignStaff(seniorNurseGame,seniorNurse.id,seniorNurseEd.id),true);
-advancePhase(seniorNurseGame);
 const seniorNursePatient=seniorNurseEd.patients[0];
 seniorNursePatient.revealed=true;
 seniorNursePatient.needs={nursing:2,medication:0,surgery:0};
@@ -91,7 +91,6 @@ const assistantWard=assistantGame.facilities.find(f=>f.key==='ward');
 returnStaff(assistantGame,assistantGame.staff.find(s=>s.key==='nurse').id);
 const assistant=addStaff(assistantGame,'nursingAssistant');
 assignStaff(assistantGame,assistant.id,assistantWard.id);
-advancePhase(assistantGame);
 assert.equal(assistantWard.nursing,1);
 
 const specialistGame=createGame(404);
@@ -118,7 +117,6 @@ advancePhase(marketGame);
 advancePhase(marketGame);
 advancePhase(marketGame);
 advancePhase(marketGame);
-advancePhase(marketGame);
 const secondOffers=marketGame.market.map(card=>`${card.kind}:${card.key}`);
 assert.equal(secondOffers.length,6);
 assert.notDeepEqual(secondOffers,firstOffers);
@@ -130,11 +128,8 @@ assert.equal(nurse.facilityId,ed.id);
 assert.equal(returnStaff(g,nurse.id),true);
 assert.equal(assignStaff(g,nurse.id,ward.id),true);
 
-assert.equal(advancePhase(g),true);
-assert.equal(g.phase,'activation');
 assert.equal(ward.nursing,2);
-assert.equal(g.resources.medication,1);
-assert.equal(assignStaff(g,nurse.id,ed.id),false);
+assert.equal(g.resources.medication,0);
 
 const hiddenPatient=ed.patients[0];
 assert.equal(hiddenPatient.revealed,false);
@@ -145,6 +140,11 @@ const doctor=g.staff.find(s=>s.key==='doctor');
 const edPatient=ed.patients[0];
 assert.equal(investigate(g,edPatient.id),true);
 assert.equal(doctor.used,true);
+assert.equal(assignStaff(g,doctor.id,ward.id),false);
+const pharmacist=g.staff.find(s=>s.key==='pharmacist');
+assert.equal(generateMedication(g,pharmacist.id),true);
+assert.equal(g.resources.medication,1);
+assert.equal(returnStaff(g,pharmacist.id),false);
 if(edPatient.needs.medication)assert.equal(treat(g,edPatient.id,'medication'),true);
 
 assert.equal(buy(g,'facility','pharmacy'),false);
@@ -165,7 +165,7 @@ assert.equal(placeFacility(g,pharmacy.id,5),false);
 
 const round=g.round;
 assert.equal(advancePhase(g),true);
-assert.equal(g.phase,'assignment');
+assert.equal(g.phase,'operations');
 assert.equal(g.round,round+1);
 assert.equal(nurse.facilityId,ward.id);
 assert.equal(g.resources.medication,0);
@@ -177,7 +177,6 @@ const completedPatient=resolutionEd.patients[0];
 completedPatient.revealed=true;
 completedPatient.completed={...completedPatient.needs};
 const moneyBefore=resolutionGame.money,reputationBefore=resolutionGame.reputation;
-advancePhase(resolutionGame);
 const resolutionPreview=previewResolution(resolutionGame);
 assert.equal(resolutionPreview.ready,1);
 assert.equal(resolutionPreview.money,completedPatient.reward);
@@ -198,7 +197,6 @@ surgicalPatient.revealed=true;
 surgicalPatient.needs={nursing:0,medication:0,surgery:2};
 surgicalPatient.completed={nursing:0,medication:0,surgery:0};
 advancePhase(surgeryGame);
-advancePhase(surgeryGame);
 assert.equal(surgeryGame.phase,'resolution');
 advancePhase(surgeryGame);
 assert.equal(surgeryGame.phase,'scheduling');
@@ -215,7 +213,7 @@ const surgeryWard=surgeryGame.facilities.find(f=>f.key==='ward');
 assert.equal(placePostoperativePatient(surgeryGame,surgicalPatient.id,surgeryWard.id),true);
 assert.equal(theatre.patients.length,0);
 assert.equal(surgeryWard.patients.includes(surgicalPatient),true);
-assert.equal(surgeryGame.phase,'assignment');
+assert.equal(surgeryGame.phase,'operations');
 assert.equal(surgeon.facilityId,theatre.id);
 
 const noRecoveryBedGame=createGame(32);
@@ -228,14 +226,12 @@ noBedPatient.needs={nursing:0,medication:0,surgery:1};
 noBedPatient.completed={nursing:0,medication:0,surgery:0};
 advancePhase(noRecoveryBedGame);
 advancePhase(noRecoveryBedGame);
-advancePhase(noRecoveryBedGame);
 noBedWard.patients=Array.from({length:4},(_,i)=>({id:`full-${i}`}));
 assert.equal(scheduleSurgery(noRecoveryBedGame,noBedPatient.id,noBedTheatre.id),false);
 assert.equal(surgeryEligibility(noRecoveryBedGame,noBedPatient.id,noBedTheatre.id).reason,'A vacant postoperative ward bed must be guaranteed before this patient can enter Theatre.');
 assert.equal(noBedEd.patients.includes(noBedPatient),true);
 
 const queueGame=createGame(33);
-advancePhase(queueGame);
 advancePhase(queueGame);
 advancePhase(queueGame);
 assert.equal(queueGame.phase,'scheduling');
@@ -255,7 +251,6 @@ const deteriorationPatient=deteriorationGame.facilities.find(f=>f.key==='ed').pa
 deteriorationPatient.revealed=true;
 deteriorationPatient.needs={nursing:2,medication:1,surgery:1};
 deteriorationPatient.completed={nursing:0,medication:0,surgery:0};
-advancePhase(deteriorationGame);
 assert.equal(previewResolution(deteriorationGame).worsening,1);
 const needsBefore=unmetNeeds(deteriorationPatient);
 advancePhase(deteriorationGame);
@@ -267,7 +262,6 @@ const deathPatient=deathEd.patients[0];
 deathPatient.revealed=true;
 deathPatient.needs={nursing:4,medication:2,surgery:1};
 deathPatient.completed={nursing:0,medication:0,surgery:0};
-advancePhase(deathGame);
 assert.equal(previewResolution(deathGame).deaths,1);
 advancePhase(deathGame);
 assert.equal(deathEd.patients.includes(deathPatient),false);
@@ -278,7 +272,6 @@ const hiddenRiskPatient=hiddenEd.patients[0];
 hiddenRiskPatient.revealed=false;
 hiddenRiskPatient.needs={nursing:2,medication:1,surgery:1};
 hiddenRiskPatient.completed={nursing:0,medication:0,surgery:0};
-advancePhase(hiddenGame);
 const hiddenPreview=previewResolution(hiddenGame);
 assert.equal(hiddenPreview.worsening,0);
 assert.equal(hiddenPreview.hiddenAtRisk,1);
@@ -296,7 +289,6 @@ const shortStay=addFacility(shortStayGame,'shortStay',2);
 const shortStayPatient=shortStayEd.patients[0];
 shortStayPatient.needs={nursing:1,medication:2,surgery:0};
 shortStayPatient.completed={nursing:0,medication:0,surgery:0};
-advancePhase(shortStayGame);
 assert.equal(admit(shortStayGame,shortStayPatient.id,shortStay.id),true);
 assert.equal(shortStayPatient.completed.nursing,1);
 
@@ -306,7 +298,6 @@ const complexShortStay=addFacility(complexShortStayGame,'shortStay',2);
 const complexPatient=complexEd.patients[0];
 complexPatient.needs={nursing:1,medication:3,surgery:0};
 complexPatient.completed={nursing:0,medication:0,surgery:0};
-advancePhase(complexShortStayGame);
 assert.equal(admit(complexShortStayGame,complexPatient.id,complexShortStay.id),true);
 assert.equal(complexPatient.completed.nursing,0);
 
@@ -317,7 +308,6 @@ const icuPatient=icuEd.patients[0];
 icuPatient.revealed=true;
 icuPatient.needs={nursing:2,medication:1,surgery:1};
 icuPatient.completed={nursing:0,medication:0,surgery:0};
-advancePhase(icuGame);
 assert.equal(admit(icuGame,icuPatient.id,icu.id),true);
 const icuNeedsBefore=unmetNeeds(icuPatient);
 assert.equal(previewResolution(icuGame).protected,1);
@@ -332,9 +322,9 @@ const icuDeathPatient=icuDeathEd.patients[0];
 icuDeathPatient.revealed=true;
 icuDeathPatient.needs={nursing:4,medication:2,surgery:1};
 icuDeathPatient.completed={nursing:0,medication:0,surgery:0};
-advancePhase(icuDeathGame);
 assert.equal(admit(icuDeathGame,icuDeathPatient.id,deathIcu.id),true);
 advancePhase(icuDeathGame);
 assert.equal(deathIcu.patients.includes(icuDeathPatient),false);
 assert.equal(icuDeathGame.resolutionEvents.some(event=>event.type==='death'),true);
 console.log('engine tests passed');
+
