@@ -285,4 +285,19 @@ body.resolving button{pointer-events:none}
 .facility-status .ability{border-color:#9fc7bd;background:#e3f1ed;color:#286257}
 .facility-status .neutral{opacity:.75}
 .illustrated-facility .facility-status{min-height:20px;margin-bottom:4px}
+.briefing.staff-mode{padding:10px 14px;background:#214f4b}
+.staff-inspector{display:grid;grid-template-columns:minmax(170px,.8fr) minmax(220px,1.2fr) minmax(190px,.8fr);align-items:center;gap:16px;width:100%}
+.staff-inspector-identity{display:flex;align-items:center;gap:10px}
+.staff-inspector-identity strong,.staff-inspector-identity small{display:block;margin:0}
+.staff-inspector-identity small,.staff-inspector-copy small{color:#c5d4d0}
+.staff-inspector-monogram{display:grid;place-items:center;flex:none;width:42px;height:42px;border-radius:50%;background:#dceae6;color:var(--teal);font-weight:950}
+.staff-inspector-copy{display:grid;gap:3px}
+.staff-inspector-copy>span{color:white;font-weight:800}
+.staff-inspector-actions{display:grid;grid-template-columns:1fr 1fr;gap:5px}
+.staff-inspector-actions .staff-remaining{grid-column:1/-1;margin:0;background:#f3f6f3}
+.staff-inspector-actions button{margin:0}
+.staff-inspector-actions button:first-of-type{grid-column:1/-1;background:white;color:var(--teal)}
+.briefing.staff-mode .secondary{background:#dce7e4;color:#315b55}
+@media(max-width:900px){.staff-inspector{grid-template-columns:1fr 1fr}.staff-inspector-actions{grid-column:1/-1}}
+@media(max-width:620px){.staff-inspector{grid-template-columns:1fr}.staff-inspector-actions{grid-column:auto}}
 
