@@ -14,7 +14,7 @@ assert.ok(PATIENTS.filter(patient=>patient.art).every(patient=>patient.art.endsW
 assert.ok(PATIENTS.every(patient=>!Object.hasOwn(patient,'wardRequired')));
 for(const patient of PATIENTS){
   const total=Object.values(patient.needs).reduce((sum,value)=>sum+value,0);
-  assert.ok(total>=1&&total<=6,`${patient.id} must begin with 1â€“6 needs`);
+  assert.ok(total>=1&&total<=6,`${patient.id} must begin with 1–6 needs`);
   const expected=total<=2?'quick':total<=4?'standard':'complex';
   assert.equal(patientCategory(patient.needs).key,expected);
 }
@@ -163,6 +163,16 @@ const pharmacy=g.facilities.find(f=>f.key==='pharmacy');
 assert.equal(pharmacy.slotIndex,null);
 assert.equal(placeFacility(g,pharmacy.id,4),true);
 assert.equal(placeFacility(g,pharmacy.id,5),false);
+
+g.market=[{kind:'staff',key:'nursingAssistant'}];
+g.money+=10;
+const nursingBeforePurchase=ed.nursing;
+assert.equal(buy(g,'staff','nursingAssistant'),true);
+const purchasedAssistant=[...g.staff].reverse().find(s=>s.key==='nursingAssistant');
+assert.equal(purchasedAssistant.purchasedRound,g.round);
+assert.equal(assignStaff(g,purchasedAssistant.id,ed.id),true);
+assert.equal(purchasedAssistant.facilityId,ed.id);
+assert.equal(ed.nursing,nursingBeforePurchase);
 
 const round=g.round;
 assert.equal(advancePhase(g),true);
@@ -328,4 +338,3 @@ advancePhase(icuDeathGame);
 assert.equal(deathIcu.patients.includes(icuDeathPatient),false);
 assert.equal(icuDeathGame.resolutionEvents.some(event=>event.type==='death'),true);
 console.log('engine tests passed');
-
