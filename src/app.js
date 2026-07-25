@@ -19,7 +19,7 @@ phaseCopy.victory={name:'Campaign complete',help:'The hospital has completed its
 
 function render(){
   if(game.phase==='postoperative'&&!selectedAdmission)selectedAdmission=postoperativePatients()[0]?.id||null;
-  const nursing=game.facilities.reduce((n,f)=>n+f.nursing,0),mode=selectedAdmission?'admission':selectedFacility?'building':selectedAbility?'ability':selectedSurgery?'surgery':selectedStaff?'staff':null,phase=phaseCopy[game.phase],preview=game.phase==='operations'&&previewResolution(game);
+  const mode=selectedAdmission?'admission':selectedFacility?'building':selectedAbility?'ability':selectedSurgery?'surgery':selectedStaff?'staff':null,phase=phaseCopy[game.phase],preview=game.phase==='operations'&&previewResolution(game);
   $('stats').innerHTML=stat('Round',game.round)+stat('Stage',phase.name)+stat('Queue',game.queue.length)+stat('Reputation',game.reputation)+stat('Money','$'+game.money);
   $('briefing').className=`briefing ${mode?`${mode}-mode`:''}`;
   $('briefing').innerHTML=selectedAdmission
@@ -28,7 +28,7 @@ function render(){
     :selectedAbility?`<div><strong>Use ${STAFF[game.staff.find(s=>s.id===selectedAbility).key].name}</strong><span>Choose one of the highlighted patients in this staff memberâ€™s assigned facility.</span><button data-action="cancelAbility">Cancel</button></div>`
     :selectedSurgery?`<div><strong>Choose an Operating Theatre</strong><span>Vacant spaces in staffed Theatres are highlighted for Patient ${patientPortrait(selectedSurgery)}. Their previous space will become vacant.</span><button data-action="cancelSurgerySelection">Cancel</button></div>`
     :selectedStaff?staffInspector(selectedStaff)
-    :`<div><strong>${phase.name}</strong><span>${phase.help}</span></div>${game.phase==='operations'?`<div class="activation-sidebar"><div class="resource-bank"><b>Available</b>${resourceBadge('nursing',nursing)}${resourceBadge('medication',game.resources.medication)}</div>${resolutionPreview(preview)}</div>`:''}`;
+    :`<div><strong>${phase.name}</strong><span>${phase.help}</span></div>${game.phase==='operations'?`<div class="activation-sidebar"><div class="resource-bank"><b>Shared resource</b>${resourceBadge('medication',game.resources.medication)}</div>${resolutionPreview(preview)}</div>`:''}`;
   $('hospitalMap').innerHTML=Array.from({length:6},(_,slot)=>{const f=game.facilities.find(x=>x.slotIndex===slot);return f?facilityTile(f):buildPlot(slot)}).join('');
   $('arrivalQueue').innerHTML=game.queue.length?game.queue.map(queueCard).join(''):'<div class="queue-empty">No patients waiting</div>';
   $('staff').innerHTML=game.staff.map(staffCard).join('');
