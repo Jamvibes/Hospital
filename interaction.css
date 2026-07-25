@@ -75,6 +75,111 @@ body.resolving button{pointer-events:none}
 @keyframes protection-pulse{35%{transform:scale(1.07);box-shadow:0 0 0 12px #4e9cab22}}
 @keyframes need-pop{0%{opacity:0;transform:translate(-50%,-50%) scale(.3)}35%{opacity:1;transform:translate(-50%,-65%) scale(1.15)}100%{opacity:0;transform:translate(-50%,-110%) scale(.8)}}
 @media(prefers-reduced-motion:reduce){.patient-ghost,.reward-fly,.resolution-banner{transition-duration:.01ms}.bed.resolution-deteriorate,.bed.resolution-protected,.need-burst{animation-duration:.01ms}}
+
+/* Illustrated facilities share one compact map-tile footprint. Gameplay remains
+   in independent overlays so artwork can be replaced without changing rules. */
+.hospital-map{grid-auto-rows:minmax(390px,auto)}
+.facility,.build-plot{height:100%;min-height:390px}
+.illustrated-facility .room-art{
+  height:auto;
+  aspect-ratio:1225/995;
+  padding:0;
+  overflow:visible;
+  background-position:center;
+  background-repeat:no-repeat;
+  background-size:cover;
+  border-bottom:0;
+}
+.facility-ward .room-art{background-image:url("assets/facilities/general-ward-compact.webp")}
+.illustrated-facility .floor-lines,.illustrated-facility .station{display:none}
+.illustrated-facility .beds{position:absolute;inset:0;display:block;max-width:none}
+.illustrated-facility .bed{
+  position:absolute;
+  width:16.5%;
+  height:36.5%;
+  border-color:transparent;
+  border-radius:10px;
+  background:transparent;
+  box-shadow:none;
+}
+.illustrated-facility .bed:nth-child(1){left:8.4%;top:6.4%}
+.illustrated-facility .bed:nth-child(2){left:49.5%;top:6.4%}
+.illustrated-facility .bed:nth-child(3){left:8.4%;top:53.5%}
+.illustrated-facility .bed:nth-child(4){left:49.5%;top:53.5%}
+.illustrated-facility .bed .pillow{display:none}
+.illustrated-facility .bed.empty>span{
+  position:absolute;
+  left:50%;
+  bottom:6%;
+  padding:2px 5px;
+  border-radius:999px;
+  background:#fffdf8d9;
+  box-shadow:0 1px 4px #47341833;
+  transform:translateX(-50%);
+  white-space:nowrap;
+  font-size:8px;
+}
+.illustrated-facility .bed.occupied{background:#fffdf819}
+.illustrated-facility .bed:hover{outline:2px solid #ffffffaa}
+.illustrated-facility .patient-bed-art{
+  left:14%;
+  top:18%;
+  bottom:auto;
+  width:72%;
+  height:57%;
+  border:2px solid #fff8;
+  border-radius:8px;
+}
+.illustrated-facility .patient-token{top:30%;width:38px;height:38px}
+.illustrated-facility .bed-needs{
+  left:50%;
+  right:auto;
+  bottom:3%;
+  max-width:110%;
+  transform:translateX(-50%);
+  flex-wrap:wrap;
+}
+.illustrated-facility .bed:has(.patient-bed-art) .bed-needs{left:50%}
+.illustrated-facility .patient-risk{top:2%;right:-3%;font-size:7px}
+.illustrated-facility .patient-popover{left:50%;top:82%;transform:translateX(-50%)}
+.illustrated-facility .bed:nth-child(2) .patient-popover,
+.illustrated-facility .bed:nth-child(4) .patient-popover{left:auto;right:-15%;transform:none}
+.illustrated-facility .bed.admission-target,
+.illustrated-facility .bed.ability-target{
+  width:16.5%;
+  margin:0;
+  padding:0;
+  border:3px solid #25a58f;
+  outline:4px solid #6cd7c277;
+  background:#e1f4ee66;
+}
+.illustrated-facility .art-staff-slots{
+  position:absolute;
+  z-index:8;
+  right:3.4%;
+  bottom:8%;
+  display:grid;
+  gap:3px;
+  width:23%;
+}
+.illustrated-facility .art-staff-slots .staff-slot{
+  min-width:0;
+  padding:3px 5px;
+  border-color:#7c654d99;
+  background:#fffaf0dc;
+  box-shadow:0 2px 5px #523b2033;
+  font-size:8px;
+}
+.illustrated-facility .art-staff-slots .staff-slot>span{width:20px;height:20px;font-size:7px}
+.illustrated-facility .room-footer{padding:8px 10px}
+.illustrated-facility .room-actions small{font-size:10px}
+@media(max-width:1100px){
+  .hospital-map{grid-auto-rows:minmax(410px,auto)}
+}
+@media(max-width:700px){
+  .hospital-map{grid-auto-rows:auto}
+  .facility,.build-plot{min-height:0}
+}
 @media(max-width:900px){.activation-sidebar{justify-items:start}.resolution-preview{justify-content:flex-start}}
 .market-empty{grid-column:1/-1;padding:28px;border:1px dashed var(--line);border-radius:10px;text-align:center;color:var(--muted)}
 .theatre-space{position:relative;display:grid;place-items:center;align-content:center;gap:4px;min-height:72px;border:2px solid #a97872;border-radius:8px;background:#f7e4e1;color:#713e38;font-size:9px;font-weight:850;text-transform:uppercase}
