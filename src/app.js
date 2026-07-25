@@ -152,7 +152,7 @@ function hasVacantStaffedTheatre(){return game.facilities.some(f=>FACILITIES[f.k
 function hasFreePlot(){return game.facilities.filter(f=>f.slotIndex!==null).length<6}
 function patientPortrait(id){for(const f of game.facilities){const p=f.patients.find(x=>x.id===id);if(p)return p.portrait}return game.queue.find(p=>p.id===id)?.portrait||'?'}
 function resourceBadge(type,value){return `<span class="resource ${type}">${treatmentIcons[type]}<span>${names[type]} ${value}</span></span>`}
-function resolutionPreview(p){return `<div class="resolution-preview"><b>If resolved now</b><span>Discharge <strong>${p.ready}</strong></span><span>+$${p.money}</span><span>+${p.reputation} rep</span><span class="${p.worsening?'risk':''}">Worsen ${p.worsening}</span>${p.protected?`<span class="protected">ICU protects ${p.protected}</span>`:''}<span class="${p.deaths?'danger':''}">Deaths ${p.deaths}</span>${p.hiddenAtRisk?`<span class="unknown-risk">${p.hiddenAtRisk} hidden patient${p.hiddenAtRisk===1?'':'s'} at unknown risk</span>`:''}</div>`}
+function resolutionPreview(p){return `<div class="resolution-preview"><b>If resolved now</b><span>Discharge <strong>${p.ready}</strong></span><span>+$${p.money}</span><span>+${p.reputation} rep</span><span class="${p.worsening?'risk':''}">Worsen ${p.worsening}</span>${p.protected?`<span class="protected">ICU protects ${p.protected}</span>`:''}<span class="${p.deaths?'danger':''}">Deaths ${p.deaths}</span>${p.hiddenAtRisk?'<span class="unknown-risk">Uninvestigated patients may be at risk</span>':''}</div>`}
 function canTargetPatient(staffId,p,f){
   const member=game.staff.find(s=>s.id===staffId);if(game.phase!=='operations'||!member||member.facilityId!==f.id)return false;
   const role=STAFF[member.key].role;
