@@ -1,4 +1,4 @@
-import {createGame,investigate,treat,generateMedication,admit,buy,advancePhase,assignStaff,returnStaff,placeFacility,compatible,getFacility,previewResolution,patientRisk,scheduleSurgery,cancelSurgery,placePostoperativePatient,surgeryEligibility,theatreCapacity,purchaseCost} from './engine.js?v=27';
+import {createGame,investigate,treat,admit,buy,advancePhase,assignStaff,returnStaff,placeFacility,compatible,getFacility,previewResolution,patientRisk,scheduleSurgery,cancelSurgery,placePostoperativePatient,surgeryEligibility,theatreCapacity,purchaseCost} from './engine.js?v=28';
 import {STAFF,FACILITIES} from './data.js?v=12';
 
 let game=createGame(),selectedStaff=null,selectedAdmission=null,selectedFacility=null,selectedAbility=null,selectedSurgery=null,resolutionAnimating=false;
@@ -73,7 +73,7 @@ function facilityStatus(f,assigned,capacity){
   if(f.nursing)chips.push(`<span class="nursing"><b>${f.nursing}</b> Nursing available</span>`);
   for(const s of assigned){
     const role=STAFF[s.key].role;
-    if(role==='pharmacist')chips.push(`<span class="medication"><b>${s.used?'âœ“':f.key==='pharmacy'?2:1}</b> ${s.used?'Medication generated':'Medication potential'}</span>`);
+    if(role==='pharmacist')chips.push(`<span class="medication"><b>${s.generatedAmount||0}</b> generated this round</span>`);
     if(role==='surgeon')chips.push(`<span class="surgery"><b>âœ“</b> Surgery enabled</span>`);
     if(role==='theatreNurse')chips.push('<span class="surgery"><b>+1</b> Theatre space</span>');
     if(role==='administrator')chips.push(`<span><b>${game.facilityDiscountUsed?'âœ“':'âˆ’$2'}</b> ${game.facilityDiscountUsed?'discount used':'facility discount'}</span>`);
@@ -109,7 +109,7 @@ function staffRemaining(s){
   const role=STAFF[s.key].role;
   if(role==='doctor')return `<div class="staff-remaining"><b>${s.actionsRemaining||0}</b><span>investigation${(s.actionsRemaining||0)===1?'':'s'} left</span></div>`;
   if(role==='nurse')return `<div class="staff-remaining"><b>${s.resourceRemaining||0}</b><span>Nursing Care left</span></div>`;
-  if(role==='pharmacist')return `<div class="staff-remaining"><b>${s.used?0:1}</b><span>generation available</span></div>`;
+  if(role==='pharmacist')return `<div class="staff-remaining"><b>${s.generatedAmount||0}</b><span>generated at round start</span></div>`;
   return `<div class="staff-remaining passive"><span>Placement ability</span></div>`
 }
 function staffInspector(staffId){
@@ -137,7 +137,6 @@ function bind(){document.querySelectorAll('[data-action]').forEach(b=>b.onclick=
   else if(a==='investigate')ok=investigate(game,x.id);
   else if(a==='treat')ok=treat(game,x.id,x.type);
   else if(a==='useStaffAbility'){const member=game.staff.find(s=>s.id===x.staff),role=STAFF[member?.key]?.role;ok=role==='doctor'?investigate(game,x.id,x.staff):role==='nurse'?treat(game,x.id,'nursing',x.staff):false;if(ok)selectedAbility=null}
-  else if(a==='generateMedication')ok=generateMedication(game,x.staff);
   else if(a==='admit'){ok=admit(game,x.id,x.target);if(ok)selectedAdmission=null}
   else if(a==='placePostoperative'){ok=placePostoperativePatient(game,x.id,x.target);if(ok)selectedAdmission=null}
   else if(a==='scheduleSurgery'){const eligibility=surgeryEligibility(game,x.id,x.target);if(!eligibility.ok){toast(eligibility.reason);render();return}ok=scheduleSurgery(game,x.id,x.target);if(ok)selectedSurgery=null}
@@ -166,7 +165,7 @@ function staffAbilityControl(s,f){
   if(!f)return '<button disabled>Move to a compatible facility to use</button>';
   if(role==='doctor'){const available=(s.actionsRemaining||0)>0&&f.patients.some(p=>!p.revealed);return `<button data-action="startStaffAbility" data-staff="${s.id}" ${available?'':'disabled'}>${(s.actionsRemaining||0)===0?'Ability used':available?`Investigate patient (${s.actionsRemaining} left)`:'No hidden patients here'}</button>`}
   if(role==='nurse'){const limit=STAFF[s.key].doubleNursing?2:1,available=(s.resourceRemaining||0)>0&&f.patients.some(p=>{const received=p.nursingRound===game.round?(p.nursingThisRound||1):0;return p.revealed&&(p.completed.nursing||0)<p.needs.nursing&&received<limit});return `<button data-action="startStaffAbility" data-staff="${s.id}" ${available?'':'disabled'}>${available?`Allocate Nursing (${s.resourceRemaining} left)`:'No eligible patients'}</button>`}
-  if(role==='pharmacist')return `<button data-action="generateMedication" data-staff="${s.id}" ${s.used?'disabled':''}>${s.used?'Medication generated':`Generate ${f.key==='pharmacy'?2:1} Medication`}</button>`;
+  if(role==='pharmacist')return `<button disabled>${s.generated?`${s.generatedAmount} Medication generated this round`:'Assign now to generate next round'}</button>`;
   if(role==='surgeon')return `<button disabled>${f.key==='theatre'?'Ready for surgery scheduling':'Requires Operating Theatre'}</button>`;
   if(role==='theatreNurse')return `<button disabled>${f.key==='theatre'?'+1 Theatre patient space':'Requires Operating Theatre'}</button>`;
   if(role==='administrator')return `<button disabled>${game.facilityDiscountUsed?'Facility discount used':'Next facility costs $2 less'}</button>`;
