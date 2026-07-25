@@ -1,8 +1,7 @@
-
 import {
   createGame, advancePhase, assignStaff, returnStaff, investigate, treat, admit,
   scheduleSurgery, surgeryEligibility, placePostoperativePatient, buy, placeFacility,
-  unmetNeeds, generateMedication
+  unmetNeeds
 } from '../src/engine.js';
 import {STAFF, FACILITIES} from '../src/data.js';
 
@@ -90,11 +89,6 @@ function investigatePatients(game, policy, rng, rules) {
       investigate(game, hidden[0].id,doctor.id);
     }
   }
-}
-
-function generateMedicationResources(game) {
-  for (const pharmacist of game.staff.filter(s => STAFF[s.key].role === 'pharmacist'))
-    generateMedication(game, pharmacist.id);
 }
 
 function admitPatients(game, policy, rng) {
@@ -206,7 +200,6 @@ function runOne(policy, seed, rules=BASELINE) {
     metrics.rounds = game.round;
     assignTeam(game, policy, rng);
     investigatePatients(game, policy, rng, rules);
-    generateMedicationResources(game);
     admitPatients(game, policy, rng);
     allocateTreatment(game, policy, rng);
     metrics.unusedMedication+=game.resources.medication;
