@@ -23,7 +23,7 @@ export function patientCategory(needs){
   return {key:'complex',label:'Complex',multiplier:2};
 }
 export function calculateRewards(needs){
-  const value=(needs.nursing||0)+(needs.medication||0)/2+(needs.surgery||0);
+  const value=(needs.nursing||0)+(needs.medication||0)/2+(needs.surgery||0)*1.5;
   const category=patientCategory(needs);
   return {value,reward:Math.ceil(value*2*category.multiplier),reputation:Math.ceil(value*category.multiplier),category:category.key};
 }
