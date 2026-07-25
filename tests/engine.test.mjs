@@ -9,6 +9,8 @@ import {GAME_CONFIG, PATIENTS, STAFF} from '../src/data.js';
 
 assert.equal(PATIENTS.length,30);
 assert.equal(new Set(PATIENTS.map(p=>p.id)).size,PATIENTS.length);
+assert.equal(PATIENTS.filter(patient=>patient.art).length,8);
+assert.ok(PATIENTS.filter(patient=>patient.art).every(patient=>patient.art.endsWith('.webp')));
 for(const patient of PATIENTS){
   const total=Object.values(patient.needs).reduce((sum,value)=>sum+value,0);
   assert.ok(total>=1&&total<=6,`${patient.id} must begin with 1–6 needs`);

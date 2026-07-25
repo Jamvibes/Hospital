@@ -5,6 +5,11 @@
 .room-art{overflow:visible}
 .bed:hover{z-index:25}
 .patient-popover{z-index:30;left:-8px;top:56px;width:240px}
+.patient-bed-art{position:absolute;z-index:1;left:5px;bottom:4px;width:39px;height:49px;border:1px solid #ffffffcc;border-radius:5px;object-fit:cover;object-position:center 30%;box-shadow:0 2px 5px #17282744}
+.patient-popover-art{display:block;width:100%;height:112px;margin-bottom:8px;border-radius:7px;object-fit:cover;object-position:center 30%}
+.queue-patient-art{width:38px;height:48px;flex:none;border-radius:6px;object-fit:cover;object-position:center 30%;box-shadow:0 2px 5px #17282733}
+.theatre-patient-art{width:42px;height:52px;border-radius:6px;object-fit:cover;object-position:center 30%;box-shadow:0 2px 5px #17282733}
+.bed:has(.patient-bed-art) .bed-needs{left:47px}
 .bed.admission-target{width:100%;margin:0;padding:0;background:#fffdf7;color:var(--teal);border:3px solid #25a58f;outline:4px solid #6cd7c255;box-shadow:0 0 0 7px #25a58f22,3px 3px 0 #19766744;animation:pulse-bed 1.3s ease-in-out infinite}
 .bed.admission-target:hover{transform:translateY(-2px);background:#e1f4ee}
 .briefing.admission-mode{background:#145c56}
