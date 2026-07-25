@@ -3,7 +3,7 @@ import {
   createGame, addFacility, addStaff, investigate, treat, admit, buy, assignStaff, returnStaff,
   placeFacility, advancePhase, compatible, calculateRewards, patientCategory, previewResolution,
   unmetNeeds, patientRisk, scheduleSurgery, placePostoperativePatient, surgeryEligibility,
-  theatreCapacity, purchaseCost, generateMedication
+  theatreCapacity, purchaseCost
 } from '../src/engine.js';
 import {GAME_CONFIG, PATIENTS, STAFF} from '../src/data.js';
 
@@ -51,7 +51,7 @@ assert.deepEqual(g.staff.map(s=>s.key),['doctor','nurse','pharmacist','surgeon']
 assert.equal(g.phase,'operations');
 assert.equal(ed.patients.length,2);
 assert.equal(ward.nursing,2);
-assert.equal(g.resources.medication,0);
+assert.equal(g.resources.medication,1);
 assert.equal(g.market.filter(card=>card.kind==='staff').length,3);
 assert.equal(g.market.filter(card=>card.kind==='facility').length,3);
 assert.equal(new Set(g.market.map(card=>`${card.kind}:${card.key}`)).size,6);
@@ -129,7 +129,7 @@ assert.equal(returnStaff(g,nurse.id),true);
 assert.equal(assignStaff(g,nurse.id,ward.id),true);
 
 assert.equal(ward.nursing,2);
-assert.equal(g.resources.medication,0);
+assert.equal(g.resources.medication,1);
 
 const hiddenPatient=ed.patients[0];
 assert.equal(hiddenPatient.revealed,false);
@@ -142,9 +142,10 @@ assert.equal(investigate(g,edPatient.id),true);
 assert.equal(doctor.used,true);
 assert.equal(assignStaff(g,doctor.id,ward.id),false);
 const pharmacist=g.staff.find(s=>s.key==='pharmacist');
-assert.equal(generateMedication(g,pharmacist.id),true);
+assert.equal(pharmacist.generated,true);
 assert.equal(g.resources.medication,1);
-assert.equal(returnStaff(g,pharmacist.id),false);
+assert.equal(returnStaff(g,pharmacist.id),true);
+assert.equal(assignStaff(g,pharmacist.id,ed.id),true);
 if(edPatient.needs.medication)assert.equal(treat(g,edPatient.id,'medication'),true);
 
 assert.equal(buy(g,'facility','pharmacy'),false);
@@ -168,7 +169,7 @@ assert.equal(advancePhase(g),true);
 assert.equal(g.phase,'operations');
 assert.equal(g.round,round+1);
 assert.equal(nurse.facilityId,ward.id);
-assert.equal(g.resources.medication,0);
+assert.equal(g.resources.medication,1);
 assert.equal(assignStaff(g,doctor.id,ward.id),true);
 
 const resolutionGame=createGame(3);
