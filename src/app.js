@@ -74,7 +74,7 @@ function bed(f,p,i){
     const member=game.staff.find(s=>s.id===selectedAbility),role=STAFF[member.key].role;
     return `<button class="bed occupied ability-target" data-action="useStaffAbility" data-staff="${member.id}" data-id="${p.id}"><div class="pillow"></div>${patientVisual(p,'patient-bed-art')}<div class="bed-needs">${needs}</div><span class="target-label">${role==='doctor'?'Investigate':'Give care'}</span></button>`;
   }
-  let actions=game.phase==='scheduling'?(p.revealed&&(p.completed.surgery||0)<p.needs.surgery?`<button data-action="startSurgery" data-id="${p.id}">Schedule surgery</button><small>${surgeryEligibility(game,p.id).reason}</small>`:'<small>No revealed unmet Surgery need</small>'):game.phase!=='operations'?'<small>Available during Hospital Operations</small>':!p.revealed?`<button data-action="investigate" data-id="${p.id}">Investigate</button>`:Object.keys(names).filter(k=>k!=='surgery'&&(p.completed[k]||0)<p.needs[k]).map(k=>`<button class="treatment-button ${k}" data-action="treat" data-type="${k}" data-id="${p.id}">${treatmentIcons[k]}<span>${names[k]}</span></button>`).join('');
+  let actions=game.phase==='scheduling'?(p.revealed&&(p.completed.surgery||0)<p.needs.surgery?`<button data-action="startSurgery" data-id="${p.id}">Schedule surgery</button><small>${surgeryEligibility(game,p.id).reason}</small>`:'<small>No revealed unmet Surgery need</small>'):game.phase!=='operations'?'<small>Available during Hospital Operations</small>':!p.revealed?'<small class="map-action-hint">Select a Doctor card to investigate</small>':`${(p.completed.medication||0)<p.needs.medication?`<button class="treatment-button medication" data-action="treat" data-type="medication" data-id="${p.id}">${treatmentIcons.medication}<span>Medication</span></button>`:''}${(p.completed.nursing||0)<p.needs.nursing?'<small class="map-action-hint">Select a Nurse card to provide care</small>':''}`;
   if(game.phase==='operations'&&f.key==='ed')actions+=`<button data-action="startAdmission" data-id="${p.id}" ${hasVacantWard()?'':'disabled'}>Admit to ward</button>`;
   return `<div class="bed occupied ${p.revealed?'revealed':''}" data-patient-id="${p.id}"><div class="pillow"></div>${patientVisual(p,'patient-bed-art')}${riskBadge}${p.revealed?`<div class="bed-needs">${needs}</div>`:''}<div class="patient-popover">${p.art?patientVisual(p,'patient-popover-art'):''}<strong>Patient ${p.portrait}</strong><small>${p.revealed?`$${p.reward} &middot; +${p.reputation} rep`:'Needs and reward hidden'}</small>${riskBadge}<div class="risk-rules">0â€“3 stable Â· 4â€“6 deteriorates Â· 7+ dies</div><div class="needs">${needs}</div><div class="patient-actions">${actions}</div></div></div>`;
 }
@@ -83,7 +83,14 @@ function staffCard(s){
   const d=STAFF[s.key],f=getFacility(game,s.facilityId),operations=game.phase==='operations';
   const movement=operations&&!s.used?`<button data-action="selectStaff" data-staff="${s.id}">${selectedStaff===s.id?'Selected':'Move / assign'}</button>${f?`<button class="secondary" data-action="returnStaff" data-staff="${s.id}">Return to available</button>`:''}`:s.used?'<small class="committed-label">Committed here this round</small>':'';
   let controls=operations?`${movement}${staffAbilityControl(s,f)}`:staffAbilityControl(s,f);
-  return `<article class="staff-card ${selectedStaff===s.id||selectedAbility===s.id?'selected':''} ${s.used?'used':''}"><div class="staff-portrait">${d.monogram}</div><strong>${d.name}</strong><small>${f?FACILITIES[f.key].name:'Available staff'}</small><p>${d.effect}</p>${controls}</article>`
+  return `<article class="staff-card ${selectedStaff===s.id||selectedAbility===s.id?'selected':''} ${s.used?'used':''}"><div class="staff-card-heading"><div class="staff-portrait">${d.monogram}</div><span class="staff-state ${s.used?'committed':f?'ready':'available'}">${s.used?'Committed':f?'Ready':'Available'}</span></div><strong>${d.name}</strong><small>${f?FACILITIES[f.key].name:'Available staff'}</small>${staffRemaining(s)}<p>${d.effect}</p><div class="staff-controls">${controls}</div></article>`
+}
+function staffRemaining(s){
+  const role=STAFF[s.key].role;
+  if(role==='doctor')return `<div class="staff-remaining"><b>${s.actionsRemaining||0}</b><span>investigation${(s.actionsRemaining||0)===1?'':'s'} left</span></div>`;
+  if(role==='nurse')return `<div class="staff-remaining"><b>${s.resourceRemaining||0}</b><span>Nursing Care left</span></div>`;
+  if(role==='pharmacist')return `<div class="staff-remaining"><b>${s.used?0:1}</b><span>generation available</span></div>`;
+  return `<div class="staff-remaining passive"><span>Placement ability</span></div>`
 }
 function marketCard(m){const d=m.kind==='staff'?STAFF[m.key]:FACILITIES[m.key],cost=purchaseCost(game,m.kind,m.key),noPlot=m.kind==='facility'&&!hasFreePlot(),open=game.phase==='purchasing';return `<article class="market-card"><span class="market-icon">${d.monogram||d.short}</span><strong>${d.name}</strong><small>${d.effect}</small><button data-action="buy" data-kind="${m.kind}" data-key="${m.key}" ${!open||game.money<cost||noPlot||selectedFacility?'disabled':''}>${open?'Buy':'Purchasing closed'} &middot; $${cost}</button></article>`}
 
@@ -130,7 +137,7 @@ function canTargetPatient(staffId,p,f){
 function staffAbilityControl(s,f){
   if(game.phase!=='operations')return '<button disabled>Available next round</button>';
   const role=STAFF[s.key].role;
-  if(!f)return '<button disabled>Assign to a facility next round</button>';
+  if(!f)return '<button disabled>Move to a compatible facility to use</button>';
   if(role==='doctor'){const available=(s.actionsRemaining||0)>0&&f.patients.some(p=>!p.revealed);return `<button data-action="startStaffAbility" data-staff="${s.id}" ${available?'':'disabled'}>${(s.actionsRemaining||0)===0?'Ability used':available?`Investigate patient (${s.actionsRemaining} left)`:'No hidden patients here'}</button>`}
   if(role==='nurse'){const limit=STAFF[s.key].doubleNursing?2:1,available=(s.resourceRemaining||0)>0&&f.patients.some(p=>{const received=p.nursingRound===game.round?(p.nursingThisRound||1):0;return p.revealed&&(p.completed.nursing||0)<p.needs.nursing&&received<limit});return `<button data-action="startStaffAbility" data-staff="${s.id}" ${available?'':'disabled'}>${available?`Allocate Nursing (${s.resourceRemaining} left)`:'No eligible patients'}</button>`}
   if(role==='pharmacist')return `<button data-action="generateMedication" data-staff="${s.id}" ${s.used?'disabled':''}>${s.used?'Medication generated':`Generate ${f.key==='pharmacy'?2:1} Medication`}</button>`;
