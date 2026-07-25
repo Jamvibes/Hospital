@@ -26,7 +26,7 @@
 .need .treatment-icon{width:19px;height:19px}
 .need.nursing{color:#765a0c}.need.medication{color:#315b3d}.need.surgery{color:#79372f}
 .need.done{opacity:.42;filter:saturate(.35);text-decoration:none}
-.need.done::after{content:"âœ“";position:absolute;right:-3px;bottom:-3px;display:grid;place-items:center;width:13px;height:13px;border-radius:50%;background:var(--teal);color:white;font-size:9px}
+.need.done::after{content:"✓";position:absolute;right:-3px;bottom:-3px;display:grid;place-items:center;width:13px;height:13px;border-radius:50%;background:var(--teal);color:white;font-size:9px}
 .need.unknown{border-color:#9a9d96;color:#60655f}
 .treatment-button{display:inline-flex;align-items:center;gap:5px}
 .treatment-button .treatment-icon{width:16px;height:16px}
@@ -300,4 +300,23 @@ body.resolving button{pointer-events:none}
 .briefing.staff-mode .secondary{background:#dce7e4;color:#315b55}
 @media(max-width:900px){.staff-inspector{grid-template-columns:1fr 1fr}.staff-inspector-actions{grid-column:1/-1}}
 @media(max-width:620px){.staff-inspector{grid-template-columns:1fr}.staff-inspector-actions{grid-column:auto}}
-
+.topbar-actions{display:flex;align-items:center;gap:9px}
+.rules-tab{padding:8px 13px;border:1px solid var(--teal);background:var(--teal);color:white}
+.rules-overlay{position:fixed;inset:0;z-index:110;display:grid;place-items:center;padding:22px;background:#172827cc;backdrop-filter:blur(7px)}
+.rules-overlay[hidden]{display:none}
+.rules-sheet{width:min(940px,100%);max-height:min(88vh,900px);overflow:auto;padding:25px;border:1px solid var(--line);border-radius:18px;background:var(--panel);box-shadow:0 28px 80px #0007}
+.rules-sheet>header{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:18px;padding-bottom:14px;border-bottom:1px solid var(--line)}
+.rules-sheet>header h2{font-size:30px}
+.rules-sheet h3{font:600 17px Georgia,serif}
+.rules-sheet p,.rules-sheet li{color:#4f5e5b}
+.rules-grid{display:grid;grid-template-columns:1fr 1fr;gap:11px}
+.rules-grid article{padding:14px;border:1px solid var(--line);border-radius:10px;background:#f8f5ed}
+.rules-grid p{margin-top:6px}
+.rules-grid ul{margin:7px 0 0;padding-left:19px}
+.rules-stage-title{margin:21px 0 10px}
+.rules-stages{display:grid;grid-template-columns:1fr 1fr;gap:8px;list-style:none;counter-reset:stage;margin:0;padding:0}
+.rules-stages li{counter-increment:stage;display:grid;grid-template-columns:31px 1fr;column-gap:8px;padding:11px;border:1px solid var(--line);border-radius:9px;background:white}
+.rules-stages li:before{content:counter(stage);grid-row:1/3;display:grid;place-items:center;width:27px;height:27px;border-radius:50%;background:var(--teal);color:white;font-weight:900}
+.rules-stages b,.rules-stages span{grid-column:2}.rules-stages span{font-size:12px;color:var(--muted)}
+.rules-sheet>footer{margin-top:14px;padding:11px;border-radius:8px;background:#e5f0ed;color:#315b55}
+@media(max-width:700px){.topbar-actions{width:100%;align-items:flex-start}.rules-grid,.rules-stages{grid-template-columns:1fr}.rules-sheet{padding:18px}.rules-overlay{padding:10px}}
