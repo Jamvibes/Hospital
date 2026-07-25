@@ -57,11 +57,30 @@ function facilityTile(f){
   const selectedMember=game.phase==='operations'&&game.staff.find(s=>s.id===selectedStaff&&!s.used),selectedRole=selectedMember&&STAFF[selectedMember.key].role;
   const slots=d.slots.map(role=>{
     const s=assigned.find(x=>STAFF[x.key].role===role);
-    if(s)return game.phase==='operations'&&!s.used?`<button class="staff-slot filled selectable-staff" data-action="selectStaff" data-staff="${s.id}" title="Move ${STAFF[s.key].name}"><span>${STAFF[s.key].monogram}</span><small>${STAFF[s.key].name}</small></button>`:`<div class="staff-slot filled ${s.used?'committed':''}" title="${s.used?'Committed for this round':''}"><span>${STAFF[s.key].monogram}</span><small>${STAFF[s.key].name}${s.used?' Â· committed':''}</small></div>`;
+    if(s)return game.phase==='operations'&&!s.used?`<button class="staff-slot filled selectable-staff ${selectedStaff&&selectedRole===role?'occupied-target':''}" data-action="selectStaff" data-staff="${s.id}" title="${selectedStaff&&selectedRole===role?`${roleNames[role]} slot occupied by ${STAFF[s.key].name}`:`Move ${STAFF[s.key].name}`}"><span>${STAFF[s.key].monogram}</span><small>${STAFF[s.key].name}</small></button>`:`<div class="staff-slot filled ${s.used?'committed':''}" title="${s.used?'Committed for this round':`${roleNames[role]} slot occupied`}"><span>${STAFF[s.key].monogram}</span><small>${STAFF[s.key].name}${s.used?' Â· committed':''}</small></div>`;
     if(selectedStaff&&role===selectedRole&&compatible(game,selectedStaff,f.id))return `<button class="staff-slot assignment-target" data-action="assign" data-staff="${selectedStaff}" data-facility="${f.id}" title="Move ${STAFF[selectedMember.key].name} here"><span>+</span><small>Move here</small></button>`;
+    if(selectedStaff)return `<div class="staff-slot unavailable-target" title="${role===selectedRole?`${roleNames[role]} slot unavailable`:`${STAFF[selectedMember.key].name} requires a ${roleNames[selectedRole]} slot`}"><span>Ã—</span><small>${role===selectedRole?'Unavailable':`${roleNames[role]} only`}</small></div>`;
     return `<div class="staff-slot"><span>${(roleNames[role]||role).split(' ').map(x=>x[0]).join('')}</span><small>${roleNames[role]||role} slot</small></div>`;
   }).join('');
-  return `<article class="facility facility-${f.key} ${d.colour} ${illustrated?'illustrated-facility':''}" data-facility="${f.id}" data-map-slot="${f.slotIndex}"><header><div><span class="room-code">${d.short}</span><h3>${d.name}</h3></div><span class="occupancy">${d.beds?`${f.patients.length}/${d.beds} beds`:d.kind==='theatre'?`${f.patients.length}/${capacity} occupied`:`plot ${f.slotIndex+1}`}</span></header><div class="room-art"><div class="floor-lines"></div><div class="beds">${beds}</div>${illustrated?`<div class="art-staff-slots" aria-label="Ward staff">${slots}</div>`:`<div class="station"><div class="desk"></div><small>${d.kind==='ward'?'Nurse station':d.kind==='clinical'?'Assessment desk':d.kind==='theatre'?'Theatre team':'Work area'}</small></div>`}</div><div class="room-footer">${illustrated?'':`<div class="slots">${slots}</div>`}<div class="room-actions"><small>${d.effect}</small></div></div></article>`;
+  return `<article class="facility facility-${f.key} ${d.colour} ${illustrated?'illustrated-facility':''}" data-facility="${f.id}" data-map-slot="${f.slotIndex}"><header><div><span class="room-code">${d.short}</span><h3>${d.name}</h3></div><span class="occupancy">${d.beds?`${f.patients.length}/${d.beds} beds`:d.kind==='theatre'?`${f.patients.length}/${capacity} occupied`:`plot ${f.slotIndex+1}`}</span></header><div class="room-art"><div class="floor-lines"></div><div class="beds">${beds}</div>${illustrated?`<div class="art-staff-slots" aria-label="Ward staff">${slots}</div>`:`<div class="station"><div class="desk"></div><small>${d.kind==='ward'?'Nurse station':d.kind==='clinical'?'Assessment desk':d.kind==='theatre'?'Theatre team':'Work area'}</small></div>`}</div><div class="room-footer">${illustrated?'':`<div class="slots">${slots}</div>`}<div class="facility-status">${facilityStatus(f,assigned,capacity)}</div><div class="room-actions"><small>${d.effect}</small></div></div></article>`;
+}
+
+function facilityStatus(f,assigned,capacity){
+  const d=FACILITIES[f.key],chips=[];
+  if(d.beds)chips.push(`<span><b>${d.beds-f.patients.length}</b> beds free</span>`);
+  if(d.kind==='theatre')chips.push(`<span><b>${capacity-f.patients.length}</b> Theatre spaces free</span>`);
+  if(f.nursing)chips.push(`<span class="nursing"><b>${f.nursing}</b> Nursing available</span>`);
+  for(const s of assigned){
+    const role=STAFF[s.key].role;
+    if(role==='pharmacist')chips.push(`<span class="medication"><b>${s.used?'âœ“':f.key==='pharmacy'?2:1}</b> ${s.used?'Medication generated':'Medication potential'}</span>`);
+    if(role==='surgeon')chips.push(`<span class="surgery"><b>âœ“</b> Surgery enabled</span>`);
+    if(role==='theatreNurse')chips.push('<span class="surgery"><b>+1</b> Theatre space</span>');
+    if(role==='administrator')chips.push(`<span><b>${game.facilityDiscountUsed?'âœ“':'âˆ’$2'}</b> ${game.facilityDiscountUsed?'discount used':'facility discount'}</span>`);
+  }
+  if(f.key==='shortStay')chips.push('<span class="ability"><b>â†¯</b> â‰¤3 needs: +1 Nursing</span>');
+  if(f.key==='icu')chips.push('<span class="ability"><b>â—†</b> prevents deterioration</span>');
+  if(f.key==='ward')chips.push('<span class="neutral"><b>â€”</b> no special ability</span>');
+  return chips.join('')
 }
 
 function theatreSpaces(f,capacity){return Array.from({length:capacity},(_,i)=>{const patient=f.patients[i];if(patient)return `<div class="theatre-space occupied">${patientVisual(patient,'theatre-patient-art')}<span>${patient.postoperative?'Needs ward bed':'Scheduled'}</span>${game.phase==='scheduling'?`<button data-action="cancelScheduledSurgery" data-id="${patient.id}">Remove</button>`:game.phase==='postoperative'?`<button data-action="startPostoperative" data-id="${patient.id}">Place in ward</button>`:''}</div>`;const staffed=game.staff.some(s=>s.facilityId===f.id&&STAFF[s.key].role==='surgeon');return selectedSurgery&&staffed?`<button class="theatre-space surgery-target" data-action="scheduleSurgery" data-id="${selectedSurgery}" data-target="${f.id}"><span>+</span><small>Schedule here</small></button>`:`<div class="theatre-space empty"><div class="equipment-core">OT</div><span>${staffed?'Available':'Needs Surgeon'}</span></div>`}).join('')}
