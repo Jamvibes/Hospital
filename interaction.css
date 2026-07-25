@@ -273,4 +273,16 @@ body.resolving button{pointer-events:none}
 .staff-slot.committed{opacity:.78;border-color:#94746d;background:#eee3e1}
 .staff-slot.committed>span{background:#80625d}
 .map-action-hint{width:100%;padding:5px 7px;border-radius:6px;background:#edf5f2;color:#35675f!important;font-size:9px;font-weight:800;text-align:center}
+.staff-slot.unavailable-target{opacity:.5;border-style:solid;border-color:#b9aaa6;background:#eee8e5;color:#765f5a}
+.staff-slot.unavailable-target>span{background:#d8cac6;color:#765f5a}
+.staff-slot.occupied-target{outline:2px solid #b9857b;outline-offset:1px}
+.facility-status{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:6px}
+.facility-status span{display:inline-flex;align-items:center;gap:3px;padding:3px 5px;border:1px solid #d5d1c6;border-radius:999px;background:#f4f2eb;color:#655f52;font-size:8px;font-weight:750;white-space:nowrap}
+.facility-status span b{font-size:9px;color:var(--ink)}
+.facility-status .nursing{border-color:#dfca82;background:#f8edc8;color:#665018}
+.facility-status .medication{border-color:#add0b6;background:#e4f1e7;color:#315b3d}
+.facility-status .surgery{border-color:#d8aaa4;background:#f4e1de;color:#79372f}
+.facility-status .ability{border-color:#9fc7bd;background:#e3f1ed;color:#286257}
+.facility-status .neutral{opacity:.75}
+.illustrated-facility .facility-status{min-height:20px;margin-bottom:4px}
 
