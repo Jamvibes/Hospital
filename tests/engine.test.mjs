@@ -26,8 +26,8 @@ assert.deepEqual(seededMarket(42),seededMarket(42));
 assert.notDeepEqual(seededMarket(42),seededMarket(43));
 
 assert.deepEqual(calculateRewards({nursing:1,medication:1,surgery:0}),{value:1.5,reward:3,reputation:2,category:'quick'});
-assert.deepEqual(calculateRewards({nursing:1,medication:2,surgery:1}),{value:3,reward:9,reputation:5,category:'standard'});
-assert.deepEqual(calculateRewards({nursing:3,medication:2,surgery:1}),{value:5,reward:20,reputation:10,category:'complex'});
+assert.deepEqual(calculateRewards({nursing:1,medication:2,surgery:1}),{value:3.5,reward:11,reputation:6,category:'standard'});
+assert.deepEqual(calculateRewards({nursing:3,medication:2,surgery:1}),{value:5.5,reward:22,reputation:11,category:'complex'});
 const riskPatient={revealed:true,needs:{nursing:4,medication:2,surgery:1},completed:{nursing:1,medication:1,surgery:0}};
 assert.equal(unmetNeeds(riskPatient),5);
 assert.deepEqual(patientRisk(riskPatient),{key:'deteriorate',label:'Will deteriorate',unmet:5});
