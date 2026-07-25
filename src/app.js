@@ -52,7 +52,7 @@ function queueCard(p){return `<div class="queue-patient">${patientVisual(p,'queu
 
 function facilityTile(f){
   const d=FACILITIES[f.key],assigned=game.staff.filter(s=>s.facilityId===f.id);
-  const illustrated=f.key==='ward';
+  const illustrated=['ed','ward','theatre'].includes(f.key);
   const capacity=d.kind==='theatre'?theatreCapacity(game,f):0;
   const beds=d.beds?Array.from({length:d.beds},(_,i)=>bed(f,f.patients[i],i)).join(''):d.kind==='theatre'?theatreSpaces(f,capacity):`<div class="equipment ${f.key}"><div class="equipment-core">${d.short}</div><span>Medication store</span></div>`;
   const selectedMember=game.phase==='assignment'&&game.staff.find(s=>s.id===selectedStaff),selectedRole=selectedMember&&STAFF[selectedMember.key].role;

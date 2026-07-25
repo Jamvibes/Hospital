@@ -90,7 +90,9 @@ body.resolving button{pointer-events:none}
   background-size:cover;
   border-bottom:0;
 }
+.facility-ed .room-art{background-image:url("assets/facilities/emergency-department.webp")}
 .facility-ward .room-art{background-image:url("assets/facilities/general-ward-compact.webp")}
+.facility-theatre .room-art{background-image:url("assets/facilities/operating-theatre.webp")}
 .illustrated-facility .floor-lines,.illustrated-facility .station{display:none}
 .illustrated-facility .beds{position:absolute;inset:0;display:block;max-width:none}
 .illustrated-facility .bed{
@@ -106,6 +108,11 @@ body.resolving button{pointer-events:none}
 .illustrated-facility .bed:nth-child(2){left:49.5%;top:6.4%}
 .illustrated-facility .bed:nth-child(3){left:8.4%;top:53.5%}
 .illustrated-facility .bed:nth-child(4){left:49.5%;top:53.5%}
+.facility-ed .bed{width:19.5%;height:36.5%}
+.facility-ed .bed:nth-child(1){left:12.5%;top:10%}
+.facility-ed .bed:nth-child(2){left:51%;top:10%}
+.facility-ed .bed:nth-child(3){left:12.5%;top:55%}
+.facility-ed .bed:nth-child(4){left:51%;top:55%}
 .illustrated-facility .bed .pillow{display:none}
 .illustrated-facility .bed.empty>span{
   position:absolute;
@@ -153,6 +160,7 @@ body.resolving button{pointer-events:none}
   outline:4px solid #6cd7c277;
   background:#e1f4ee66;
 }
+.facility-ed .bed.admission-target,.facility-ed .bed.ability-target{width:19.5%}
 .illustrated-facility .art-staff-slots{
   position:absolute;
   z-index:8;
@@ -171,6 +179,50 @@ body.resolving button{pointer-events:none}
   font-size:8px;
 }
 .illustrated-facility .art-staff-slots .staff-slot>span{width:20px;height:20px;font-size:7px}
+.facility-ed .art-staff-slots{
+  grid-template-columns:1fr 1fr;
+  width:27%;
+  right:3.2%;
+  bottom:7%;
+}
+.facility-ed .art-staff-slots .staff-slot{display:grid;grid-template-columns:20px 1fr}
+.facility-theatre .art-staff-slots{width:23%;right:3.2%;bottom:6.5%}
+.facility-theatre .beds{position:absolute;inset:0;display:block;max-width:none}
+.facility-theatre .theatre-space{
+  position:absolute;
+  min-height:0;
+  border-color:transparent;
+  background:transparent;
+  box-shadow:none;
+}
+.facility-theatre .theatre-space:nth-child(1){left:22.5%;top:25%;width:14.5%;height:58%}
+.facility-theatre .theatre-space:nth-child(2){left:64%;top:15%;width:10%;height:30%}
+.facility-theatre .theatre-space.empty .equipment-core{display:none}
+.facility-theatre .theatre-space.empty>span{
+  position:absolute;
+  left:50%;
+  bottom:5%;
+  padding:2px 5px;
+  border-radius:999px;
+  background:#fffdf8dc;
+  box-shadow:0 1px 4px #47341833;
+  transform:translateX(-50%);
+  white-space:nowrap;
+}
+.facility-theatre .theatre-space.occupied{background:#fff6f222}
+.facility-theatre .theatre-space .theatre-patient-art{
+  width:72%;
+  height:58%;
+  border:2px solid #fff9;
+  border-radius:8px;
+}
+.facility-theatre .theatre-space.surgery-target{
+  margin:0;
+  padding:0;
+  border:3px solid #b9574c;
+  outline:4px solid #d98b8077;
+  background:#fff5f255;
+}
 .illustrated-facility .room-footer{padding:8px 10px}
 .illustrated-facility .room-actions small{font-size:10px}
 @media(max-width:1100px){
