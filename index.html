@@ -3,14 +3,14 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Hospital â€” Prototype</title>
+  <title>Hospital — Prototype</title>
   <link rel="stylesheet" href="styles.css?v=4">
-  <link rel="stylesheet" href="interaction.css?v=22">
+  <link rel="stylesheet" href="interaction.css?v=23">
 </head>
 <body>
   <header class="topbar">
     <div><span class="eyebrow">HOSPITAL PROTOTYPE</span><h1>Operations Board</h1></div>
-    <div class="stats" id="stats"></div>
+    <div class="topbar-actions"><div class="stats" id="stats"></div><button class="rules-tab" data-action="openRules">Rules</button></div>
   </header>
   <main>
     <section class="briefing" id="briefing"></section>
@@ -50,8 +50,8 @@
     </section>
   </main>
   <div class="toast" id="toast" role="status"></div>
+  <div class="rules-overlay" id="rulesPanel" hidden></div>
   <div class="victory-overlay" id="victoryScreen" hidden></div>
-  <script type="module" src="src/app.js?v=41"></script>
+  <script type="module" src="src/app.js?v=43"></script>
 </body>
 </html>
-
