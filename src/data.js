@@ -41,15 +41,22 @@ export const PATIENTS = [
 ];
 
 export const STAFF = {
-  doctor:{name:'Doctor',monogram:'DR',cost:7,upkeep:2,role:'doctor',investigations:1,effect:'Investigate 1 patient in the assigned facility each round.'},
-  seniorDoctor:{name:'Senior Doctor',monogram:'SD',cost:12,upkeep:3,role:'doctor',investigations:2,effect:'Investigate up to 2 patients in the assigned facility each round.'},
-  nurse:{name:'Ward Nurse',monogram:'RN',cost:6,upkeep:2,role:'nurse',nursing:2,effect:'Provides 2 Nursing Care in the assigned patient-care facility.'},
-  nursingAssistant:{name:'Nursing Assistant',monogram:'NA',cost:4,upkeep:1,role:'nurse',nursing:1,effect:'Provides 1 Nursing Care to a patient in the assigned patient-care facility.'},
-  seniorNurse:{name:'Senior Nurse',monogram:'SN',cost:10,upkeep:3,role:'nurse',nursing:2,doubleNursing:true,effect:'Provides 2 Nursing Care. One patient in this facility may receive both during the same round.'},
-  pharmacist:{name:'Pharmacist',monogram:'RX',cost:6,upkeep:2,role:'pharmacist',effect:'Generates 1 Medication; generates 2 when assigned to Pharmacy.'},
-  surgeon:{name:'Surgeon',monogram:'SG',cost:10,upkeep:3,role:'surgeon',effect:'Operates on scheduled patients in an assigned Operating Theatre at the start of the next round.'},
-  theatreNurse:{name:'Theatre Nurse',monogram:'TN',cost:8,upkeep:2,role:'theatreNurse',effect:'Adds 1 patient space to the assigned Operating Theatre.'},
-  administrator:{name:'Hospital Administrator',monogram:'HA',cost:8,upkeep:2,role:'administrator',effect:'The first facility purchased each round costs $2 less while assigned.'}
+  doctor:{name:'Doctor',monogram:'DR',group:'medical',cost:7,upkeep:2,role:'doctor',investigations:1,effect:'Investigate 1 patient in the assigned facility each round.'},
+  seniorDoctor:{name:'Senior Doctor',monogram:'SD',group:'medical',cost:12,upkeep:3,role:'doctor',investigations:2,effect:'Investigate up to 2 patients in the assigned facility each round.'},
+  nurse:{name:'Ward Nurse',monogram:'RN',group:'nursing',cost:6,upkeep:2,role:'nurse',nursing:2,effect:'Provides 2 Nursing Care in the assigned patient-care facility.'},
+  nursingAssistant:{name:'Nursing Assistant',monogram:'NA',group:'nursing',cost:4,upkeep:1,role:'nurse',nursing:1,effect:'Provides 1 Nursing Care to a patient in the assigned patient-care facility.'},
+  seniorNurse:{name:'Senior Nurse',monogram:'SN',group:'nursing',cost:10,upkeep:3,role:'nurse',nursing:2,doubleNursing:true,effect:'Provides 2 Nursing Care. One patient in this facility may receive both during the same round.'},
+  pharmacist:{name:'Pharmacist',monogram:'RX',group:'allied',cost:6,upkeep:2,role:'pharmacist',effect:'Generates 1 Medication; generates 2 when assigned to Pharmacy.'},
+  surgeon:{name:'Surgeon',monogram:'SG',group:'medical',cost:10,upkeep:3,role:'surgeon',effect:'Operates on scheduled patients in an assigned Operating Theatre at the start of the next round.'},
+  theatreNurse:{name:'Theatre Nurse',monogram:'TN',group:'nursing',cost:8,upkeep:2,role:'theatreNurse',effect:'Adds 1 patient space to the assigned Operating Theatre.'},
+  administrator:{name:'Hospital Administrator',monogram:'HA',group:'support',cost:8,upkeep:2,role:'administrator',effect:'The first facility purchased each round costs $2 less while assigned.'}
+};
+
+export const STAFF_GROUPS = {
+  medical:{name:'Medical',description:'Doctors and surgeons'},
+  nursing:{name:'Nursing',description:'Nurses and nursing assistants'},
+  allied:{name:'Allied Health',description:'Pharmacists and future allied health professions'},
+  support:{name:'Support Staff',description:'Administrators and future operational staff'}
 };
 
 export const FACILITIES = {
