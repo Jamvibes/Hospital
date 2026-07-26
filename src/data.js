@@ -41,24 +41,24 @@ export const PATIENTS = [
 ];
 
 export const STAFF = {
-  doctor:{name:'Doctor',monogram:'DR',cost:7,role:'doctor',investigations:1,effect:'Investigate 1 patient in the assigned facility each round.'},
-  seniorDoctor:{name:'Senior Doctor',monogram:'SD',cost:12,role:'doctor',investigations:2,effect:'Investigate up to 2 patients in the assigned facility each round.'},
-  nurse:{name:'Ward Nurse',monogram:'RN',cost:6,role:'nurse',nursing:2,effect:'Provides 2 Nursing Care in the assigned patient-care facility.'},
-  nursingAssistant:{name:'Nursing Assistant',monogram:'NA',cost:4,role:'nurse',nursing:1,effect:'Provides 1 Nursing Care to a patient in the assigned patient-care facility.'},
-  seniorNurse:{name:'Senior Nurse',monogram:'SN',cost:10,role:'nurse',nursing:2,doubleNursing:true,effect:'Provides 2 Nursing Care. One patient in this facility may receive both during the same round.'},
-  pharmacist:{name:'Pharmacist',monogram:'RX',cost:6,role:'pharmacist',effect:'Generates 1 Medication; generates 2 when assigned to Pharmacy.'},
-  surgeon:{name:'Surgeon',monogram:'SG',cost:10,role:'surgeon',effect:'Operates on scheduled patients in an assigned Operating Theatre at the start of the next round.'},
-  theatreNurse:{name:'Theatre Nurse',monogram:'TN',cost:8,role:'theatreNurse',effect:'Adds 1 patient space to the assigned Operating Theatre.'},
-  administrator:{name:'Hospital Administrator',monogram:'HA',cost:8,role:'administrator',effect:'The first facility purchased each round costs $2 less while assigned.'}
+  doctor:{name:'Doctor',monogram:'DR',cost:7,upkeep:2,role:'doctor',investigations:1,effect:'Investigate 1 patient in the assigned facility each round.'},
+  seniorDoctor:{name:'Senior Doctor',monogram:'SD',cost:12,upkeep:3,role:'doctor',investigations:2,effect:'Investigate up to 2 patients in the assigned facility each round.'},
+  nurse:{name:'Ward Nurse',monogram:'RN',cost:6,upkeep:2,role:'nurse',nursing:2,effect:'Provides 2 Nursing Care in the assigned patient-care facility.'},
+  nursingAssistant:{name:'Nursing Assistant',monogram:'NA',cost:4,upkeep:1,role:'nurse',nursing:1,effect:'Provides 1 Nursing Care to a patient in the assigned patient-care facility.'},
+  seniorNurse:{name:'Senior Nurse',monogram:'SN',cost:10,upkeep:3,role:'nurse',nursing:2,doubleNursing:true,effect:'Provides 2 Nursing Care. One patient in this facility may receive both during the same round.'},
+  pharmacist:{name:'Pharmacist',monogram:'RX',cost:6,upkeep:2,role:'pharmacist',effect:'Generates 1 Medication; generates 2 when assigned to Pharmacy.'},
+  surgeon:{name:'Surgeon',monogram:'SG',cost:10,upkeep:3,role:'surgeon',effect:'Operates on scheduled patients in an assigned Operating Theatre at the start of the next round.'},
+  theatreNurse:{name:'Theatre Nurse',monogram:'TN',cost:8,upkeep:2,role:'theatreNurse',effect:'Adds 1 patient space to the assigned Operating Theatre.'},
+  administrator:{name:'Hospital Administrator',monogram:'HA',cost:8,upkeep:2,role:'administrator',effect:'The first facility purchased each round costs $2 less while assigned.'}
 };
 
 export const FACILITIES = {
-  ed:{name:'Emergency Department',short:'ED',cost:0,kind:'clinical',beds:4,slots:['doctor','nurse','pharmacist','administrator'],colour:'blue',effect:'Investigate and partially treat patients before admission.'},
-  ward:{name:'General Ward',short:'GW',cost:8,kind:'ward',beds:4,slots:['nurse','doctor','administrator'],colour:'sage',effect:'Four flexible inpatient beds with no special ability.'},
-  shortStay:{name:'Short Stay Ward',short:'SS',cost:9,kind:'ward',beds:2,slots:['nurse'],colour:'amber',effect:'On admission, patients with 3 or fewer unmet needs receive 1 Nursing Care.'},
-  icu:{name:'Intensive Care Unit',short:'ICU',cost:13,kind:'ward',beds:1,slots:['nurse','doctor'],colour:'rose',effect:'Prevents deterioration during resolution, but cannot prevent death at 7+ unmet needs.'},
-  pharmacy:{name:'Pharmacy',short:'RX',cost:7,kind:'support',beds:0,slots:['pharmacist'],colour:'mint',effect:'A Pharmacist assigned here generates 2 Medication.'},
-  theatre:{name:'Operating Theatre',short:'OT',cost:12,kind:'theatre',beds:0,patientSpaces:1,slots:['surgeon','theatreNurse'],colour:'rose',effect:'Provides 1 surgical patient space. An assigned Surgeon completes 1 Surgery need at the start of the next round.'}
+  ed:{name:'Emergency Department',short:'ED',cost:0,upkeep:0,kind:'clinical',beds:4,slots:['doctor','nurse','pharmacist','administrator'],colour:'blue',effect:'Investigate and partially treat patients before admission.'},
+  ward:{name:'General Ward',short:'GW',cost:8,upkeep:1,kind:'ward',beds:4,slots:['nurse','doctor','administrator'],colour:'sage',effect:'Four flexible inpatient beds with no special ability.'},
+  shortStay:{name:'Short Stay Ward',short:'SS',cost:9,upkeep:1,kind:'ward',beds:2,slots:['nurse'],colour:'amber',effect:'On admission, patients with 3 or fewer unmet needs receive 1 Nursing Care.'},
+  icu:{name:'Intensive Care Unit',short:'ICU',cost:13,upkeep:2,kind:'ward',beds:1,slots:['nurse','doctor'],colour:'rose',effect:'Prevents deterioration during resolution, but cannot prevent death at 7+ unmet needs.'},
+  pharmacy:{name:'Pharmacy',short:'RX',cost:7,upkeep:1,kind:'support',beds:0,slots:['pharmacist'],colour:'mint',effect:'A Pharmacist assigned here generates 2 Medication.'},
+  theatre:{name:'Operating Theatre',short:'OT',cost:12,upkeep:2,kind:'theatre',beds:0,patientSpaces:1,slots:['surgeon','theatreNurse'],colour:'rose',effect:'Provides 1 surgical patient space. An assigned Surgeon completes 1 Surgery need at the start of the next round.'}
 };
 
 export const MARKET = [
