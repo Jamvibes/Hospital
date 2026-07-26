@@ -3,12 +3,12 @@ import {
   scheduleSurgery, surgeryEligibility, placePostoperativePatient, buy, placeFacility,
   unmetNeeds
 } from '../src/engine.js';
-import {STAFF, FACILITIES} from '../src/data.js';
+import {STAFF, FACILITIES, MARKET} from '../src/data.js';
 
 const RUNS = Number(process.argv[2] || 1000);
 const HORIZON = Number(process.argv[3] || 12);
 const MODE = process.argv[4] || 'baseline';
-const POLICIES = ['balanced', 'discharge', 'risk', 'throughput', 'random'];
+const POLICIES = ['balanced', 'nursing', 'surgery', 'capacity', 'economy', 'random'];
 const BASELINE = {key:'baseline',label:'Current rules',startingReputation:8,queueDivisor:2,doctorActions:1};
 const ADJUSTMENTS = [
   BASELINE,
@@ -43,9 +43,10 @@ function rankPatients(policy, patients, rng) {
     const unmet = unmetNeeds(patient);
     const remain = remainingValue(patient);
     const reward = patient.reputation || 0;
-    if (policy === 'risk') return -unmet * 20 + remain - reward * .1;
-    if (policy === 'throughput') return remain * 20 + totals(patient.needs) - reward;
-    if (policy === 'discharge') return remain * 30 - reward * 2 + unmet;
+    if (policy === 'nursing') return remain * 12 - (patient.needs.nursing || 0) * 3 - reward;
+    if (policy === 'surgery') return remain * 12 - (patient.needs.surgery || 0) * 8 - reward;
+    if (policy === 'capacity') return remain * 20 - reward * 2 + unmet;
+    if (policy === 'economy') return remain * 30 - reward * 2 + unmet;
     return remain * 12 - unmet * 3 - reward;
   };
   return copy.sort((a, b) => score(a) - score(b));
@@ -132,10 +133,11 @@ function scheduleOperations(game, policy, rng) {
 }
 
 const purchasePriority = {
-  balanced: ['ward', 'nurse', 'shortStay', 'doctor', 'pharmacy', 'pharmacist', 'icu', 'surgeon', 'theatre'],
-  discharge: ['shortStay', 'nurse', 'ward', 'pharmacy', 'pharmacist', 'doctor', 'theatre', 'surgeon', 'icu'],
-  risk: ['icu', 'nurse', 'ward', 'doctor', 'pharmacy', 'pharmacist', 'theatre', 'surgeon', 'shortStay'],
-  throughput: ['ward', 'nurse', 'shortStay', 'pharmacy', 'pharmacist', 'doctor', 'theatre', 'surgeon', 'icu'],
+  balanced: ['ward', 'nurse', 'nursingAssistant', 'shortStay', 'doctor', 'pharmacy', 'pharmacist', 'seniorNurse', 'seniorDoctor', 'icu', 'surgeon', 'theatre', 'theatreNurse', 'administrator'],
+  nursing: ['nurse', 'nursingAssistant', 'seniorNurse', 'ward', 'shortStay', 'doctor', 'seniorDoctor', 'pharmacy', 'pharmacist', 'icu', 'surgeon', 'theatre', 'theatreNurse', 'administrator'],
+  surgery: ['surgeon', 'theatre', 'theatreNurse', 'ward', 'doctor', 'seniorDoctor', 'nurse', 'nursingAssistant', 'pharmacy', 'pharmacist', 'seniorNurse', 'shortStay', 'icu', 'administrator'],
+  capacity: ['ward', 'shortStay', 'icu', 'theatre', 'nurse', 'nursingAssistant', 'doctor', 'seniorNurse', 'seniorDoctor', 'pharmacy', 'pharmacist', 'surgeon', 'theatreNurse', 'administrator'],
+  economy: ['administrator', 'nursingAssistant', 'nurse', 'pharmacist', 'doctor', 'pharmacy', 'ward', 'theatreNurse', 'shortStay', 'seniorNurse', 'surgeon', 'seniorDoctor', 'theatre', 'icu'],
   random: []
 };
 
@@ -187,7 +189,10 @@ function makeMetrics() {
     rounds: 0, discharges: 0, deaths: 0, deterioration: 0, protected: 0,
     queuePenalty: 0, queuePeak: 0, edOccupancy: 0, wardOccupancy: 0,
     theatreOccupancy: 0, samples: 0, finalMoney: 0, finalReputation: 0,
-    unusedMedication:0,unusedNursing:0,gameOver: false, purchases: {}
+    unusedMedication:0,unusedNursing:0,gameOver:false,purchases:{},
+    averageUnmetNeeds:0,moneyEarned:0,moneySpent:0,investigations:0,
+    nursingDelivered:0,medicationDelivered:0,surgeryDelivered:0,
+    upkeepPaid:0,upkeepUnpaid:0,upkeepReputationLoss:0
   };
 }
 
@@ -235,6 +240,20 @@ function runOne(policy, seed, rules=BASELINE) {
   metrics.finalMoney = game.money;
   metrics.finalReputation = game.reputation;
   metrics.gameOver = game.gameOver;
+  metrics.discharges=game.outcomes.discharged;
+  metrics.deaths=game.outcomes.deaths;
+  metrics.queuePenalty=game.analytics.reputationLost.queue;
+  metrics.queuePeak=game.analytics.peakQueue;
+  metrics.averageUnmetNeeds=game.analytics.resolutionSamples?game.analytics.totalUnmetAtResolution/game.analytics.resolutionSamples:0;
+  metrics.moneyEarned=game.analytics.moneyEarned;
+  metrics.moneySpent=game.analytics.moneySpent;
+  metrics.investigations=game.analytics.investigations;
+  metrics.nursingDelivered=game.analytics.treatments.nursing;
+  metrics.medicationDelivered=game.analytics.treatments.medication;
+  metrics.surgeryDelivered=game.analytics.treatments.surgery;
+  metrics.upkeepPaid=game.analytics.upkeepPaid;
+  metrics.upkeepUnpaid=game.analytics.upkeepUnpaid;
+  metrics.upkeepReputationLoss=game.analytics.reputationLost.upkeep;
   return metrics;
 }
 
@@ -259,6 +278,10 @@ function summarize(policy, results) {
   const topPurchases = Object.entries(purchases)
     .sort((a, b) => b[1] - a[1]).slice(0, 5)
     .map(([key, value]) => `${key} ${(value / results.length).toFixed(2)}/game`);
+  const leastPurchases = MARKET.map(card=>`${card.kind}:${card.key}`)
+    .map(key=>[key,purchases[key]||0])
+    .sort((a,b)=>a[1]-b[1]).slice(0,5)
+    .map(([key,value])=>`${key} ${(value/results.length).toFixed(2)}/game`);
   return {
     policy,
     games: results.length,
@@ -269,6 +292,16 @@ function summarize(policy, results) {
     averageDischarges: +avg('discharges').toFixed(2),
     averageDeaths: +avg('deaths').toFixed(2),
     averageDeteriorations: +avg('deterioration').toFixed(2),
+    averageUnmetNeedsAtResolution:+avg('averageUnmetNeeds').toFixed(2),
+    averageMoneyEarned:+avg('moneyEarned').toFixed(2),
+    averageMoneySpent:+avg('moneySpent').toFixed(2),
+    averageInvestigations:+avg('investigations').toFixed(2),
+    averageNursingDelivered:+avg('nursingDelivered').toFixed(2),
+    averageMedicationDelivered:+avg('medicationDelivered').toFixed(2),
+    averageSurgeryDelivered:+avg('surgeryDelivered').toFixed(2),
+    averageUpkeepPaid:+avg('upkeepPaid').toFixed(2),
+    averageUpkeepUnpaid:+avg('upkeepUnpaid').toFixed(2),
+    averageUpkeepReputationLoss:+avg('upkeepReputationLoss').toFixed(2),
     averageUnusedMedication: +avg('unusedMedication').toFixed(2),
     averageUnusedNursing: +avg('unusedNursing').toFixed(2),
     averageQueuePenalty: +avg('queuePenalty').toFixed(2),
@@ -276,7 +309,8 @@ function summarize(policy, results) {
     averageEdOccupancyPct: +(100 * results.reduce((n, r) => n + r.edOccupancy / Math.max(1, r.samples), 0) / results.length).toFixed(1),
     averageWardOccupancyPct: +(100 * results.reduce((n, r) => n + r.wardOccupancy / Math.max(1, r.samples), 0) / results.length).toFixed(1),
     averageTheatreOccupancyPct: +(100 * results.reduce((n, r) => n + r.theatreOccupancy / Math.max(1, r.samples), 0) / results.length).toFixed(1),
-    topPurchases
+    topPurchases,
+    leastPurchases
   };
 }
 
@@ -312,4 +346,3 @@ if(MODE==='adjustments'){
 }
 
 console.log(JSON.stringify(report, null, 2));
-
