@@ -1,7 +1,7 @@
 import {
   createGame, advancePhase, assignStaff, returnStaff, investigate, treat, admit,
   scheduleSurgery, surgeryEligibility, placePostoperativePatient, buy, placeFacility,
-  unmetNeeds, canEnterWard
+  unmetNeeds, canEnterWard, radiologyInvestigate, hospitalHomeDischarge
 } from '../src/engine.js';
 import {STAFF, FACILITIES, MARKET} from '../src/data.js';
 
@@ -85,23 +85,47 @@ function investigatePatients(game, policy, rng, rules) {
     if (!facility) continue;
     doctor.actionsRemaining=Math.max(doctor.actionsRemaining||0,rules.doctorActions);
     for(let action=0;action<rules.doctorActions;action++){
-      const hidden = rankPatients(policy, facility.patients.filter(p => !p.revealed), rng);
+      const hidden = facility.patients.filter(p => !p.revealed);
+      if(policy==='random')hidden.sort(()=>rng()-.5);
       if (!hidden[0]) break;
       investigate(game, hidden[0].id,doctor.id);
     }
   }
 }
 
-function admitPatients(game, policy, rng) {
+function useRadiology(game,policy,rng){
+  for(const radiology of game.facilities.filter(f=>f.key==='radiology'&&!f.abilityUsed)){
+    const hidden=game.facilities.filter(f=>FACILITIES[f.key].kind!=='theatre').flatMap(f=>f.patients.filter(p=>!p.revealed));
+    if(policy==='random')hidden.sort(()=>rng()-.5);
+    if(hidden[0])radiologyInvestigate(game,radiology.id,hidden[0].id);
+  }
+}
+
+function admitPatients(game, policy, rng,metrics) {
   const ed = game.facilities.find(f => f.key === 'ed');
   const beds = wardFacilities(game);
   for (const patient of rankPatients(policy, ed.patients.filter(p => p.revealed), rng)) {
     const target = beds
-      .filter(f => f.patients.length < FACILITIES[f.key].beds)
-      .sort((a, b) => a.patients.length - b.patients.length)[0];
+      .filter(f => canEnterWard(patient,f))
+      .sort((a, b) => (b.key==='rehabilitation'?100:0)-(a.key==='rehabilitation'?100:0)||a.patients.length-b.patients.length)[0];
     if (!target) break;
-    if (patient.wardRequired || patient.needs.nursing > 0 || patient.needs.surgery > 0)
-      admit(game, patient.id, target.id);
+    if (patient.wardRequired || patient.needs.nursing > 0 || patient.needs.surgery > 0){
+      const admitted=admit(game, patient.id, target.id);
+      if(admitted&&target.key==='rehabilitation')metrics.rehabilitationAdmissions++;
+    }
+  }
+}
+
+function useHospitalHome(game,policy,rng){
+  for(const service of game.facilities.filter(f=>f.key==='hospitalHome'&&!f.abilityUsed)){
+    const eligible=game.facilities.filter(f=>FACILITIES[f.key].kind!=='theatre').flatMap(f=>f.patients.filter(p=>p.revealed&&unmetNeeds(p)===1));
+    if(policy==='random')eligible.sort(()=>rng()-.5);
+    else eligible.sort((a,b)=>{
+      const surgeryA=(a.completed.surgery||0)<a.needs.surgery?1:0,surgeryB=(b.completed.surgery||0)<b.needs.surgery?1:0;
+      const bedA=game.facilities.some(f=>FACILITIES[f.key].kind==='ward'&&f.patients.includes(a))?1:0,bedB=game.facilities.some(f=>FACILITIES[f.key].kind==='ward'&&f.patients.includes(b))?1:0;
+      return surgeryB-surgeryA||bedB-bedA||(b.reputation||0)-(a.reputation||0);
+    });
+    if(eligible[0])hospitalHomeDischarge(game,service.id,eligible[0].id);
   }
 }
 
@@ -133,11 +157,11 @@ function scheduleOperations(game, policy, rng) {
 }
 
 const purchasePriority = {
-  balanced: ['ward', 'nurse', 'nursingAssistant', 'shortStay', 'doctor', 'pharmacy', 'pharmacist', 'seniorNurse', 'seniorDoctor', 'icu', 'surgeon', 'theatre', 'theatreNurse', 'administrator'],
-  nursing: ['nurse', 'nursingAssistant', 'seniorNurse', 'ward', 'shortStay', 'doctor', 'seniorDoctor', 'pharmacy', 'pharmacist', 'icu', 'surgeon', 'theatre', 'theatreNurse', 'administrator'],
-  surgery: ['surgeon', 'theatre', 'theatreNurse', 'ward', 'doctor', 'seniorDoctor', 'nurse', 'nursingAssistant', 'pharmacy', 'pharmacist', 'seniorNurse', 'shortStay', 'icu', 'administrator'],
-  capacity: ['ward', 'shortStay', 'icu', 'theatre', 'nurse', 'nursingAssistant', 'doctor', 'seniorNurse', 'seniorDoctor', 'pharmacy', 'pharmacist', 'surgeon', 'theatreNurse', 'administrator'],
-  economy: ['administrator', 'nursingAssistant', 'nurse', 'pharmacist', 'doctor', 'pharmacy', 'ward', 'theatreNurse', 'shortStay', 'seniorNurse', 'surgeon', 'seniorDoctor', 'theatre', 'icu'],
+  balanced: ['ward','nurse','radiology','nursingAssistant','shortStay','hospitalHome','doctor','pharmacy','pharmacist','rehabilitation','seniorNurse','seniorDoctor','icu','surgeon','theatre','theatreNurse','administrator','helipad'],
+  nursing: ['nurse','nursingAssistant','seniorNurse','rehabilitation','ward','shortStay','hospitalHome','radiology','doctor','seniorDoctor','pharmacy','pharmacist','icu','surgeon','theatre','theatreNurse','administrator','helipad'],
+  surgery: ['surgeon','theatre','theatreNurse','hospitalHome','helipad','ward','radiology','doctor','seniorDoctor','nurse','nursingAssistant','pharmacy','pharmacist','seniorNurse','shortStay','rehabilitation','icu','administrator'],
+  capacity: ['ward','shortStay','rehabilitation','icu','hospitalHome','radiology','theatre','nurse','nursingAssistant','doctor','seniorNurse','seniorDoctor','pharmacy','pharmacist','surgeon','theatreNurse','administrator','helipad'],
+  economy: ['administrator','hospitalHome','radiology','nursingAssistant','nurse','pharmacist','doctor','pharmacy','ward','theatreNurse','shortStay','rehabilitation','seniorNurse','surgeon','seniorDoctor','theatre','icu','helipad'],
   random: []
 };
 
@@ -193,7 +217,9 @@ function makeMetrics() {
     unusedMedication:0,unusedNursing:0,gameOver:false,purchases:{},
     averageUnmetNeeds:0,moneyEarned:0,moneySpent:0,investigations:0,
     nursingDelivered:0,medicationDelivered:0,surgeryDelivered:0,
-    upkeepPaid:0,upkeepUnpaid:0,upkeepReputationLoss:0
+    upkeepPaid:0,upkeepUnpaid:0,upkeepReputationLoss:0,
+    radiologyInvestigations:0,homeDischarges:0,homeMoney:0,homeReputation:0,
+    helipadArrivals:0,rehabilitationAdmissions:0,facilityOwnedRounds:{}
   };
 }
 
@@ -204,10 +230,13 @@ function runOne(policy, seed, rules=BASELINE) {
   const metrics = makeMetrics();
   while (!game.gameOver && !game.gameWon && game.round <= HORIZON) {
     metrics.rounds = game.round;
+    for(const facility of game.facilities)metrics.facilityOwnedRounds[facility.key]=(metrics.facilityOwnedRounds[facility.key]||0)+1;
     assignTeam(game, policy, rng);
+    useRadiology(game,policy,rng);
     investigatePatients(game, policy, rng, rules);
-    admitPatients(game, policy, rng);
+    admitPatients(game, policy, rng,metrics);
     allocateTreatment(game, policy, rng);
+    useHospitalHome(game,policy,rng);
     metrics.unusedMedication+=game.resources.medication;
     metrics.unusedNursing+=game.facilities.reduce((sum,f)=>sum+(f.nursing||0),0);
     const reputationBeforeResolution = game.reputation;
@@ -255,6 +284,11 @@ function runOne(policy, seed, rules=BASELINE) {
   metrics.upkeepPaid=game.analytics.upkeepPaid;
   metrics.upkeepUnpaid=game.analytics.upkeepUnpaid;
   metrics.upkeepReputationLoss=game.analytics.reputationLost.upkeep;
+  metrics.radiologyInvestigations=game.analytics.facilityAbilities.radiologyInvestigations;
+  metrics.homeDischarges=game.analytics.facilityAbilities.homeDischarges;
+  metrics.homeMoney=game.analytics.facilityAbilities.homeMoney;
+  metrics.homeReputation=game.analytics.facilityAbilities.homeReputation;
+  metrics.helipadArrivals=game.analytics.facilityAbilities.helipadArrivals;
   return metrics;
 }
 
@@ -283,6 +317,17 @@ function summarize(policy, results) {
     .map(key=>[key,purchases[key]||0])
     .sort((a,b)=>a[1]-b[1]).slice(0,5)
     .map(([key,value])=>`${key} ${(value/results.length).toFixed(2)}/game`);
+  const specialFacilities=['radiology','rehabilitation','hospitalHome','helipad'];
+  const facilityPerformance=Object.fromEntries(specialFacilities.map(key=>{
+    const purchaseKey=`facility:${key}`,usesKey=key==='radiology'?'radiologyInvestigations':key==='rehabilitation'?'rehabilitationAdmissions':key==='hospitalHome'?'homeDischarges':'helipadArrivals';
+    return [key,{
+      purchaseRatePct:+(100*results.filter(r=>(r.purchases[purchaseKey]||0)>0).length/results.length).toFixed(1),
+      averagePurchases:+((purchases[purchaseKey]||0)/results.length).toFixed(2),
+      averageOwnedRounds:+(results.reduce((sum,r)=>sum+(r.facilityOwnedRounds[key]||0),0)/results.length).toFixed(2),
+      averageAbilityUses:+avg(usesKey).toFixed(2),
+      ...(key==='hospitalHome'?{averageMoneyGenerated:+avg('homeMoney').toFixed(2),averageReputationGenerated:+avg('homeReputation').toFixed(2)}:{})
+    }]
+  }));
   return {
     policy,
     games: results.length,
@@ -310,18 +355,22 @@ function summarize(policy, results) {
     averageEdOccupancyPct: +(100 * results.reduce((n, r) => n + r.edOccupancy / Math.max(1, r.samples), 0) / results.length).toFixed(1),
     averageWardOccupancyPct: +(100 * results.reduce((n, r) => n + r.wardOccupancy / Math.max(1, r.samples), 0) / results.length).toFixed(1),
     averageTheatreOccupancyPct: +(100 * results.reduce((n, r) => n + r.theatreOccupancy / Math.max(1, r.samples), 0) / results.length).toFixed(1),
+    facilityPerformance,
     topPurchases,
     leastPurchases
   };
 }
 
 const report = {
+  simulatorVersion: 2,
   generatedAt: new Date().toISOString(),
   runsPerPolicy: RUNS,
   horizon: HORIZON,
   assumptions: [
     'Automated policies use only information visible after investigation.',
     'Staff are reassigned each round to the facility where their role has the most immediate work.',
+    'Radiology is used before Doctor actions; Hospital in the Home targets patients with exactly one unmet need.',
+    'Rehabilitation admission restrictions and Helipad Complex arrivals are fully resolved by the game engine.',
     'Purchases follow fixed policy priorities and never exceed available staff slots or map plots.',
     'Results measure system pressure, not player enjoyment or optimal human play.'
   ],
