@@ -54,7 +54,7 @@ function rulesGuide(){
   </div>
   <h3 class="rules-stage-title">Round sequence</h3>
   <ol class="rules-stages">
-    <li><b>Round start</b><span>Scheduled Surgery resolves. Postoperative patients must receive ward beds. Pharmacists generate Medication and new patients arrive.</span></li>
+    <li><b>Round start</b><span>Scheduled Surgery resolves. Postoperative patients must receive ward beds. Pharmacists generate Medication. Patient arrivals increase every four rounds: 2 in rounds 1–4, 3 in rounds 5–8, and 4 in rounds 9–12.</span></li>
     <li><b>Hospital Operations</b><span>Move unused staff, investigate patients, provide Nursing and Medication, and admit ED patients into vacant ward beds. Active staff become committed after their first use.</span></li>
     <li><b>Patient Resolution</b><span>Fully treated patients discharge first. Rewards are collected, then untreated patients deteriorate or die according to their unmet needs.</span></li>
     <li><b>Surgery Scheduling</b><span>Move eligible patients into staffed Theatre spaces. One Surgery need resolves at the start of the next round.</span></li>
