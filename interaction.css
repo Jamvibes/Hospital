@@ -268,6 +268,16 @@ body.resolving button{pointer-events:none}
 .upkeep-label{display:inline-flex;width:max-content;margin-top:5px;padding:3px 7px;border-radius:999px;background:#f1e8d3;color:#765d28;font-size:8px;font-weight:900;line-height:1.2;text-transform:uppercase;letter-spacing:.05em}
 .room-actions{justify-content:space-between;align-items:flex-end;gap:8px}
 .market-card .upkeep-label{margin:2px 0 4px}
+.workforce-group{grid-column:1/-1;display:grid;gap:8px;padding:10px;border:1px solid var(--line);border-radius:11px;background:#f7f4ec}
+.workforce-group>header{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.workforce-group>header>div{display:grid;gap:1px}.workforce-group>header small{color:var(--muted);font-size:9px}
+.workforce-group>header>b{display:grid;place-items:center;min-width:25px;height:25px;border-radius:50%;background:#fff;color:var(--teal);font-size:11px}
+.workforce-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(145px,1fr));gap:9px}
+.workforce-empty{padding:14px;border:1px dashed #c7c1b4;border-radius:8px;color:var(--muted);font-size:11px;text-align:center}
+.staff-group-badge{display:inline-flex;width:max-content;margin:0 0 5px;padding:3px 6px;border-radius:999px;background:#e8ece9;color:#52615e;font-size:8px;font-weight:900;letter-spacing:.07em;text-transform:uppercase}
+.staff-group-medical{--staff-group:#39758a}.staff-group-nursing{--staff-group:#8a6a27}.staff-group-allied{--staff-group:#4d8064}.staff-group-support{--staff-group:#765d82}
+.staff-card[class*="staff-group-"],.market-card[class*="staff-group-"]{border-top:3px solid var(--staff-group)}
+.staff-card[class*="staff-group-"] .staff-group-badge,.market-card[class*="staff-group-"] .staff-group-badge{background:color-mix(in srgb,var(--staff-group) 14%,white);color:var(--staff-group)}
 .staff-card.used{position:relative;border-color:#b7aaa6;background:#f4efec}
 .staff-card.used:after{content:"LOCKED";position:absolute;right:10px;top:50px;padding:2px 5px;border:1px solid #87666055;border-radius:4px;color:#876660;font-size:7px;font-weight:950;letter-spacing:.12em;transform:rotate(-7deg);pointer-events:none}
 .staff-remaining{display:flex;align-items:center;gap:6px;margin-top:8px;padding:6px 8px;border-radius:7px;background:#f2f5f2;color:#47605a;font-size:9px;font-weight:800}
