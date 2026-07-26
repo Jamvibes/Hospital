@@ -3,9 +3,10 @@ const clone=value=>JSON.parse(JSON.stringify(value));
 
 export function createGame(seed=null,options={}){
   const resolvedSeed=seed===null||seed===undefined?Math.floor(Math.random()*233279)+1:Number(seed)||1;
-  const state={round:1,roundLimit:options.roundLimit||GAME_CONFIG.roundLimit,phase:'operations',money:10,reputation:8,deck:shuffle(clone(PATIENTS),resolvedSeed),queue:[],discard:[],facilities:[],staff:[],market:[],resources:{medication:0},log:[],resolutionEvents:[],outcomes:{discharged:0,deaths:0},analytics:{moneyEarned:0,moneySpent:0,reputationEarned:0,reputationLost:{deaths:0,queue:0},purchases:{staff:0,facilities:0},treatments:{nursing:0,medication:0,surgery:0},investigations:0,peakQueue:0,peakOccupancy:{ed:0,ward:0,theatre:0},resolutionSamples:0,totalUnmetAtResolution:0},gameOver:false,gameWon:false,facilityDiscountUsed:false,nextId:1,rngState:resolvedSeed};
+  const state={round:1,roundLimit:options.roundLimit||GAME_CONFIG.roundLimit,phase:'operations',money:10,reputation:8,deck:shuffle(clone(PATIENTS),resolvedSeed),queue:[],discard:[],facilities:[],staff:[],market:[],resources:{medication:0},log:[],resolutionEvents:[],outcomes:{discharged:0,deaths:0},analytics:{moneyEarned:0,moneySpent:0,upkeepPaid:0,upkeepUnpaid:0,reputationEarned:0,reputationLost:{deaths:0,queue:0,upkeep:0},purchases:{staff:0,facilities:0},treatments:{nursing:0,medication:0,surgery:0},investigations:0,peakQueue:0,peakOccupancy:{ed:0,ward:0,theatre:0},resolutionSamples:0,totalUnmetAtResolution:0},gameOver:false,gameWon:false,facilityDiscountUsed:false,nextId:1,rngState:resolvedSeed};
   const ed=addFacility(state,'ed',0); const ward=addFacility(state,'ward',1); const theatre=addFacility(state,'theatre',2);
-  addStaff(state,'doctor',ed.id); addStaff(state,'nurse',ward.id); addStaff(state,'pharmacist',ed.id); addStaff(state,'surgeon',theatre.id);
+  ed.funded=ward.funded=theatre.funded=true;
+  const startingStaff=[addStaff(state,'doctor',ed.id),addStaff(state,'nurse',ward.id),addStaff(state,'pharmacist',ed.id),addStaff(state,'surgeon',theatre.id)];for(const member of startingStaff)member.funded=true;
   startOperations(state); drawPatients(state,2); refreshMarket(state); state.log.unshift('Round 1: two new patient cards arrived. Move staff and use their abilities.'); return state;
 }
 
@@ -16,6 +17,8 @@ export function facilityDefinition(f){return FACILITIES[f.key]}
 export function patientFacility(state,patientId){return state.facilities.find(f=>f.patients.some(p=>p.id===patientId))}
 export function theatreCapacity(state,facility){return (FACILITIES[facility.key].patientSpaces||0)+(state.staff.some(s=>s.facilityId===facility.id&&STAFF[s.key].role==='theatreNurse')?1:0)}
 export function purchaseCost(state,kind,key){const def=kind==='staff'?STAFF[key]:FACILITIES[key];if(!def)return Infinity;const discount=kind==='facility'&&!state.facilityDiscountUsed&&state.staff.some(s=>s.facilityId&&STAFF[s.key].role==='administrator')?2:0;return Math.max(0,def.cost-discount)}
+export function upkeepCost(state){return state.staff.reduce((sum,s)=>sum+(s.funded?0:STAFF[s.key].upkeep||0),0)+state.facilities.reduce((sum,f)=>sum+(f.funded?0:FACILITIES[f.key].upkeep||0),0)}
+export function resolveUpkeep(state){const due=upkeepCost(state);if(!due){state.log.unshift('The starting hospital is fully funded; no upkeep is due.');return {due:0,paid:0,shortfall:0,reputationLoss:0}}const paid=Math.min(state.money,due),shortfall=due-paid,reputationLoss=Math.ceil(shortfall/2);state.money-=paid;state.reputation=Math.max(0,state.reputation-reputationLoss);state.analytics.upkeepPaid+=paid;state.analytics.upkeepUnpaid+=shortfall;state.analytics.reputationLost.upkeep+=reputationLoss;state.log.unshift(shortfall?`Upkeep cost $${due}. Paid $${paid}; $${shortfall} remained unpaid, costing ${reputationLoss} Reputation.`:`Upkeep cost $${due} and was paid in full.`);return {due,paid,shortfall,reputationLoss}}
 export function patientCategory(needs){
   const total=Object.values(needs).reduce((sum,count)=>sum+(count||0),0);
   if(total<=2)return {key:'quick',label:'Quick',multiplier:1};
@@ -62,7 +65,7 @@ export function advancePhase(state){
   if(state.gameOver||state.gameWon)return false;
   if(state.phase==='operations'){resolvePatients(state);state.phase='resolution';if(state.reputation<=0){state.gameOver=true;state.log.unshift('The hospital has lost public confidence.')}else state.log.unshift('Patient resolution complete. Review the outcomes.');return true}
   if(state.phase==='resolution'){state.phase='scheduling';state.log.unshift('Surgery scheduling opened. Assign eligible patients to staffed Theatre spaces.');return true}
-  if(state.phase==='scheduling'){resolveArrivalQueue(state);state.phase='purchasing';if(state.reputation<=0){state.gameOver=true;state.log.unshift('The hospital has lost public confidence.')}else state.log.unshift('Purchasing stage opened. Spend this round’s rewards.');return true}
+  if(state.phase==='scheduling'){resolveArrivalQueue(state);if(state.reputation>0)resolveUpkeep(state);state.phase='purchasing';if(state.reputation<=0){state.gameOver=true;state.log.unshift('The hospital has lost public confidence.')}else state.log.unshift('Purchasing stage opened after upkeep. Spend the remaining money on expansion.');return true}
   if(state.phase==='purchasing'){
     if(state.facilities.some(f=>f.slotIndex===null))return false;
     if(state.round>=state.roundLimit){state.gameWon=true;state.phase='victory';state.log.unshift(`Campaign complete after ${state.roundLimit} rounds with ${state.reputation} reputation.`);return true}
