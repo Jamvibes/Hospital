@@ -3,9 +3,10 @@ import {
   createGame, addFacility, addStaff, investigate, treat, admit, buy, assignStaff, returnStaff,
   placeFacility, advancePhase, compatible, calculateRewards, patientCategory, previewResolution,
   unmetNeeds, patientRisk, scheduleSurgery, placePostoperativePatient, surgeryEligibility,
-  theatreCapacity, purchaseCost, upkeepCost, resolveUpkeep, patientArrivalsForRound
+  theatreCapacity, purchaseCost, upkeepCost, resolveUpkeep, patientArrivalsForRound,
+  radiologyInvestigate, hospitalHomeDischarge, canEnterWard
 } from '../src/engine.js';
-import {GAME_CONFIG, PATIENTS, STAFF} from '../src/data.js';
+import {GAME_CONFIG, PATIENTS, STAFF, FACILITIES, MARKET} from '../src/data.js';
 
 assert.equal(PATIENTS.length,30);
 assert.equal(new Set(PATIENTS.map(p=>p.id)).size,PATIENTS.length);
@@ -25,6 +26,8 @@ const seededMarket=seed=>createGame(seed).market.map(card=>`${card.kind}:${card.
 assert.deepEqual(seededMarket(42),seededMarket(42));
 assert.notDeepEqual(seededMarket(42),seededMarket(43));
 assert.deepEqual([1,4,5,8,9,12].map(patientArrivalsForRound),[2,2,3,3,4,4]);
+for(const key of ['helipad','radiology','rehabilitation','hospitalHome'])assert.ok(FACILITIES[key]);
+for(const key of ['helipad','radiology','rehabilitation','hospitalHome'])assert.ok(MARKET.some(card=>card.kind==='facility'&&card.key===key));
 const fundedGame=createGame(99);
 assert.equal(upkeepCost(fundedGame),0);
 const upkeepAssistant=addStaff(fundedGame,'nursingAssistant');
@@ -366,4 +369,49 @@ assert.equal(admit(icuDeathGame,icuDeathPatient.id,deathIcu.id),true);
 advancePhase(icuDeathGame);
 assert.equal(deathIcu.patients.includes(icuDeathPatient),false);
 assert.equal(icuDeathGame.resolutionEvents.some(event=>event.type==='death'),true);
+
+const radiologyGame=createGame(30);
+const radiology=addFacility(radiologyGame,'radiology',3);
+const radiologyTarget=radiologyGame.facilities.find(f=>f.key==='ed').patients[0];
+assert.equal(radiologyInvestigate(radiologyGame,radiology.id,radiologyTarget.id),true);
+assert.equal(radiologyTarget.revealed,true);
+assert.equal(radiology.abilityUsed,true);
+assert.equal(radiologyInvestigate(radiologyGame,radiology.id,radiologyGame.facilities.find(f=>f.key==='ed').patients[1].id),false);
+
+const rehabilitationGame=createGame(31);
+const rehabilitation=addFacility(rehabilitationGame,'rehabilitation',3);
+const rehabilitationTarget=rehabilitationGame.facilities.find(f=>f.key==='ed').patients[0];
+assert.equal(canEnterWard(rehabilitationTarget,rehabilitation),false);
+rehabilitationTarget.revealed=true;
+rehabilitationTarget.needs={nursing:2,medication:1,surgery:0};
+rehabilitationTarget.completed={nursing:0,medication:0,surgery:0};
+assert.equal(canEnterWard(rehabilitationTarget,rehabilitation),false);
+rehabilitationTarget.completed.medication=1;
+assert.equal(canEnterWard(rehabilitationTarget,rehabilitation),true);
+assert.equal(admit(rehabilitationGame,rehabilitationTarget.id,rehabilitation.id),true);
+
+const homeGame=createGame(32);
+const homeService=addFacility(homeGame,'hospitalHome',3);
+const homePatient=homeGame.facilities.find(f=>f.key==='ed').patients[0];
+homePatient.revealed=true;
+homePatient.needs={nursing:1,medication:1,surgery:0};
+homePatient.completed={nursing:1,medication:0,surgery:0};
+const homeMoney=homeGame.money,homeReputation=homeGame.reputation;
+assert.equal(hospitalHomeDischarge(homeGame,homeService.id,homePatient.id),true);
+assert.equal(homeGame.money,homeMoney+homePatient.reward);
+assert.equal(homeGame.reputation,homeReputation+homePatient.reputation);
+assert.equal(homeGame.outcomes.discharged,1);
+assert.equal(homeService.abilityUsed,true);
+
+const helipadGame=createGame(33);
+addFacility(helipadGame,'helipad',3);
+const patientsBeforeHelipad=helipadGame.facilities.flatMap(f=>f.patients).length+helipadGame.queue.length;
+const complexDeckBefore=helipadGame.deck.filter(p=>Object.values(p.needs).reduce((sum,n)=>sum+n,0)>=5).length;
+helipadGame.phase='purchasing';
+assert.equal(advancePhase(helipadGame),true);
+const patientsAfterHelipad=helipadGame.facilities.flatMap(f=>f.patients).length+helipadGame.queue.length;
+assert.equal(patientsAfterHelipad-patientsBeforeHelipad,3);
+assert.equal(helipadGame.deck.filter(p=>Object.values(p.needs).reduce((sum,n)=>sum+n,0)>=5).length,complexDeckBefore-1);
+assert.ok(helipadGame.log.some(message=>message.includes('additional revealed Complex patient arrived by Helipad')));
+assert.ok([...helipadGame.facilities.flatMap(f=>f.patients),...helipadGame.queue].some(p=>p.category==='complex'&&p.revealed));
 console.log('engine tests passed');
