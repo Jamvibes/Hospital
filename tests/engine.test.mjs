@@ -3,7 +3,7 @@ import {
   createGame, addFacility, addStaff, investigate, treat, admit, buy, assignStaff, returnStaff,
   placeFacility, advancePhase, compatible, calculateRewards, patientCategory, previewResolution,
   unmetNeeds, patientRisk, scheduleSurgery, placePostoperativePatient, surgeryEligibility,
-  theatreCapacity, purchaseCost, upkeepCost, resolveUpkeep
+  theatreCapacity, purchaseCost, upkeepCost, resolveUpkeep, patientArrivalsForRound
 } from '../src/engine.js';
 import {GAME_CONFIG, PATIENTS, STAFF} from '../src/data.js';
 
@@ -24,6 +24,7 @@ assert.notDeepEqual(seededOrder(42),seededOrder(43));
 const seededMarket=seed=>createGame(seed).market.map(card=>`${card.kind}:${card.key}`);
 assert.deepEqual(seededMarket(42),seededMarket(42));
 assert.notDeepEqual(seededMarket(42),seededMarket(43));
+assert.deepEqual([1,4,5,8,9,12].map(patientArrivalsForRound),[2,2,3,3,4,4]);
 const fundedGame=createGame(99);
 assert.equal(upkeepCost(fundedGame),0);
 const upkeepAssistant=addStaff(fundedGame,'nursingAssistant');
