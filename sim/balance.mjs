@@ -1,7 +1,7 @@
 import {
   createGame, advancePhase, assignStaff, returnStaff, investigate, treat, admit,
   scheduleSurgery, surgeryEligibility, placePostoperativePatient, buy, placeFacility,
-  unmetNeeds
+  unmetNeeds, canEnterWard
 } from '../src/engine.js';
 import {STAFF, FACILITIES, MARKET} from '../src/data.js';
 
@@ -178,7 +178,7 @@ function placePostoperative(game) {
     const theatre = theatreFacilities(game).find(f => f.patients.some(p => p.postoperative));
     const patient = theatre?.patients.find(p => p.postoperative);
     const ward = wardFacilities(game)
-      .filter(f => f.patients.length < FACILITIES[f.key].beds)
+      .filter(f => canEnterWard(patient,f))
       .sort((a, b) => a.patients.length - b.patients.length)[0];
     if (!patient || !ward || !placePostoperativePatient(game, patient.id, ward.id)) break;
   }
