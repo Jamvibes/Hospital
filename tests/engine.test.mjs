@@ -3,7 +3,7 @@ import {
   createGame, addFacility, addStaff, investigate, treat, admit, buy, assignStaff, returnStaff,
   placeFacility, advancePhase, compatible, calculateRewards, patientCategory, previewResolution,
   unmetNeeds, patientRisk, scheduleSurgery, placePostoperativePatient, surgeryEligibility,
-  theatreCapacity, purchaseCost
+  theatreCapacity, purchaseCost, upkeepCost, resolveUpkeep
 } from '../src/engine.js';
 import {GAME_CONFIG, PATIENTS, STAFF} from '../src/data.js';
 
@@ -24,6 +24,21 @@ assert.notDeepEqual(seededOrder(42),seededOrder(43));
 const seededMarket=seed=>createGame(seed).market.map(card=>`${card.kind}:${card.key}`);
 assert.deepEqual(seededMarket(42),seededMarket(42));
 assert.notDeepEqual(seededMarket(42),seededMarket(43));
+const fundedGame=createGame(99);
+assert.equal(upkeepCost(fundedGame),0);
+const upkeepAssistant=addStaff(fundedGame,'nursingAssistant');
+const upkeepWard=addFacility(fundedGame,'ward',4);
+assert.equal(upkeepAssistant.funded,undefined);
+assert.equal(upkeepWard.funded,undefined);
+assert.equal(upkeepCost(fundedGame),2);
+fundedGame.money=1;
+const reputationBeforeUpkeep=fundedGame.reputation;
+assert.deepEqual(resolveUpkeep(fundedGame),{due:2,paid:1,shortfall:1,reputationLoss:1});
+assert.equal(fundedGame.money,0);
+assert.equal(fundedGame.reputation,reputationBeforeUpkeep-1);
+assert.equal(fundedGame.analytics.upkeepPaid,1);
+assert.equal(fundedGame.analytics.upkeepUnpaid,1);
+assert.equal(fundedGame.analytics.reputationLost.upkeep,1);
 
 assert.deepEqual(calculateRewards({nursing:1,medication:1,surgery:0}),{value:1.5,reward:3,reputation:2,category:'quick'});
 assert.deepEqual(calculateRewards({nursing:1,medication:2,surgery:1}),{value:3.5,reward:11,reputation:6,category:'standard'});
