@@ -57,12 +57,17 @@ export const FACILITIES = {
   ward:{name:'General Ward',short:'GW',cost:8,upkeep:1,kind:'ward',beds:4,slots:['nurse','doctor','administrator'],colour:'sage',effect:'Four flexible inpatient beds with no special ability.'},
   shortStay:{name:'Short Stay Ward',short:'SS',cost:9,upkeep:1,kind:'ward',beds:2,slots:['nurse'],colour:'amber',effect:'On admission, patients with 3 or fewer unmet needs receive 1 Nursing Care.'},
   icu:{name:'Intensive Care Unit',short:'ICU',cost:13,upkeep:2,kind:'ward',beds:1,slots:['nurse','doctor'],colour:'rose',effect:'Prevents deterioration during resolution, but cannot prevent death at 7+ unmet needs.'},
+  rehabilitation:{name:'Rehabilitation Ward',short:'REH',cost:10,upkeep:1,kind:'ward',beds:2,slots:['nurse'],colour:'mint',effect:'Only patients whose remaining unmet needs are all Nursing Care can be placed in its 2 beds.'},
   pharmacy:{name:'Pharmacy',short:'RX',cost:7,upkeep:1,kind:'support',beds:0,slots:['pharmacist'],colour:'mint',effect:'A Pharmacist assigned here generates 2 Medication.'},
+  radiology:{name:'Radiology Department',short:'RAD',cost:10,upkeep:2,kind:'support',beds:0,slots:[],colour:'blue',effect:'Investigate any 1 patient in ED or a ward each round.'},
+  helipad:{name:'Helipad',short:'H',cost:11,upkeep:2,kind:'support',beds:0,slots:[],colour:'amber',effect:'One additional revealed Complex patient arrives at the start of each round.'},
+  hospitalHome:{name:'Hospital in the Home',short:'HITH',cost:12,upkeep:2,kind:'support',beds:0,slots:[],colour:'sage',effect:'Once per round, discharge 1 investigated patient with no more than 1 unmet need for their full reward.'},
   theatre:{name:'Operating Theatre',short:'OT',cost:12,upkeep:2,kind:'theatre',beds:0,patientSpaces:1,slots:['surgeon','theatreNurse'],colour:'rose',effect:'Provides 1 surgical patient space. An assigned Surgeon completes 1 Surgery need at the start of the next round.'}
 };
 
 export const MARKET = [
   {kind:'staff',key:'doctor'},{kind:'staff',key:'seniorDoctor'},{kind:'staff',key:'nurse'},{kind:'staff',key:'nursingAssistant'},
   {kind:'staff',key:'seniorNurse'},{kind:'staff',key:'pharmacist'},{kind:'staff',key:'surgeon'},{kind:'staff',key:'theatreNurse'},{kind:'staff',key:'administrator'},
-  {kind:'facility',key:'ward'},{kind:'facility',key:'shortStay'},{kind:'facility',key:'icu'},{kind:'facility',key:'pharmacy'},{kind:'facility',key:'theatre'}
+  {kind:'facility',key:'ward'},{kind:'facility',key:'shortStay'},{kind:'facility',key:'icu'},{kind:'facility',key:'rehabilitation'},
+  {kind:'facility',key:'pharmacy'},{kind:'facility',key:'radiology'},{kind:'facility',key:'helipad'},{kind:'facility',key:'hospitalHome'},{kind:'facility',key:'theatre'}
 ];
