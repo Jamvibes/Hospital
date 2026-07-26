@@ -1,5 +1,5 @@
 import {createGame,investigate,treat,admit,buy,advancePhase,assignStaff,returnStaff,placeFacility,compatible,getFacility,previewResolution,patientRisk,scheduleSurgery,cancelSurgery,placePostoperativePatient,surgeryEligibility,theatreCapacity,purchaseCost,upkeepCost,unmetNeeds,canEnterWard,radiologyInvestigate,hospitalHomeDischarge} from './engine.js?v=32';
-import {STAFF,FACILITIES} from './data.js?v=13';
+import {STAFF,FACILITIES,STAFF_GROUPS} from './data.js?v=14';
 
 let game=createGame(),selectedStaff=null,selectedAdmission=null,selectedFacility=null,selectedAbility=null,selectedFacilityAbility=null,selectedSurgery=null,resolutionAnimating=false,rulesOpen=false;
 const $=id=>document.getElementById(id),names={nursing:'Nursing',medication:'Medication',surgery:'Surgery'},roleNames={doctor:'Doctor',nurse:'Nurse',pharmacist:'Pharmacist',surgeon:'Surgeon',theatreNurse:'Theatre Nurse',administrator:'Administrator'};
@@ -32,7 +32,7 @@ function render(){
     :`<div><strong>${phase.name}</strong><span>${phase.help}</span></div>${game.phase==='operations'?`<div class="activation-sidebar"><div class="resource-bank"><b>Shared resource</b>${resourceBadge('medication',game.resources.medication)}</div>${resolutionPreview(preview)}</div>`:''}`;
   $('hospitalMap').innerHTML=Array.from({length:6},(_,slot)=>{const f=game.facilities.find(x=>x.slotIndex===slot);return f?facilityTile(f):buildPlot(slot)}).join('');
   $('arrivalQueue').innerHTML=game.queue.length?game.queue.map(queueCard).join(''):'<div class="queue-empty">No patients waiting</div>';
-  $('staff').innerHTML=game.staff.map(staffCard).join('');
+  $('staff').innerHTML=workforceGroups();
   $('market').innerHTML=game.market.length?game.market.map(marketCard).join(''):'<div class="market-empty">All of this round’s offers have been purchased.</div>';
   $('log').innerHTML=game.log.slice(0,9).map(x=>`<li>${x}</li>`).join('');
   $('endTurn').textContent=phase.button;
@@ -53,6 +53,7 @@ function rulesGuide(){
     <article><h3>Patient risk</h3><ul><li><b>0–3 unmet needs:</b> stable.</li><li><b>4–6 unmet needs:</b> gains one random need at resolution.</li><li><b>7+ unmet needs:</b> dies and costs 2 Reputation.</li></ul><p>Uninvestigated patients still deteriorate, but their risk remains hidden.</p></article>
     <article><h3>Upkeep</h3><p>The starting hospital is funded. Purchased staff and facilities add Upkeep, paid before Purchasing each round. If Money cannot cover the full cost, every $2 unpaid costs 1 Reputation, rounded up.</p></article>
     <article><h3>Special facilities</h3><p>Radiology investigates one patient anywhere each round. Rehabilitation accepts only patients whose remaining needs are Nursing. A Helipad adds one revealed Complex arrival each round. Hospital in the Home can discharge one investigated patient with at most one unmet need for their full reward.</p></article>
+    <article><h3>Staff groups</h3><p>Staff are organised into Medical, Nursing, Allied Health, and Support Staff. Groups do not currently change placement rules; individual role slots still determine where each card can work.</p></article>
   </div>
   <h3 class="rules-stage-title">Round sequence</h3>
   <ol class="rules-stages">
@@ -141,8 +142,9 @@ function staffCard(s){
   const d=STAFF[s.key],f=getFacility(game,s.facilityId),operations=game.phase==='operations',placing=game.phase==='purchasing'&&s.purchasedRound===game.round;
   const movement=(operations||placing)&&!s.used?`<button data-action="selectStaff" data-staff="${s.id}">${selectedStaff===s.id?'Selected':placing?'Place on map':'Move / assign'}</button>${f?`<button class="secondary" data-action="returnStaff" data-staff="${s.id}">Return to available</button>`:''}`:s.used?'<small class="committed-label">Committed here this round</small>':'';
   let controls=operations?`${movement}${staffAbilityControl(s,f)}`:placing?`${movement}<button disabled>Becomes active next round</button>`:staffAbilityControl(s,f);
-  return `<article class="staff-card ${selectedStaff===s.id||selectedAbility===s.id?'selected':''} ${s.used?'used':''}"><div class="staff-card-heading"><div class="staff-portrait">${d.monogram}</div><span class="staff-state ${s.used?'committed':f?'ready':'available'}">${s.used?'Committed':f?'Ready':'Available'}</span></div><strong>${d.name}</strong><small>${f?FACILITIES[f.key].name:'Available staff'}</small><span class="upkeep-label">${s.funded?'Funded':`$${d.upkeep} upkeep`}</span>${staffRemaining(s)}<p>${d.effect}</p><div class="staff-controls">${controls}</div></article>`
+  return `<article class="staff-card staff-group-${d.group} ${selectedStaff===s.id||selectedAbility===s.id?'selected':''} ${s.used?'used':''}"><div class="staff-card-heading"><div class="staff-portrait">${d.monogram}</div><span class="staff-state ${s.used?'committed':f?'ready':'available'}">${s.used?'Committed':f?'Ready':'Available'}</span></div><span class="staff-group-badge">${STAFF_GROUPS[d.group].name}</span><strong>${d.name}</strong><small>${f?FACILITIES[f.key].name:'Available staff'}</small><span class="upkeep-label">${s.funded?'Funded':`$${d.upkeep} upkeep`}</span>${staffRemaining(s)}<p>${d.effect}</p><div class="staff-controls">${controls}</div></article>`
 }
+function workforceGroups(){return Object.entries(STAFF_GROUPS).map(([key,group])=>{const cards=game.staff.filter(s=>STAFF[s.key].group===key);return `<section class="workforce-group workforce-${key}"><header><div><span class="eyebrow">${group.name}</span><small>${group.description}</small></div><b>${cards.length}</b></header><div class="workforce-cards">${cards.length?cards.map(staffCard).join(''):'<div class="workforce-empty">No staff in this group</div>'}</div></section>`}).join('')}
 function staffRemaining(s){
   const role=STAFF[s.key].role;
   if(role==='doctor')return `<div class="staff-remaining"><b>${s.actionsRemaining||0}</b><span>investigation${(s.actionsRemaining||0)===1?'':'s'} left</span></div>`;
@@ -155,7 +157,7 @@ function staffInspector(staffId){
   const movement=s.used?'This staff member is committed here for the rest of the round.':f?'Select a highlighted compatible slot to move them, or use their ability below.':'Select a highlighted compatible facility slot.';
   return `<div class="staff-inspector"><div class="staff-inspector-identity"><span class="staff-inspector-monogram">${d.monogram}</span><div><span class="eyebrow">${s.used?'COMMITTED':'SELECTED STAFF'}</span><strong>${d.name}</strong><small>${f?FACILITIES[f.key].name:'Available staff'}</small></div></div><div class="staff-inspector-copy"><span>${movement}</span><small>${d.effect}</small></div><div class="staff-inspector-actions">${staffRemaining(s)}${staffAbilityControl(s,f)}${f&&!s.used?`<button class="secondary" data-action="returnStaff" data-staff="${s.id}">Return to available</button>`:''}<button class="secondary" data-action="clearStaffInspector">Close</button></div></div>`
 }
-function marketCard(m){const d=m.kind==='staff'?STAFF[m.key]:FACILITIES[m.key],cost=purchaseCost(game,m.kind,m.key),noPlot=m.kind==='facility'&&!hasFreePlot(),open=game.phase==='purchasing';return `<article class="market-card"><span class="market-icon">${d.monogram||d.short}</span><strong>${d.name}</strong><span class="upkeep-label">$${d.upkeep} upkeep each round</span><small>${d.effect}</small><button data-action="buy" data-kind="${m.kind}" data-key="${m.key}" ${!open||game.money<cost||noPlot||selectedFacility?'disabled':''}>${open?'Buy':'Purchasing closed'} &middot; $${cost}</button></article>`}
+function marketCard(m){const d=m.kind==='staff'?STAFF[m.key]:FACILITIES[m.key],cost=purchaseCost(game,m.kind,m.key),noPlot=m.kind==='facility'&&!hasFreePlot(),open=game.phase==='purchasing';return `<article class="market-card ${m.kind==='staff'?`staff-group-${d.group}`:''}"><span class="market-icon">${d.monogram||d.short}</span>${m.kind==='staff'?`<span class="staff-group-badge">${STAFF_GROUPS[d.group].name}</span>`:''}<strong>${d.name}</strong><span class="upkeep-label">$${d.upkeep} upkeep each round</span><small>${d.effect}</small><button data-action="buy" data-kind="${m.kind}" data-key="${m.key}" ${!open||game.money<cost||noPlot||selectedFacility?'disabled':''}>${open?'Buy':'Purchasing closed'} &middot; $${cost}</button></article>`}
 
 function bind(){document.querySelectorAll('[data-action]').forEach(b=>b.onclick=e=>{e.stopPropagation();const x=b.dataset,a=x.action;let ok=true;
   if(a==='openRules'){rulesOpen=true;render();return}
