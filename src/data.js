@@ -3,7 +3,7 @@ export const GAME_CONFIG = {
 };
 
 export const PATIENTS = [
-  // Quick patients: 1–2 initial needs.
+  // Quick patients: 1â€“2 initial needs.
   {id:'p01',portrait:'A',art:'patient-feverish-alone.webp',needs:{nursing:0,medication:1,surgery:0}},
   {id:'p02',portrait:'B',art:'patient-leaning-forward-alone.webp',needs:{nursing:1,medication:0,surgery:0}},
   {id:'p03',portrait:'C',needs:{nursing:0,medication:2,surgery:0}},
@@ -12,7 +12,7 @@ export const PATIENTS = [
   {id:'p06',portrait:'F',art:'patient-broken-arm-with-partner.webp',needs:{nursing:1,medication:0,surgery:1}},
   {id:'p07',portrait:'G',needs:{nursing:0,medication:1,surgery:1}},
 
-  // Standard patients: 3–4 initial needs.
+  // Standard patients: 3â€“4 initial needs.
   {id:'p08',portrait:'H',art:'patient-older-with-niece.webp',needs:{nursing:3,medication:0,surgery:0}},
   {id:'p09',portrait:'I',art:'patient-teen-reclining-with-mother.webp',needs:{nursing:2,medication:1,surgery:0}},
   {id:'p10',portrait:'J',needs:{nursing:1,medication:2,surgery:0}},
@@ -29,7 +29,7 @@ export const PATIENTS = [
   {id:'p21',portrait:'U',needs:{nursing:2,medication:1,surgery:1}},
   {id:'p22',portrait:'V',needs:{nursing:1,medication:2,surgery:1}},
 
-  // Complex patients: 5–6 initial needs.
+  // Complex patients: 5â€“6 initial needs.
   {id:'p23',portrait:'W',needs:{nursing:4,medication:1,surgery:0}},
   {id:'p24',portrait:'X',needs:{nursing:3,medication:2,surgery:0}},
   {id:'p25',portrait:'Y',art:'patient-dizzy-with-son.webp',needs:{nursing:3,medication:1,surgery:1}},
@@ -64,7 +64,7 @@ export const FACILITIES = {
   ward:{name:'General Ward',short:'GW',cost:8,upkeep:1,kind:'ward',beds:4,slots:['nurse','doctor'],colour:'sage',effect:'Four flexible inpatient beds with no special ability.'},
   shortStay:{name:'Short Stay Ward',short:'SS',cost:9,upkeep:1,kind:'ward',beds:2,slots:['nurse'],colour:'amber',effect:'On admission, patients with 3 or fewer unmet needs receive 1 Nursing Care.'},
   icu:{name:'Intensive Care Unit',short:'ICU',cost:13,upkeep:2,kind:'ward',beds:1,slots:['nurse','doctor'],colour:'rose',effect:'Prevents deterioration during resolution, but cannot prevent death at 7+ unmet needs.'},
-  rehabilitation:{name:'Rehabilitation Ward',short:'REH',cost:10,upkeep:1,kind:'ward',beds:2,slots:['nurse'],colour:'mint',effect:'Only patients whose remaining unmet needs are all Nursing Care can be placed in its 2 beds.'},
+  rehabilitation:{name:'Rehabilitation Ward',short:'REH',cost:10,upkeep:1,kind:'ward',beds:2,slots:['nurse'],colour:'mint',effect:'Accepts patients whose remaining unmet needs consist only of Nursing Care and/or Medication.'},
   pharmacy:{name:'Pharmacy',short:'RX',cost:7,upkeep:1,kind:'support',beds:0,slots:['pharmacist'],colour:'mint',effect:'A Pharmacist assigned here generates 2 Medication.'},
   radiology:{name:'Radiology Department',short:'RAD',cost:10,upkeep:2,kind:'support',beds:0,slots:[],colour:'blue',effect:'Investigate any 1 patient in ED or a ward each round.'},
   helipad:{name:'Helipad',short:'H',cost:11,upkeep:2,kind:'support',beds:0,slots:[],colour:'amber',effect:'One additional revealed Complex patient arrives at the start of each round.'},
@@ -78,3 +78,4 @@ export const MARKET = [
   {kind:'facility',key:'ward'},{kind:'facility',key:'shortStay'},{kind:'facility',key:'icu'},{kind:'facility',key:'rehabilitation'},
   {kind:'facility',key:'pharmacy'},{kind:'facility',key:'radiology'},{kind:'facility',key:'helipad'},{kind:'facility',key:'hospitalHome'},{kind:'facility',key:'theatre'}
 ];
+
