@@ -15,7 +15,7 @@ assert.ok(PATIENTS.filter(patient=>patient.art).every(patient=>patient.art.endsW
 assert.ok(PATIENTS.every(patient=>!Object.hasOwn(patient,'wardRequired')));
 for(const patient of PATIENTS){
   const total=Object.values(patient.needs).reduce((sum,value)=>sum+value,0);
-  assert.ok(total>=1&&total<=6,`${patient.id} must begin with 1–6 needs`);
+  assert.ok(total>=1&&total<=6,`${patient.id} must begin with 1â€“6 needs`);
   const expected=total<=2?'quick':total<=4?'standard':'complex';
   assert.equal(patientCategory(patient.needs).key,expected);
 }
@@ -392,8 +392,10 @@ assert.equal(canEnterWard(rehabilitationTarget,rehabilitation),false);
 rehabilitationTarget.revealed=true;
 rehabilitationTarget.needs={nursing:2,medication:1,surgery:0};
 rehabilitationTarget.completed={nursing:0,medication:0,surgery:0};
+assert.equal(canEnterWard(rehabilitationTarget,rehabilitation),true);
+rehabilitationTarget.needs.surgery=1;
 assert.equal(canEnterWard(rehabilitationTarget,rehabilitation),false);
-rehabilitationTarget.completed.medication=1;
+rehabilitationTarget.completed.surgery=1;
 assert.equal(canEnterWard(rehabilitationTarget,rehabilitation),true);
 assert.equal(admit(rehabilitationGame,rehabilitationTarget.id,rehabilitation.id),true);
 
@@ -426,3 +428,4 @@ assert.ok(helipadGame.log.some(message=>message.includes('additional revealed Co
 assert.ok([...helipadGame.facilities.flatMap(f=>f.patients),...helipadGame.queue].some(p=>p.category==='complex'&&p.revealed));
 assert.equal(helipadGame.analytics.facilityAbilities.helipadArrivals,1);
 console.log('engine tests passed');
+
