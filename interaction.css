@@ -265,6 +265,9 @@ body.resolving button{pointer-events:none}
 .staff-state.ready{color:#176b5c;background:#e2f3ed}
 .staff-state.available{color:#786a45;background:#f4eedc}
 .staff-state.committed{color:#765b58;background:#eee3e1}
+.upkeep-label{display:inline-flex;width:max-content;margin-top:5px;padding:3px 7px;border-radius:999px;background:#f1e8d3;color:#765d28;font-size:8px;font-weight:900;line-height:1.2;text-transform:uppercase;letter-spacing:.05em}
+.room-actions{justify-content:space-between;align-items:flex-end;gap:8px}
+.market-card .upkeep-label{margin:2px 0 4px}
 .staff-card.used{position:relative;border-color:#b7aaa6;background:#f4efec}
 .staff-card.used:after{content:"LOCKED";position:absolute;right:10px;top:50px;padding:2px 5px;border:1px solid #87666055;border-radius:4px;color:#876660;font-size:7px;font-weight:950;letter-spacing:.12em;transform:rotate(-7deg);pointer-events:none}
 .staff-remaining{display:flex;align-items:center;gap:6px;margin-top:8px;padding:6px 8px;border-radius:7px;background:#f2f5f2;color:#47605a;font-size:9px;font-weight:800}
