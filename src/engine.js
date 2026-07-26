@@ -1,4 +1,4 @@
-import {GAME_CONFIG, PATIENTS, STAFF, FACILITIES, MARKET} from './data.js?v=14';
+import {GAME_CONFIG, PATIENTS, STAFF, FACILITIES, MARKET} from './data.js?v=15';
 const clone=value=>JSON.parse(JSON.stringify(value));
 
 export function createGame(seed=null,options={}){
@@ -11,12 +11,12 @@ export function createGame(seed=null,options={}){
 }
 
 export function addFacility(state,key,slotIndex=null){const facility={id:`f${state.nextId++}`,key,patients:[],nursing:0,abilityUsed:false,slotIndex};state.facilities.push(facility);return facility}
-export function addStaff(state,key,facilityId=null){const def=STAFF[key],member={id:`s${state.nextId++}`,key,facilityId,used:false,actionsRemaining:def.investigations||0,resourceRemaining:def.nursing||0};state.staff.push(member);if(state.phase==='operations')syncNursing(state);return member}
+export function addStaff(state,key,facilityId=null){const def=STAFF[key],member={id:`s${state.nextId++}`,key,facilityId:def.hospitalWide?null:facilityId,used:false,actionsRemaining:def.investigations||0,resourceRemaining:def.nursing||0};state.staff.push(member);if(state.phase==='operations')syncNursing(state);return member}
 export function getFacility(state,id){return state.facilities.find(f=>f.id===id)}
 export function facilityDefinition(f){return FACILITIES[f.key]}
 export function patientFacility(state,patientId){return state.facilities.find(f=>f.patients.some(p=>p.id===patientId))}
 export function theatreCapacity(state,facility){return (FACILITIES[facility.key].patientSpaces||0)+(state.staff.some(s=>s.facilityId===facility.id&&STAFF[s.key].role==='theatreNurse')?1:0)}
-export function purchaseCost(state,kind,key){const def=kind==='staff'?STAFF[key]:FACILITIES[key];if(!def)return Infinity;const discount=kind==='facility'&&!state.facilityDiscountUsed&&state.staff.some(s=>s.facilityId&&STAFF[s.key].role==='administrator')?2:0;return Math.max(0,def.cost-discount)}
+export function purchaseCost(state,kind,key){const def=kind==='staff'?STAFF[key]:FACILITIES[key];if(!def)return Infinity;const discount=kind==='facility'&&!state.facilityDiscountUsed&&state.staff.some(s=>STAFF[s.key].role==='administrator')?2:0;return Math.max(0,def.cost-discount)}
 export function patientArrivalsForRound(round){return 2+Math.floor((round-1)/4)}
 export function upkeepCost(state){return state.staff.reduce((sum,s)=>sum+(s.funded?0:STAFF[s.key].upkeep||0),0)+state.facilities.reduce((sum,f)=>sum+(f.funded?0:FACILITIES[f.key].upkeep||0),0)}
 export function resolveUpkeep(state){const due=upkeepCost(state);if(!due){state.log.unshift('The starting hospital is fully funded; no upkeep is due.');return {due:0,paid:0,shortfall:0,reputationLoss:0}}const paid=Math.min(state.money,due),shortfall=due-paid,reputationLoss=Math.ceil(shortfall/2);state.money-=paid;state.reputation=Math.max(0,state.reputation-reputationLoss);state.analytics.upkeepPaid+=paid;state.analytics.upkeepUnpaid+=shortfall;state.analytics.reputationLost.upkeep+=reputationLoss;state.log.unshift(shortfall?`Upkeep cost $${due}. Paid $${paid}; $${shortfall} remained unpaid, costing ${reputationLoss} Reputation.`:`Upkeep cost $${due} and was paid in full.`);return {due,paid,shortfall,reputationLoss}}
