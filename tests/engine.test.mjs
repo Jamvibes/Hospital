@@ -382,6 +382,7 @@ const radiologyTarget=radiologyGame.facilities.find(f=>f.key==='ed').patients[0]
 assert.equal(radiologyInvestigate(radiologyGame,radiology.id,radiologyTarget.id),true);
 assert.equal(radiologyTarget.revealed,true);
 assert.equal(radiology.abilityUsed,true);
+assert.equal(radiologyGame.analytics.facilityAbilities.radiologyInvestigations,1);
 assert.equal(radiologyInvestigate(radiologyGame,radiology.id,radiologyGame.facilities.find(f=>f.key==='ed').patients[1].id),false);
 
 const rehabilitationGame=createGame(31);
@@ -408,6 +409,9 @@ assert.equal(homeGame.money,homeMoney+homePatient.reward);
 assert.equal(homeGame.reputation,homeReputation+homePatient.reputation);
 assert.equal(homeGame.outcomes.discharged,1);
 assert.equal(homeService.abilityUsed,true);
+assert.equal(homeGame.analytics.facilityAbilities.homeDischarges,1);
+assert.equal(homeGame.analytics.facilityAbilities.homeMoney,homePatient.reward);
+assert.equal(homeGame.analytics.facilityAbilities.homeReputation,homePatient.reputation);
 
 const helipadGame=createGame(33);
 addFacility(helipadGame,'helipad',3);
@@ -420,4 +424,5 @@ assert.equal(patientsAfterHelipad-patientsBeforeHelipad,3);
 assert.equal(helipadGame.deck.filter(p=>Object.values(p.needs).reduce((sum,n)=>sum+n,0)>=5).length,complexDeckBefore-1);
 assert.ok(helipadGame.log.some(message=>message.includes('additional revealed Complex patient arrived by Helipad')));
 assert.ok([...helipadGame.facilities.flatMap(f=>f.patients),...helipadGame.queue].some(p=>p.category==='complex'&&p.revealed));
+assert.equal(helipadGame.analytics.facilityAbilities.helipadArrivals,1);
 console.log('engine tests passed');
