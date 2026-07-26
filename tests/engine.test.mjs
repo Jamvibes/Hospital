@@ -55,6 +55,9 @@ assert.equal(g.resources.medication,1);
 assert.equal(g.market.filter(card=>card.kind==='staff').length,3);
 assert.equal(g.market.filter(card=>card.kind==='facility').length,3);
 assert.equal(new Set(g.market.map(card=>`${card.kind}:${card.key}`)).size,6);
+assert.equal(g.analytics.peakQueue,2);
+assert.equal(g.analytics.peakOccupancy.ed,2);
+assert.deepEqual(g.analytics.purchases,{staff:0,facilities:0});
 
 const shortCampaign=createGame(400,{roundLimit:1});
 shortCampaign.phase='purchasing';
@@ -74,6 +77,7 @@ assert.equal(investigate(seniorDoctorGame,seniorDoctorEd.patients[0].id),true);
 assert.equal(investigate(seniorDoctorGame,seniorDoctorEd.patients[1].id),true);
 assert.equal(seniorDoctor.actionsRemaining,0);
 assert.equal(seniorDoctor.used,true);
+assert.equal(seniorDoctorGame.analytics.investigations,2);
 assert.equal(returnStaff(seniorDoctorGame,seniorDoctor.id),false);
 
 const seniorNurseGame=createGame(402);
@@ -85,6 +89,7 @@ seniorNursePatient.revealed=true;
 seniorNursePatient.needs={nursing:2,medication:0,surgery:0};
 assert.equal(treat(seniorNurseGame,seniorNursePatient.id,'nursing'),true);
 assert.equal(treat(seniorNurseGame,seniorNursePatient.id,'nursing'),true);
+assert.equal(seniorNurseGame.analytics.treatments.nursing,2);
 
 const assistantGame=createGame(403);
 const assistantWard=assistantGame.facilities.find(f=>f.key==='ward');
@@ -110,6 +115,8 @@ const adminMoney=adminGame.money;
 assert.equal(buy(adminGame,'facility','ward'),true);
 assert.equal(adminGame.money,adminMoney-6);
 assert.equal(adminGame.facilityDiscountUsed,true);
+assert.equal(adminGame.analytics.moneySpent,6);
+assert.equal(adminGame.analytics.purchases.facilities,1);
 
 const marketGame=createGame(99);
 const firstOffers=marketGame.market.map(card=>`${card.kind}:${card.key}`);
@@ -197,6 +204,9 @@ assert.equal(resolutionGame.phase,'resolution');
 assert.equal(resolutionEd.patients.includes(completedPatient),false);
 assert.equal(resolutionGame.money,moneyBefore+completedPatient.reward);
 assert.equal(resolutionGame.reputation,reputationBefore+completedPatient.reputation);
+assert.equal(resolutionGame.analytics.moneyEarned,completedPatient.reward);
+assert.equal(resolutionGame.analytics.reputationEarned,completedPatient.reputation);
+assert.equal(resolutionGame.analytics.resolutionSamples,1);
 assert.deepEqual(completedPatient.baseNeeds,completedPatient.needs);
 
 const surgeryGame=createGame(31);
@@ -256,6 +266,8 @@ assert.equal(queueEd.patients.some(p=>p.id==='q1'),true);
 assert.equal(queueGame.queue.length,2);
 assert.equal(queueGame.queue[0].id,'q2');
 assert.equal(queueGame.reputation,queueReputation-1);
+assert.equal(queueGame.analytics.reputationLost.queue,1);
+assert.ok(queueGame.analytics.peakQueue>=3);
 
 const deteriorationGame=createGame(5);
 const deteriorationPatient=deteriorationGame.facilities.find(f=>f.key==='ed').patients[0];
@@ -276,6 +288,7 @@ deathPatient.completed={nursing:0,medication:0,surgery:0};
 assert.equal(previewResolution(deathGame).deaths,1);
 advancePhase(deathGame);
 assert.equal(deathEd.patients.includes(deathPatient),false);
+assert.equal(deathGame.analytics.reputationLost.deaths,2);
 
 const hiddenGame=createGame(7);
 const hiddenEd=hiddenGame.facilities.find(f=>f.key==='ed');
