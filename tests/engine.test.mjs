@@ -6,7 +6,7 @@ import {
   theatreCapacity, purchaseCost, upkeepCost, resolveUpkeep, patientArrivalsForRound,
   radiologyInvestigate, hospitalHomeDischarge, canEnterWard
 } from '../src/engine.js';
-import {GAME_CONFIG, PATIENTS, STAFF, FACILITIES, MARKET} from '../src/data.js';
+import {GAME_CONFIG, PATIENTS, STAFF, STAFF_GROUPS, FACILITIES, MARKET} from '../src/data.js';
 
 assert.equal(PATIENTS.length,30);
 assert.equal(new Set(PATIENTS.map(p=>p.id)).size,PATIENTS.length);
@@ -28,6 +28,11 @@ assert.notDeepEqual(seededMarket(42),seededMarket(43));
 assert.deepEqual([1,4,5,8,9,12].map(patientArrivalsForRound),[2,2,3,3,4,4]);
 for(const key of ['helipad','radiology','rehabilitation','hospitalHome'])assert.ok(FACILITIES[key]);
 for(const key of ['helipad','radiology','rehabilitation','hospitalHome'])assert.ok(MARKET.some(card=>card.kind==='facility'&&card.key===key));
+assert.deepEqual(Object.keys(STAFF_GROUPS),['medical','nursing','allied','support']);
+assert.deepEqual(Object.entries(STAFF).filter(([,staff])=>staff.group==='medical').map(([key])=>key),['doctor','seniorDoctor','surgeon']);
+assert.deepEqual(Object.entries(STAFF).filter(([,staff])=>staff.group==='nursing').map(([key])=>key),['nurse','nursingAssistant','seniorNurse','theatreNurse']);
+assert.deepEqual(Object.entries(STAFF).filter(([,staff])=>staff.group==='allied').map(([key])=>key),['pharmacist']);
+assert.deepEqual(Object.entries(STAFF).filter(([,staff])=>staff.group==='support').map(([key])=>key),['administrator']);
 const fundedGame=createGame(99);
 assert.equal(upkeepCost(fundedGame),0);
 const upkeepAssistant=addStaff(fundedGame,'nursingAssistant');
