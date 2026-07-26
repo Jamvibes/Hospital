@@ -49,7 +49,7 @@ export const STAFF = {
   pharmacist:{name:'Pharmacist',monogram:'RX',group:'allied',cost:6,upkeep:2,role:'pharmacist',effect:'Generates 1 Medication; generates 2 when assigned to Pharmacy.'},
   surgeon:{name:'Surgeon',monogram:'SG',group:'medical',cost:10,upkeep:3,role:'surgeon',effect:'Operates on scheduled patients in an assigned Operating Theatre at the start of the next round.'},
   theatreNurse:{name:'Theatre Nurse',monogram:'TN',group:'nursing',cost:8,upkeep:2,role:'theatreNurse',effect:'Adds 1 patient space to the assigned Operating Theatre.'},
-  administrator:{name:'Hospital Administrator',monogram:'HA',group:'support',cost:8,upkeep:2,role:'administrator',effect:'The first facility purchased each round costs $2 less while assigned.'}
+  administrator:{name:'Hospital Administrator',monogram:'HA',group:'support',hospitalWide:true,cost:8,upkeep:2,role:'administrator',effect:'Hospital-wide: the first facility purchased each round costs $2 less. No facility assignment is required.'}
 };
 
 export const STAFF_GROUPS = {
@@ -60,8 +60,8 @@ export const STAFF_GROUPS = {
 };
 
 export const FACILITIES = {
-  ed:{name:'Emergency Department',short:'ED',cost:0,upkeep:0,kind:'clinical',beds:4,slots:['doctor','nurse','pharmacist','administrator'],colour:'blue',effect:'Investigate and partially treat patients before admission.'},
-  ward:{name:'General Ward',short:'GW',cost:8,upkeep:1,kind:'ward',beds:4,slots:['nurse','doctor','administrator'],colour:'sage',effect:'Four flexible inpatient beds with no special ability.'},
+  ed:{name:'Emergency Department',short:'ED',cost:0,upkeep:0,kind:'clinical',beds:4,slots:['doctor','nurse','pharmacist'],colour:'blue',effect:'Investigate and partially treat patients before admission.'},
+  ward:{name:'General Ward',short:'GW',cost:8,upkeep:1,kind:'ward',beds:4,slots:['nurse','doctor'],colour:'sage',effect:'Four flexible inpatient beds with no special ability.'},
   shortStay:{name:'Short Stay Ward',short:'SS',cost:9,upkeep:1,kind:'ward',beds:2,slots:['nurse'],colour:'amber',effect:'On admission, patients with 3 or fewer unmet needs receive 1 Nursing Care.'},
   icu:{name:'Intensive Care Unit',short:'ICU',cost:13,upkeep:2,kind:'ward',beds:1,slots:['nurse','doctor'],colour:'rose',effect:'Prevents deterioration during resolution, but cannot prevent death at 7+ unmet needs.'},
   rehabilitation:{name:'Rehabilitation Ward',short:'REH',cost:10,upkeep:1,kind:'ward',beds:2,slots:['nurse'],colour:'mint',effect:'Only patients whose remaining unmet needs are all Nursing Care can be placed in its 2 beds.'},
