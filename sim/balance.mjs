@@ -142,6 +142,7 @@ const purchasePriority = {
 };
 
 function canUseStaff(game, key) {
+  if(STAFF[key].hospitalWide)return !game.staff.some(s=>s.key===key);
   const role = STAFF[key].role;
   const capacity = game.facilities.reduce((n, f) =>
     n + FACILITIES[f.key].slots.filter(r => r === role).length, 0);
