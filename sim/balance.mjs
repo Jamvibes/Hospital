@@ -157,16 +157,16 @@ function scheduleOperations(game, policy, rng) {
 }
 
 const purchasePriority = {
-  balanced: ['ward','nurse','radiology','nursingAssistant','shortStay','hospitalHome','doctor','pharmacy','pharmacist','rehabilitation','seniorNurse','seniorDoctor','icu','surgeon','theatre','theatreNurse','administrator','helipad'],
-  nursing: ['nurse','nursingAssistant','seniorNurse','rehabilitation','ward','shortStay','hospitalHome','radiology','doctor','seniorDoctor','pharmacy','pharmacist','icu','surgeon','theatre','theatreNurse','administrator','helipad'],
-  surgery: ['surgeon','theatre','theatreNurse','hospitalHome','helipad','ward','radiology','doctor','seniorDoctor','nurse','nursingAssistant','pharmacy','pharmacist','seniorNurse','shortStay','rehabilitation','icu','administrator'],
-  capacity: ['ward','shortStay','rehabilitation','icu','hospitalHome','radiology','theatre','nurse','nursingAssistant','doctor','seniorNurse','seniorDoctor','pharmacy','pharmacist','surgeon','theatreNurse','administrator','helipad'],
-  economy: ['administrator','hospitalHome','radiology','nursingAssistant','nurse','pharmacist','doctor','pharmacy','ward','theatreNurse','shortStay','rehabilitation','seniorNurse','surgeon','seniorDoctor','theatre','icu','helipad'],
+  balanced: ['ward','nurse','radiology','nursingAssistant','shortStay','hospitalHome','doctor','pharmacy','pharmacist','staffLounge','volunteer','cafe','rehabilitation','seniorNurse','seniorDoctor','icu','surgeon','theatre','theatreNurse','hospitalLibrary','walkInCentre','administrator','helipad'],
+  nursing: ['nurse','nursingAssistant','seniorNurse','rehabilitation','ward','shortStay','hospitalHome','radiology','doctor','seniorDoctor','pharmacy','pharmacist','staffLounge','volunteer','cafe','icu','surgeon','theatre','theatreNurse','hospitalLibrary','walkInCentre','administrator','helipad'],
+  surgery: ['surgeon','theatre','theatreNurse','hospitalHome','helipad','ward','radiology','doctor','seniorDoctor','nurse','nursingAssistant','pharmacy','pharmacist','seniorNurse','staffLounge','volunteer','cafe','shortStay','rehabilitation','icu','hospitalLibrary','walkInCentre','administrator'],
+  capacity: ['ward','shortStay','rehabilitation','icu','hospitalHome','radiology','theatre','nurse','nursingAssistant','doctor','seniorNurse','seniorDoctor','pharmacy','pharmacist','staffLounge','volunteer','cafe','surgeon','theatreNurse','hospitalLibrary','walkInCentre','administrator','helipad'],
+  economy: ['administrator','cafe','volunteer','staffLounge','hospitalLibrary','hospitalHome','radiology','nursingAssistant','nurse','pharmacist','doctor','pharmacy','ward','theatreNurse','shortStay','rehabilitation','seniorNurse','surgeon','seniorDoctor','theatre','icu','walkInCentre','helipad'],
   random: []
 };
 
 function canUseStaff(game, key) {
-  if(STAFF[key].hospitalWide)return !game.staff.some(s=>s.key===key);
+  if(STAFF[key].hospitalWide)return !STAFF[key].unique||!game.staff.some(s=>s.key===key);
   const role = STAFF[key].role;
   const capacity = game.facilities.reduce((n, f) =>
     n + FACILITIES[f.key].slots.filter(r => r === role).length, 0);
@@ -396,3 +396,4 @@ if(MODE==='adjustments'){
 }
 
 console.log(JSON.stringify(report, null, 2));
+
