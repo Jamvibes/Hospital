@@ -4,7 +4,8 @@ import {
   placeFacility, advancePhase, compatible, calculateRewards, patientCategory, previewResolution,
   unmetNeeds, patientRisk, scheduleSurgery, placePostoperativePatient, surgeryEligibility,
   theatreCapacity, purchaseCost, upkeepCost, resolveUpkeep, patientArrivalsForRound,
-  radiologyInvestigate, hospitalHomeDischarge, canEnterWard
+  radiologyInvestigate, hospitalHomeDischarge, canEnterWard, appealLevel, staffOfferCount,
+  refreshMarket, startOperations
 } from '../src/engine.js';
 import {GAME_CONFIG, PATIENTS, STAFF, STAFF_GROUPS, FACILITIES, MARKET} from '../src/data.js';
 
@@ -26,13 +27,14 @@ const seededMarket=seed=>createGame(seed).market.map(card=>`${card.kind}:${card.
 assert.deepEqual(seededMarket(42),seededMarket(42));
 assert.notDeepEqual(seededMarket(42),seededMarket(43));
 assert.deepEqual([1,4,5,8,9,12].map(patientArrivalsForRound),[2,2,3,3,4,4]);
-for(const key of ['helipad','radiology','rehabilitation','hospitalHome'])assert.ok(FACILITIES[key]);
-for(const key of ['helipad','radiology','rehabilitation','hospitalHome'])assert.ok(MARKET.some(card=>card.kind==='facility'&&card.key===key));
+for(const key of ['helipad','radiology','rehabilitation','hospitalHome','cafe','staffLounge','hospitalLibrary','walkInCentre'])assert.ok(FACILITIES[key]);
+for(const key of ['helipad','radiology','rehabilitation','hospitalHome','cafe','staffLounge','hospitalLibrary','walkInCentre'])assert.ok(MARKET.some(card=>card.kind==='facility'&&card.key===key));
+assert.ok(MARKET.some(card=>card.kind==='staff'&&card.key==='volunteer'));
 assert.deepEqual(Object.keys(STAFF_GROUPS),['medical','nursing','allied','support']);
 assert.deepEqual(Object.entries(STAFF).filter(([,staff])=>staff.group==='medical').map(([key])=>key),['doctor','seniorDoctor','surgeon']);
 assert.deepEqual(Object.entries(STAFF).filter(([,staff])=>staff.group==='nursing').map(([key])=>key),['nurse','nursingAssistant','seniorNurse','theatreNurse']);
 assert.deepEqual(Object.entries(STAFF).filter(([,staff])=>staff.group==='allied').map(([key])=>key),['pharmacist']);
-assert.deepEqual(Object.entries(STAFF).filter(([,staff])=>staff.group==='support').map(([key])=>key),['administrator']);
+assert.deepEqual(Object.entries(STAFF).filter(([,staff])=>staff.group==='support').map(([key])=>key),['administrator','volunteer']);
 const fundedGame=createGame(99);
 assert.equal(upkeepCost(fundedGame),0);
 const upkeepAssistant=addStaff(fundedGame,'nursingAssistant');
@@ -76,9 +78,11 @@ assert.equal(g.phase,'operations');
 assert.equal(ed.patients.length,2);
 assert.equal(ward.nursing,2);
 assert.equal(g.resources.medication,1);
-assert.equal(g.market.filter(card=>card.kind==='staff').length,3);
+assert.equal(appealLevel(g),0);
+assert.equal(staffOfferCount(g),2);
+assert.equal(g.market.filter(card=>card.kind==='staff').length,2);
 assert.equal(g.market.filter(card=>card.kind==='facility').length,3);
-assert.equal(new Set(g.market.map(card=>`${card.kind}:${card.key}`)).size,6);
+assert.equal(new Set(g.market.map(card=>`${card.kind}:${card.key}`)).size,5);
 assert.equal(g.analytics.peakQueue,2);
 assert.equal(g.analytics.peakOccupancy.ed,2);
 assert.deepEqual(g.analytics.purchases,{staff:0,facilities:0});
@@ -91,6 +95,41 @@ assert.equal(shortCampaign.phase,'victory');
 assert.equal(shortCampaign.round,1);
 assert.equal(advancePhase(shortCampaign),false);
 for(const key of ['seniorDoctor','seniorNurse','nursingAssistant','theatreNurse','administrator'])assert.ok(STAFF[key]);
+assert.ok(STAFF.volunteer);
+
+const appealGame=createGame(402);
+assert.equal(appealLevel(appealGame),0);
+addFacility(appealGame,'staffLounge',3);
+assert.equal(appealLevel(appealGame),1);
+assert.equal(staffOfferCount(appealGame),2);
+addFacility(appealGame,'hospitalLibrary',4);
+assert.equal(appealLevel(appealGame),3);
+assert.equal(staffOfferCount(appealGame),3);
+addFacility(appealGame,'hospitalLibrary',5);
+addFacility(appealGame,'staffLounge',null);
+assert.equal(appealLevel(appealGame),6);
+assert.equal(staffOfferCount(appealGame),4);
+refreshMarket(appealGame);
+assert.equal(appealGame.market.filter(card=>card.kind==='staff').length,4);
+assert.equal(appealGame.market.filter(card=>card.kind==='facility').length,3);
+
+const incomeGame=createGame(403);
+addFacility(incomeGame,'cafe',3);
+addStaff(incomeGame,'volunteer');
+const moneyBeforeIncome=incomeGame.money;
+startOperations(incomeGame);
+assert.equal(incomeGame.money,moneyBeforeIncome+3);
+assert.equal(incomeGame.analytics.passiveIncome,3);
+assert.equal(STAFF.volunteer.upkeep,0);
+
+const walkInGame=createGame(404);
+addFacility(walkInGame,'walkInCentre',3);
+walkInGame.phase='purchasing';
+assert.equal(advancePhase(walkInGame),true);
+const walkInPatients=[...walkInGame.facilities.flatMap(f=>f.patients),...walkInGame.queue]
+  .filter(patient=>patient.revealed&&patient.category==='quick');
+assert.ok(walkInPatients.length>=1);
+assert.equal(walkInGame.analytics.facilityAbilities.walkInArrivals,1);
 
 const seniorDoctorGame=createGame(401);
 const seniorDoctorEd=seniorDoctorGame.facilities.find(f=>f.key==='ed');
@@ -150,7 +189,7 @@ advancePhase(marketGame);
 advancePhase(marketGame);
 advancePhase(marketGame);
 const secondOffers=marketGame.market.map(card=>`${card.kind}:${card.key}`);
-assert.equal(secondOffers.length,6);
+assert.equal(secondOffers.length,5);
 assert.notDeepEqual(secondOffers,firstOffers);
 
 const nurse=g.staff.find(s=>s.key==='nurse');
