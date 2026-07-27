@@ -49,7 +49,8 @@ export const STAFF = {
   pharmacist:{name:'Pharmacist',monogram:'RX',group:'allied',cost:6,upkeep:2,role:'pharmacist',effect:'Generates 1 Medication; generates 2 when assigned to Pharmacy.'},
   surgeon:{name:'Surgeon',monogram:'SG',group:'medical',cost:10,upkeep:3,role:'surgeon',effect:'Operates on scheduled patients in an assigned Operating Theatre at the start of the next round.'},
   theatreNurse:{name:'Theatre Nurse',monogram:'TN',group:'nursing',cost:8,upkeep:2,role:'theatreNurse',effect:'Adds 1 patient space to the assigned Operating Theatre.'},
-  administrator:{name:'Hospital Administrator',monogram:'HA',group:'support',hospitalWide:true,cost:8,upkeep:2,role:'administrator',effect:'Hospital-wide: the first facility purchased each round costs $2 less. No facility assignment is required.'}
+  administrator:{name:'Hospital Administrator',monogram:'HA',group:'support',hospitalWide:true,unique:true,cost:8,upkeep:2,role:'administrator',effect:'Hospital-wide: the first facility purchased each round costs $2 less. No facility assignment is required.'},
+  volunteer:{name:'Volunteer',monogram:'VO',group:'support',hospitalWide:true,cost:4,upkeep:0,role:'volunteer',income:1,effect:'Hospital-wide: raises $1 automatically at the start of each round. No facility assignment is required.'}
 };
 
 export const STAFF_GROUPS = {
@@ -69,13 +70,18 @@ export const FACILITIES = {
   radiology:{name:'Radiology Department',short:'RAD',cost:10,upkeep:2,kind:'support',beds:0,slots:[],colour:'blue',effect:'Investigate any 1 patient in ED or a ward each round.'},
   helipad:{name:'Helipad',short:'H',cost:11,upkeep:2,kind:'support',beds:0,slots:[],colour:'amber',effect:'One additional revealed Complex patient arrives at the start of each round.'},
   hospitalHome:{name:'Hospital in the Home',short:'HITH',cost:12,upkeep:2,kind:'support',beds:0,slots:[],colour:'sage',effect:'Once per round, discharge 1 investigated patient with no more than 1 unmet need for their full reward.'},
+  cafe:{name:'CafÃ©',short:'CAF',cost:6,upkeep:1,kind:'support',beds:0,slots:[],colour:'amber',income:2,effect:'Generates $2 automatically at the start of each round.'},
+  staffLounge:{name:'Staff Lounge',short:'SL',cost:7,upkeep:1,kind:'support',beds:0,slots:[],colour:'sage',appeal:1,effect:'Provides +1 Appeal, increasing the number of staff candidates offered during Purchasing.'},
+  hospitalLibrary:{name:'Hospital Library',short:'LIB',cost:12,upkeep:2,kind:'support',beds:0,slots:[],colour:'blue',appeal:2,effect:'Provides +2 Appeal, increasing the number of staff candidates offered during Purchasing.'},
+  walkInCentre:{name:'Walk-in Centre',short:'WIC',cost:9,upkeep:2,kind:'support',beds:0,slots:[],colour:'mint',quickArrivals:1,effect:'One additional investigated Quick patient arrives at the start of each round.'},
   theatre:{name:'Operating Theatre',short:'OT',cost:12,upkeep:2,kind:'theatre',beds:0,patientSpaces:1,slots:['surgeon','theatreNurse'],colour:'rose',effect:'Provides 1 surgical patient space. An assigned Surgeon completes 1 Surgery need at the start of the next round.'}
 };
 
 export const MARKET = [
   {kind:'staff',key:'doctor'},{kind:'staff',key:'seniorDoctor'},{kind:'staff',key:'nurse'},{kind:'staff',key:'nursingAssistant'},
-  {kind:'staff',key:'seniorNurse'},{kind:'staff',key:'pharmacist'},{kind:'staff',key:'surgeon'},{kind:'staff',key:'theatreNurse'},{kind:'staff',key:'administrator'},
+  {kind:'staff',key:'seniorNurse'},{kind:'staff',key:'pharmacist'},{kind:'staff',key:'surgeon'},{kind:'staff',key:'theatreNurse'},{kind:'staff',key:'administrator'},{kind:'staff',key:'volunteer'},
   {kind:'facility',key:'ward'},{kind:'facility',key:'shortStay'},{kind:'facility',key:'icu'},{kind:'facility',key:'rehabilitation'},
-  {kind:'facility',key:'pharmacy'},{kind:'facility',key:'radiology'},{kind:'facility',key:'helipad'},{kind:'facility',key:'hospitalHome'},{kind:'facility',key:'theatre'}
+  {kind:'facility',key:'pharmacy'},{kind:'facility',key:'radiology'},{kind:'facility',key:'helipad'},{kind:'facility',key:'hospitalHome'},
+  {kind:'facility',key:'cafe'},{kind:'facility',key:'staffLounge'},{kind:'facility',key:'hospitalLibrary'},{kind:'facility',key:'walkInCentre'},{kind:'facility',key:'theatre'}
 ];
 
