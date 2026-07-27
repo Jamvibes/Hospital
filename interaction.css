@@ -26,7 +26,7 @@
 .need .treatment-icon{width:19px;height:19px}
 .need.nursing{color:#765a0c}.need.medication{color:#315b3d}.need.surgery{color:#79372f}
 .need.done{opacity:.42;filter:saturate(.35);text-decoration:none}
-.need.done::after{content:"✓";position:absolute;right:-3px;bottom:-3px;display:grid;place-items:center;width:13px;height:13px;border-radius:50%;background:var(--teal);color:white;font-size:9px}
+.need.done::after{content:"âœ“";position:absolute;right:-3px;bottom:-3px;display:grid;place-items:center;width:13px;height:13px;border-radius:50%;background:var(--teal);color:white;font-size:9px}
 .need.unknown{border-color:#9a9d96;color:#60655f}
 .treatment-button{display:inline-flex;align-items:center;gap:5px}
 .treatment-button .treatment-icon{width:16px;height:16px}
@@ -268,6 +268,9 @@ body.resolving button{pointer-events:none}
 .upkeep-label{display:inline-flex;width:max-content;margin-top:5px;padding:3px 7px;border-radius:999px;background:#f1e8d3;color:#765d28;font-size:8px;font-weight:900;line-height:1.2;text-transform:uppercase;letter-spacing:.05em}
 .room-actions{justify-content:space-between;align-items:flex-end;gap:8px}
 .market-card .upkeep-label{margin:2px 0 4px}
+.market-section-heading{grid-column:1/-1;display:flex;justify-content:space-between;align-items:baseline;gap:12px;padding:8px 2px 2px;border-bottom:1px solid rgba(44,62,66,.16)}
+.market-section-heading strong{font-family:Georgia,serif;color:#263d42}
+.market-section-heading span{font-size:.76rem;color:#68787b}
 .workforce-group{grid-column:1/-1;display:grid;gap:8px;padding:10px;border:1px solid var(--line);border-radius:11px;background:#f7f4ec}
 .workforce-group>header{display:flex;align-items:center;justify-content:space-between;gap:10px}
 .workforce-group>header>div{display:grid;gap:1px}.workforce-group>header small{color:var(--muted);font-size:9px}
@@ -336,3 +339,4 @@ body.resolving button{pointer-events:none}
 .rules-stages b,.rules-stages span{grid-column:2}.rules-stages span{font-size:12px;color:var(--muted)}
 .rules-sheet>footer{margin-top:14px;padding:11px;border-radius:8px;background:#e5f0ed;color:#315b55}
 @media(max-width:700px){.topbar-actions{width:100%;align-items:flex-start}.rules-grid,.rules-stages{grid-template-columns:1fr}.rules-sheet{padding:18px}.rules-overlay{padding:10px}}
+
