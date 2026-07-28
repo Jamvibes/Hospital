@@ -5,12 +5,12 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Hospital — Prototype</title>
   <link rel="stylesheet" href="styles.css?v=4">
-  <link rel="stylesheet" href="interaction.css?v=29">
+  <link rel="stylesheet" href="interaction.css?v=30">
 </head>
 <body>
   <header class="topbar">
     <div><span class="eyebrow">HOSPITAL PROTOTYPE</span><h1>Operations Board</h1></div>
-    <div class="topbar-actions"><div class="stats" id="stats"></div><button class="rules-tab" data-action="openRules">Rules</button></div>
+    <div class="topbar-actions"><div class="stats" id="stats"></div><span class="save-status" id="saveStatus"></span><button class="text-button save-button" data-action="saveGame">Save</button><button class="text-button save-button" data-action="openNewGame">New game</button><button class="rules-tab" data-action="openRules">Rules</button></div>
   </header>
   <main>
     <section class="briefing" id="briefing"></section>
@@ -51,7 +51,9 @@
   </main>
   <div class="toast" id="toast" role="status"></div>
   <div class="rules-overlay" id="rulesPanel" hidden></div>
+  <div class="resolution-overlay" id="resolutionReport" hidden></div>
+  <div class="save-overlay" id="savePanel" hidden></div>
   <div class="victory-overlay" id="victoryScreen" hidden></div>
-  <script type="module" src="src/app-v59.js?v=2"></script>
+  <script type="module" src="src/app-v60.js"></script>
 </body>
 </html>
