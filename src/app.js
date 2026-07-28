@@ -1,5 +1,6 @@
-import {createGame,investigate,treat,admit,buy,advancePhase,assignStaff,returnStaff,placeFacility,compatible,getFacility,previewResolution,patientRisk,scheduleSurgery,cancelSurgery,placePostoperativePatient,surgeryEligibility,theatreCapacity,purchaseCost,upkeepCost,unmetNeeds,canEnterWard,radiologyInvestigate,hospitalHomeDischarge,appealLevel,staffOfferCount} from './engine.js?v=33';
+import {createGame,investigate,treat,admit,buy,advancePhase,assignStaff,returnStaff,placeFacility,compatible,getFacility,previewResolution,patientRisk,scheduleSurgery,cancelSurgery,placePostoperativePatient,surgeryEligibility,theatreCapacity,purchaseCost,upkeepCost,unmetNeeds,canEnterWard,radiologyInvestigate,hospitalHomeDischarge,appealLevel,staffOfferCount} from './engine.js?v=34';
 import {STAFF,FACILITIES,STAFF_GROUPS} from './data.js?v=16';
+import {renderMarket} from './ui/market.js';
 
 let game=createGame(),selectedStaff=null,selectedAdmission=null,selectedFacility=null,selectedAbility=null,selectedFacilityAbility=null,selectedSurgery=null,resolutionAnimating=false,rulesOpen=false;
 const $=id=>document.getElementById(id),names={nursing:'Nursing',medication:'Medication',surgery:'Surgery'},roleNames={doctor:'Doctor',nurse:'Nurse',pharmacist:'Pharmacist',surgeon:'Surgeon',theatreNurse:'Theatre Nurse',administrator:'Administrator',volunteer:'Volunteer'};
@@ -33,7 +34,7 @@ function render(){
   $('hospitalMap').innerHTML=Array.from({length:6},(_,slot)=>{const f=game.facilities.find(x=>x.slotIndex===slot);return f?facilityTile(f):buildPlot(slot)}).join('');
   $('arrivalQueue').innerHTML=game.queue.length?game.queue.map(queueCard).join(''):'<div class="queue-empty">No patients waiting</div>';
   $('staff').innerHTML=workforceGroups();
-  $('market').innerHTML=game.market.length?marketSections():'<div class="market-empty">All of this roundâ€™s offers have been purchased.</div>';
+  $('market').innerHTML=renderMarket(game,{purchaseCost,appealLevel,staffOfferCount,hasFreePlot,selectedFacility});
   $('log').innerHTML=game.log.slice(0,9).map(x=>`<li>${x}</li>`).join('');
   $('endTurn').textContent=phase.button;
   $('endTurn').disabled=resolutionAnimating||game.gameOver||game.gameWon||Boolean(mode)||game.phase==='postoperative'||(game.phase==='purchasing'&&game.facilities.some(f=>f.slotIndex===null));
@@ -163,9 +164,6 @@ function staffInspector(staffId){
   const movement=d.hospitalWide?'This support card works across the whole hospital and does not occupy a facility slot.':s.used?'This staff member is committed here for the rest of the round.':f?'Select a highlighted compatible slot to move them, or use their ability below.':'Select a highlighted compatible facility slot.';
   return `<div class="staff-inspector"><div class="staff-inspector-identity"><span class="staff-inspector-monogram">${d.monogram}</span><div><span class="eyebrow">${s.used?'COMMITTED':d.hospitalWide?'HOSPITAL-WIDE':'SELECTED STAFF'}</span><strong>${d.name}</strong><small>${d.hospitalWide?'Support workforce':f?FACILITIES[f.key].name:'Available staff'}</small></div></div><div class="staff-inspector-copy"><span>${movement}</span><small>${d.effect}</small></div><div class="staff-inspector-actions">${staffRemaining(s)}${staffAbilityControl(s,f)}${f&&!s.used&&!d.hospitalWide?`<button class="secondary" data-action="returnStaff" data-staff="${s.id}">Return to available</button>`:''}<button class="secondary" data-action="clearStaffInspector">Close</button></div></div>`
 }
-function marketCard(m){const d=m.kind==='staff'?STAFF[m.key]:FACILITIES[m.key],cost=purchaseCost(game,m.kind,m.key),noPlot=m.kind==='facility'&&!hasFreePlot(),open=game.phase==='purchasing';return `<article class="market-card ${m.kind==='staff'?`staff-group-${d.group}`:''}"><span class="market-icon">${d.monogram||d.short}</span>${m.kind==='staff'?`<span class="staff-group-badge">${STAFF_GROUPS[d.group].name}</span>`:''}<strong>${d.name}</strong><span class="upkeep-label">$${d.upkeep} upkeep each round</span><small>${d.effect}</small><button data-action="buy" data-kind="${m.kind}" data-key="${m.key}" ${!open||game.money<cost||noPlot||selectedFacility?'disabled':''}>${open?'Buy':'Purchasing closed'} &middot; $${cost}</button></article>`}
-function marketSections(){const staff=game.market.filter(card=>card.kind==='staff'),facilities=game.market.filter(card=>card.kind==='facility');return `<div class="market-section-heading"><strong>Staff candidates</strong><span>${appealLevel(game)} Appeal Â· ${staffOfferCount(game)} offered</span></div>${staff.map(marketCard).join('')}<div class="market-section-heading"><strong>Facility projects</strong><span>3 offered</span></div>${facilities.map(marketCard).join('')}`}
-
 function bind(){document.querySelectorAll('[data-action]').forEach(b=>b.onclick=e=>{e.stopPropagation();const x=b.dataset,a=x.action;let ok=true;
   if(a==='openRules'){rulesOpen=true;render();return}
   if(a==='closeRules'){rulesOpen=false;render();return}
