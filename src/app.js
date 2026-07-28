@@ -19,8 +19,7 @@ phaseCopy.victory={name:'Campaign complete',help:'The hospital has completed its
 
 function render(){
   if(game.phase==='postoperative'&&!selectedAdmission)selectedAdmission=postoperativePatients()[0]?.id||null;
-  const mode=selectedAdmission?'admission':selectedFacility?'building':selectedAbility||selectedFacilityAbility?'ab
-ility':selectedSurgery?'surgery':selectedStaff?'staff':null,phase=phaseCopy[game.phase],preview=game.phase==='operations'&&previewResolution(game);
+  const mode=selectedAdmission?'admission':selectedFacility?'building':selectedAbility||selectedFacilityAbility?'ability':selectedSurgery?'surgery':selectedStaff?'staff':null,phase=phaseCopy[game.phase],preview=game.phase==='operations'&&previewResolution(game);
   $('stats').innerHTML=stat('Round',game.round)+stat('Stage',phase.name)+stat('Queue',game.queue.length)+stat('Reputation',game.reputation)+stat('Appeal',appealLevel(game))+stat('Money','$'+game.money)+stat('Next upkeep','$'+upkeepCost(game));
   $('briefing').className=`briefing ${mode?`${mode}-mode`:''}`;
   $('briefing').innerHTML=selectedAdmission
@@ -37,8 +36,7 @@ ility':selectedSurgery?'surgery':selectedStaff?'staff':null,phase=phaseCopy[game
   $('market').innerHTML=game.market.length?marketSections():'<div class="market-empty">All of this roundâ€™s offers have been purchased.</div>';
   $('log').innerHTML=game.log.slice(0,9).map(x=>`<li>${x}</li>`).join('');
   $('endTurn').textContent=phase.button;
-  $('endTurn').disabled=resolution
-Animating||game.gameOver||game.gameWon||Boolean(mode)||game.phase==='postoperative'||(game.phase==='purchasing'&&game.facilities.some(f=>f.slotIndex===null));
+  $('endTurn').disabled=resolutionAnimating||game.gameOver||game.gameWon||Boolean(mode)||game.phase==='postoperative'||(game.phase==='purchasing'&&game.facilities.some(f=>f.slotIndex===null));
   $('victoryScreen').hidden=!game.gameWon;
   $('victoryScreen').innerHTML=game.gameWon?victoryScreen():'';
   $('rulesPanel').hidden=!rulesOpen;
@@ -57,8 +55,7 @@ function rulesGuide(){
     <article><h3>Appeal and recruitment</h3><p>Appeal represents how attractive the hospital is as a workplace. It is not spent. Reveal 2 staff candidates at 0â€“2 Appeal, 3 at 3â€“5 Appeal, and 4 at 6+ Appeal. Facility offers are unaffected.</p></article>
     <article><h3>Special facilities</h3><p>Radiology investigates one patient anywhere each round. Rehabilitation accepts patients whose remaining needs are Nursing and/or Medication, but not Surgery. A Helipad adds one revealed Complex arrival each round. Hospital in the Home can discharge one investigated patient with at most one unmet need for their full reward.</p></article>
     <article><h3>Hospital development</h3><p>The CafÃ© and Volunteers generate Money each round. Staff Lounges and Hospital Libraries provide Appeal. Each Walk-in Centre adds one investigated Quick patient at round start.</p></article>
-    <article><h3>Staff groups</h3><p>Staff are organised into Medical, Nursing, Allied Health, and Support Staf
-f. Individual clinical roles determine facility placement. Hospital-wide Support cards such as the Administrator do not require a facility assignment.</p></article>
+    <article><h3>Staff groups</h3><p>Staff are organised into Medical, Nursing, Allied Health, and Support Staff. Individual clinical roles determine facility placement. Hospital-wide Support cards such as the Administrator do not require a facility assignment.</p></article>
   </div>
   <h3 class="rules-stage-title">Round sequence</h3>
   <ol class="rules-stages">
@@ -75,8 +72,7 @@ f. Individual clinical roles determine facility placement. Hospital-wide Support
 function victoryScreen(){
   const rating=game.reputation>=40?'Centre of Excellence':game.reputation>=25?'Highly Regarded Hospital':game.reputation>=12?'Trusted Hospital':'Hospital Sustained';
   const a=game.analytics,averageUnmet=a.resolutionSamples?(a.totalUnmetAtResolution/a.resolutionSamples).toFixed(1):'0.0',purchases=a.purchases.staff+a.purchases.facilities;
-  return `<section class="victory-card"><span class="victory-mark">â˜…</span><span class="eyebrow">CAMPAIGN COMPLETE</span><h2>${rating}</h2><p>Your hospital remained operational for all ${game.roundLimit} rounds.</p><div class="victory-results"><div><strong>${game.reputation}</strong><span>Final Reputation</span></div><div><strong>${game.outcomes.discharged}</strong><span>Discharged</span></div><div><strong>${game.outcomes.deaths}</strong><span>Deaths</span></div><div><strong>${a.reputationLost.queue}</strong><span>Queue Reputation Lost</span></div><div><strong>$${a.moneyEarned}</strong><span>Money Earned</span></div><div><strong>$${a.moneySpent}</strong><span>Purchase Spending</span></div><div><strong>${purchases}</strong><span>Cards Purchased</span></div><div><strong>${a.peakQueue}</strong><span>Highest Queue</span></div></div><div class="victory-analysis"><div><b>
-Treatment delivered</b><span>${a.treatments.nursing} Nursing Â· ${a.treatments.medication} Medication Â· ${a.treatments.surgery} Surgery</span></div><div><b>Hospital activity</b><span>${a.investigations} investigations Â· ${averageUnmet} average unmet needs at resolution</span></div><div><b>Recruitment</b><span>${appealLevel(game)} Appeal Â· ${staffOfferCount(game)} staff candidates each round</span></div><div><b>Income</b><span>$${a.passiveIncome||0} passive income Â· $${a.moneyEarned} total earned</span></div><div><b>Upkeep</b><span>$${a.upkeepPaid} paid Â· $${a.upkeepUnpaid} unpaid Â· ${a.reputationLost.upkeep} Reputation lost</span></div><div><b>Peak occupancy</b><span>ED ${a.peakOccupancy.ed} Â· Wards ${a.peakOccupancy.ward} Â· Theatre ${a.peakOccupancy.theatre}</span></div><div><b>Expansion</b><span>${a.purchases.staff} staff Â· ${a.purchases.facilities} facilities</span></div></div><button class="primary" data-action="restartGame">Play another campaign</button></section>`
+  return `<section class="victory-card"><span class="victory-mark">â˜…</span><span class="eyebrow">CAMPAIGN COMPLETE</span><h2>${rating}</h2><p>Your hospital remained operational for all ${game.roundLimit} rounds.</p><div class="victory-results"><div><strong>${game.reputation}</strong><span>Final Reputation</span></div><div><strong>${game.outcomes.discharged}</strong><span>Discharged</span></div><div><strong>${game.outcomes.deaths}</strong><span>Deaths</span></div><div><strong>${a.reputationLost.queue}</strong><span>Queue Reputation Lost</span></div><div><strong>$${a.moneyEarned}</strong><span>Money Earned</span></div><div><strong>$${a.moneySpent}</strong><span>Purchase Spending</span></div><div><strong>${purchases}</strong><span>Cards Purchased</span></div><div><strong>${a.peakQueue}</strong><span>Highest Queue</span></div></div><div class="victory-analysis"><div><b>Treatment delivered</b><span>${a.treatments.nursing} Nursing Â· ${a.treatments.medication} Medication Â· ${a.treatments.surgery} Surgery</span></div><div><b>Hospital activity</b><span>${a.investigations} investigations Â· ${averageUnmet} average unmet needs at resolution</span></div><div><b>Recruitment</b><span>${appealLevel(game)} Appeal Â· ${staffOfferCount(game)} staff candidates each round</span></div><div><b>Income</b><span>$${a.passiveIncome||0} passive income Â· $${a.moneyEarned} total earned</span></div><div><b>Upkeep</b><span>$${a.upkeepPaid} paid Â· $${a.upkeepUnpaid} unpaid Â· ${a.reputationLost.upkeep} Reputation lost</span></div><div><b>Peak occupancy</b><span>ED ${a.peakOccupancy.ed} Â· Wards ${a.peakOccupancy.ward} Â· Theatre ${a.peakOccupancy.theatre}</span></div><div><b>Expansion</b><span>${a.purchases.staff} staff Â· ${a.purchases.facilities} facilities</span></div></div><button class="primary" data-action="restartGame">Play another campaign</button></section>`
 }
 
 function buildPlot(slot){return selectedFacility?`<button class="build-plot placement-target" data-action="placeFacility" data-facility="${selectedFacility}" data-slot="${slot}"><span>+</span><small>Build here</small></button>`:'<div class="build-plot"><span>+</span><small>Future facility</small></div>'}
@@ -91,8 +87,7 @@ function facilityTile(f){
   const selectedMember=game.staff.find(s=>s.id===selectedStaff&&!s.used&&(game.phase==='operations'||(game.phase==='purchasing'&&s.purchasedRound===game.round))),selectedRole=selectedMember&&STAFF[selectedMember.key].role;
   const slots=d.slots.map(role=>{
     const s=assigned.find(x=>STAFF[x.key].role===role);
-    if(s)return game.phase==='operations'||(game.phase==='purchasing'&&s.purchasedRound===game.round)?`<button class="staff-slot filled selectable-staff ${s.used?'committed':''} ${selectedStaff&&selectedRole===role?'occupied-target':''}" data-action="selectStaff" data-staff="${s.id}" title="View ${STAFF[s.key].name} card and abilities"><span>${STAFF[s.key].monogram}</span><small>${STAFF[s.key].name}${s.used?' Â· committed':''}</small></button>`:`<div class="staff-slot filled ${s.used?'committed':''}" title="${s.used?'Committed f
-or this round':`${roleNames[role]} slot occupied`}"><span>${STAFF[s.key].monogram}</span><small>${STAFF[s.key].name}${s.used?' Â· committed':''}</small></div>`;
+    if(s)return game.phase==='operations'||(game.phase==='purchasing'&&s.purchasedRound===game.round)?`<button class="staff-slot filled selectable-staff ${s.used?'committed':''} ${selectedStaff&&selectedRole===role?'occupied-target':''}" data-action="selectStaff" data-staff="${s.id}" title="View ${STAFF[s.key].name} card and abilities"><span>${STAFF[s.key].monogram}</span><small>${STAFF[s.key].name}${s.used?' Â· committed':''}</small></button>`:`<div class="staff-slot filled ${s.used?'committed':''}" title="${s.used?'Committed for this round':`${roleNames[role]} slot occupied`}"><span>${STAFF[s.key].monogram}</span><small>${STAFF[s.key].name}${s.used?' Â· committed':''}</small></div>`;
     if(selectedStaff&&role===selectedRole&&compatible(game,selectedStaff,f.id))return `<button class="staff-slot assignment-target" data-action="assign" data-staff="${selectedStaff}" data-facility="${f.id}" title="Move ${STAFF[selectedMember.key].name} here"><span>+</span><small>Move here</small></button>`;
     if(selectedStaff)return `<div class="staff-slot unavailable-target" title="${role===selectedRole?`${roleNames[role]} slot unavailable`:`${STAFF[selectedMember.key].name} requires a ${roleNames[selectedRole]} slot`}"><span>Ã—</span><small>${role===selectedRole?'Unavailable':`${roleNames[role]} only`}</small></div>`;
     return `<div class="staff-slot"><span>${(roleNames[role]||role).split(' ').map(x=>x[0]).join('')}</span><small>${roleNames[role]||role} slot</small></div>`;
@@ -110,8 +105,7 @@ function facilityStatus(f,assigned,capacity){
     if(role==='pharmacist')chips.push(`<span class="medication"><b>${s.generatedAmount||0}</b> generated this round</span>`);
     if(role==='surgeon')chips.push(`<span class="surgery"><b>âœ“</b> Surgery enabled</span>`);
     if(role==='theatreNurse')chips.push('<span class="surgery"><b>+1</b> Theatre space</span>');
-    if(role==='administrator')chips.push(`<span><b>${game.facilityDiscountUsed?'âœ“':'âˆ’$2'}</b> ${game.facilityDiscountUsed?'discount used':'facility discount'}</span
->`);
+    if(role==='administrator')chips.push(`<span><b>${game.facilityDiscountUsed?'âœ“':'âˆ’$2'}</b> ${game.facilityDiscountUsed?'discount used':'facility discount'}</span>`);
   }
   if(f.key==='shortStay')chips.push('<span class="ability"><b>â†¯</b> â‰¤3 needs: +1 Nursing</span>');
   if(f.key==='icu')chips.push('<span class="ability"><b>â—†</b> prevents deterioration</span>');
@@ -136,8 +130,7 @@ function facilityAbilityControl(f){
 function theatreSpaces(f,capacity){return Array.from({length:capacity},(_,i)=>{const patient=f.patients[i];if(patient)return `<div class="theatre-space occupied">${patientVisual(patient,'theatre-patient-art')}<span>${patient.postoperative?'Needs ward bed':'Scheduled'}</span>${game.phase==='scheduling'?`<button data-action="cancelScheduledSurgery" data-id="${patient.id}">Remove</button>`:game.phase==='postoperative'?`<button data-action="startPostoperative" data-id="${patient.id}">Place in ward</button>`:''}</div>`;const staffed=game.staff.some(s=>s.facilityId===f.id&&STAFF[s.key].role==='surgeon');return selectedSurgery&&staffed?`<button class="theatre-space surgery-target" data-action="scheduleSurgery" data-id="${selectedSurgery}" data-target="${f.id}"><span>+</span><small>Schedule here</small></button>`:`<div class="theatre-space empty"><div class="equipment-core">OT</div><span>${staffed?'Available':'Needs Surgeon'}</span></div>`}).join('')}
 
 function bed(f,p,i){
-  if(!p){const target=selectedAdmission&&canEnterWard(findPatient(selectedAdmission),f),action=game.phase==='postoperative'?'placePostoperative':'admit';return target?`<button class="bed empty admission-target" data-action="${action}" data-id="${selectedAdmission}" data-target="${f.id}"><div 
-class="pillow"></div><span>Place in bed ${i+1}</span></button>`:`<div class="bed empty"><div class="pillow"></div><span>Bed ${i+1}</span></div>`}
+  if(!p){const target=selectedAdmission&&canEnterWard(findPatient(selectedAdmission),f),action=game.phase==='postoperative'?'placePostoperative':'admit';return target?`<button class="bed empty admission-target" data-action="${action}" data-id="${selectedAdmission}" data-target="${f.id}"><div class="pillow"></div><span>Place in bed ${i+1}</span></button>`:`<div class="bed empty"><div class="pillow"></div><span>Bed ${i+1}</span></div>`}
   const needs=p.revealed?Object.entries(p.needs).filter(([,n])=>n).flatMap(([k,n])=>Array.from({length:n},(_,x)=>`<span class="need ${k} ${x<(p.completed[k]||0)?'done':''}" title="${names[k]}${x<(p.completed[k]||0)?' completed':''}">${treatmentIcons[k]}</span>`)).join(''):'<span class="need unknown" title="Needs hidden">?</span>';
   const risk=patientRisk(p),riskBadge=p.revealed?`<span class="patient-risk ${risk.key}" title="${risk.unmet} unmet needs">${risk.unmet} unmet Â· ${risk.label}</span>`:'';
   if(selectedFacilityAbility&&canFacilityTarget(selectedFacilityAbility,p,f)){const facility=getFacility(game,selectedFacilityAbility),label=facility.key==='radiology'?'Investigate':'Discharge home';return `<button class="bed occupied ability-target" data-action="useFacilityAbility" data-facility="${facility.id}" data-id="${p.id}"><div class="pillow"></div>${patientVisual(p,'patient-bed-art')}<div class="bed-needs">${needs}</div><span class="target-label">${label}</span></button>`}
@@ -147,8 +140,7 @@ class="pillow"></div><span>Place in bed ${i+1}</span></button>`:`<div class="bed
   }
   let actions=game.phase==='scheduling'?(p.revealed&&(p.completed.surgery||0)<p.needs.surgery?`<button data-action="startSurgery" data-id="${p.id}">Schedule surgery</button><small>${surgeryEligibility(game,p.id).reason}</small>`:'<small>No revealed unmet Surgery need</small>'):game.phase!=='operations'?'<small>Available during Hospital Operations</small>':!p.revealed?'<small class="map-action-hint">Select a Doctor card to investigate</small>':`${(p.completed.medication||0)<p.needs.medication?`<button class="treatment-button medication" data-action="treat" data-type="medication" data-id="${p.id}">${treatmentIcons.medication}<span>Medication</span></button>`:''}${(p.completed.nursing||0)<p.needs.nursing?'<small class="map-action-hint">Select a Nurse card to provide care</small>':''}`;
   if(game.phase==='operations'&&f.key==='ed')actions+=`<button data-action="startAdmission" data-id="${p.id}" ${hasVacantWard(p)?'':'disabled'}>Admit to ward</button>`;
-  return `<div class="bed occupied ${p.revealed?'revealed':''}" data-patient-id="${p.id}"><div class="pillow"></div>${patientVisual(p,'patient-bed-art')}${riskBadge}${p.revealed?`<div class="bed-needs">${needs}</div>`:''}<div class="patient-popover">${p.art?patientVisual(p,'patient-popover-art'):''}<strong>Patient ${p.portrait}</strong><small>${p.revealed?`$${p.reward} &middot; +${p.reputation} rep`:'Needs and reward hid
-den'}</small>${riskBadge}<div class="risk-rules">0â€“3 stable Â· 4â€“6 deteriorates Â· 7+ dies</div><div class="needs">${needs}</div><div class="patient-actions">${actions}</div></div></div>`;
+  return `<div class="bed occupied ${p.revealed?'revealed':''}" data-patient-id="${p.id}"><div class="pillow"></div>${patientVisual(p,'patient-bed-art')}${riskBadge}${p.revealed?`<div class="bed-needs">${needs}</div>`:''}<div class="patient-popover">${p.art?patientVisual(p,'patient-popover-art'):''}<strong>Patient ${p.portrait}</strong><small>${p.revealed?`$${p.reward} &middot; +${p.reputation} rep`:'Needs and reward hidden'}</small>${riskBadge}<div class="risk-rules">0â€“3 stable Â· 4â€“6 deteriorates Â· 7+ dies</div><div class="needs">${needs}</div><div class="patient-actions">${actions}</div></div></div>`;
 }
 
 function staffCard(s){
@@ -166,8 +158,7 @@ function staffRemaining(s){
   if(role==='administrator')return `<div class="staff-remaining passive"><span>${game.facilityDiscountUsed?'Discount used this round':'$2 facility discount ready'}</span></div>`;
   return `<div class="staff-remaining passive"><span>Placement ability</span></div>`
 }
-function st
-affInspector(staffId){
+function staffInspector(staffId){
   const s=game.staff.find(x=>x.id===staffId),d=STAFF[s.key],f=getFacility(game,s.facilityId);
   const movement=d.hospitalWide?'This support card works across the whole hospital and does not occupy a facility slot.':s.used?'This staff member is committed here for the rest of the round.':f?'Select a highlighted compatible slot to move them, or use their ability below.':'Select a highlighted compatible facility slot.';
   return `<div class="staff-inspector"><div class="staff-inspector-identity"><span class="staff-inspector-monogram">${d.monogram}</span><div><span class="eyebrow">${s.used?'COMMITTED':d.hospitalWide?'HOSPITAL-WIDE':'SELECTED STAFF'}</span><strong>${d.name}</strong><small>${d.hospitalWide?'Support workforce':f?FACILITIES[f.key].name:'Available staff'}</small></div></div><div class="staff-inspector-copy"><span>${movement}</span><small>${d.effect}</small></div><div class="staff-inspector-actions">${staffRemaining(s)}${staffAbilityControl(s,f)}${f&&!s.used&&!d.hospitalWide?`<button class="secondary" data-action="returnStaff" data-staff="${s.id}">Return to available</button>`:''}<button class="secondary" data-action="clearStaffInspector">Close</button></div></div>`
@@ -180,8 +171,7 @@ function bind(){document.querySelectorAll('[data-action]').forEach(b=>b.onclick=
   if(a==='closeRules'){rulesOpen=false;render();return}
   if(a==='restartGame'){game=createGame();selectedStaff=selectedAdmission=selectedFacility=selectedAbility=selectedFacilityAbility=selectedSurgery=null;render();return}
   if(a==='selectStaff'){selectedStaff=x.staff;selectedAdmission=null;render();return}
-  if(a==='clearStaffInspector'){selectedStaff=null;
-render();return}
+  if(a==='clearStaffInspector'){selectedStaff=null;render();return}
   if(a==='startAdmission'){selectedAdmission=x.id;selectedStaff=null;render();return}
   if(a==='startPostoperative'){selectedAdmission=x.id;selectedStaff=null;render();return}
   if(a==='startSurgery'){const eligibility=surgeryEligibility(game,x.id);if(!eligibility.ok){toast(eligibility.reason);return}selectedSurgery=x.id;selectedStaff=selectedAdmission=null;render();return}
@@ -204,7 +194,6 @@ render();return}
   else if(a==='scheduleSurgery'){const eligibility=surgeryEligibility(game,x.id,x.target);if(!eligibility.ok){toast(eligibility.reason);render();return}ok=scheduleSurgery(game,x.id,x.target);if(ok)selectedSurgery=null}
   else if(a==='cancelScheduledSurgery')ok=cancelSurgery(game,x.id);
   else if(a==='buy'){ok=buy(game,x.kind,x.key);if(ok&&x.kind==='facility')selectedFacility=game.facilities.find(f=>f.slotIndex===null)?.id||null;if(ok&&x.kind==='staff'&&!STAFF[x.key].hospitalWide)selectedStaff=[...game.staff].reverse().find(s=>s.purchasedRound===game.round&&!s.facilityId&&!STAFF[s.key].hospitalWide)?.id||null}
-
   if(!ok)toast('That action is not available during this stage, or its requirements are not met.');render();})}
 
 function findPatient(id){for(const f of game.facilities){const patient=f.patients.find(p=>p.id===id);if(patient)return patient}return game.queue.find(p=>p.id===id)}
@@ -227,8 +216,7 @@ function canTargetPatient(staffId,p,f){
 function staffAbilityControl(s,f){
   if(game.phase!=='operations')return '<button disabled>Available next round</button>';
   const role=STAFF[s.key].role;
-  if(role==='administrator')return `<button disabled>${game.facilityDiscountUsed?'Facility discount used':'Next facility costs 
-$2 less'}</button>`;
+  if(role==='administrator')return `<button disabled>${game.facilityDiscountUsed?'Facility discount used':'Next facility costs $2 less'}</button>`;
   if(!f)return '<button disabled>Move to a compatible facility to use</button>';
   if(role==='doctor'){const available=(s.actionsRemaining||0)>0&&f.patients.some(p=>!p.revealed);return `<button data-action="startStaffAbility" data-staff="${s.id}" ${available?'':'disabled'}>${(s.actionsRemaining||0)===0?'Ability used':available?`Investigate patient (${s.actionsRemaining} left)`:'No hidden patients here'}</button>`}
   if(role==='nurse'){const limit=STAFF[s.key].doubleNursing?2:1,available=(s.resourceRemaining||0)>0&&f.patients.some(p=>{const received=p.nursingRound===game.round?(p.nursingThisRound||1):0;return p.revealed&&(p.completed.nursing||0)<p.needs.nursing&&received<limit});return `<button data-action="startStaffAbility" data-staff="${s.id}" ${available?'':'disabled'}>${available?`Allocate Nursing (${s.resourceRemaining} left)`:'No eligible patients'}</button>`}
@@ -245,8 +233,7 @@ const pause=ms=>new Promise(resolve=>setTimeout(resolve,ms));
 function resolutionBanner(text,tone){const el=document.createElement('div');el.className=`resolution-banner ${tone}`;el.textContent=text;document.body.appendChild(el);requestAnimationFrame(()=>el.classList.add('show'));setTimeout(()=>el.classList.remove('show'),620);setTimeout(()=>el.remove(),850)}
 function patientGhost(event,rect,tone,label){if(!rect)return;const el=document.createElement('div');el.className=`patient-ghost ${tone}`;Object.assign(el.style,{left:`${rect.left}px`,top:`${rect.top}px`,width:`${rect.width}px`,height:`${rect.height}px`});el.innerHTML=`<span>${event.portrait}</span><b>${label}</b>`;document.body.appendChild(el);requestAnimationFrame(()=>el.classList.add('animate'));setTimeout(()=>el.remove(),850)}
 function rewardFly(text,kind,rect){if(!rect)return;const el=document.createElement('span');el.className=`reward-fly ${kind}`;el.textContent=text;el.style.left=`${rect.left+rect.width/2}px`;el.style.top=`${rect.top}px`;document.body.appendChild(el);requestAnimationFrame(()=>el.classList.add('animate'));setTimeout(()=>el.remove(),900)}
-async function playResolu
-tionEvents(events,rects){
+async function playResolutionEvents(events,rects){
   document.body.classList.add('resolving');
   if(!events.length){resolutionBanner('No patient outcomes this round','neutral');await pause(700)}
   for(const event of events){
@@ -273,4 +260,3 @@ $('endTurn').onclick=async()=>{
 $('reset').onclick=()=>{game=createGame();selectedStaff=selectedAdmission=selectedFacility=selectedAbility=selectedFacilityAbility=selectedSurgery=null;render()};
 $('clearSelection').onclick=()=>{selectedStaff=null;render()};
 render();
-
