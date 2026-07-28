@@ -1,7 +1,8 @@
 import assert from 'node:assert/strict';
 import {
   createGame, addFacility, addStaff, investigate, treat, admit, buy, assignStaff, returnStaff,
-  placeFacility, advancePhase, compatible, calculateRewards, patientCategory, previewResolution,
+  placeFacility, moveFacility, canPlaceFacility, campusCell, builtFacilityCount, CAMPUS,
+  advancePhase, compatible, calculateRewards, patientCategory, previewResolution,
   unmetNeeds, patientRisk, scheduleSurgery, placePostoperativePatient, surgeryEligibility,
   theatreCapacity, purchaseCost, upkeepCost, resolveUpkeep, patientArrivalsForRound,
   radiologyInvestigate, hospitalHomeDischarge, canEnterWard, appealLevel, staffOfferCount,
@@ -10,13 +11,14 @@ import {
 import {GAME_CONFIG, PATIENTS, STAFF, STAFF_GROUPS, FACILITIES, MARKET} from '../src/data.js';
 
 assert.equal(PATIENTS.length,30);
+assert.deepEqual(CAMPUS,{columns:6,rows:4,maxFacilities:12});
 assert.equal(new Set(PATIENTS.map(p=>p.id)).size,PATIENTS.length);
 assert.equal(PATIENTS.filter(patient=>patient.art).length,8);
 assert.ok(PATIENTS.filter(patient=>patient.art).every(patient=>patient.art.endsWith('.webp')));
 assert.ok(PATIENTS.every(patient=>!Object.hasOwn(patient,'wardRequired')));
 for(const patient of PATIENTS){
   const total=Object.values(patient.needs).reduce((sum,value)=>sum+value,0);
-  assert.ok(total>=1&&total<=6,`${patient.id} must begin with 1â€“6 needs`);
+  assert.ok(total>=1&&total<=6,`${patient.id} must begin with 1–6 needs`);
   const expected=total<=2?'quick':total<=4?'standard':'complex';
   assert.equal(patientCategory(patient.needs).key,expected);
 }
@@ -71,7 +73,7 @@ const startingTheatre=g.facilities.find(f=>f.key==='theatre');
 assert.equal(ward.patients.length,0);
 assert.equal((await import('../src/data.js')).FACILITIES.ward.beds,4);
 assert.equal((await import('../src/data.js')).FACILITIES.theatre.patientSpaces,1);
-assert.equal(startingTheatre.slotIndex,2);
+assert.deepEqual(startingTheatre.position,{x:2,y:0});
 assert.equal(g.staff.filter(s=>s.key==='surgeon'&&s.facilityId===startingTheatre.id).length,1);
 assert.deepEqual(g.staff.map(s=>s.key),['doctor','nurse','pharmacist','surgeon']);
 assert.equal(g.phase,'operations');
@@ -231,9 +233,17 @@ g.market=[{kind:'facility',key:'pharmacy'}];
 assert.equal(buy(g,'facility','pharmacy'),true);
 assert.equal(g.market.length,0);
 const pharmacy=g.facilities.find(f=>f.key==='pharmacy');
-assert.equal(pharmacy.slotIndex,null);
+assert.equal(pharmacy.position,null);
 assert.equal(placeFacility(g,pharmacy.id,4),true);
 assert.equal(placeFacility(g,pharmacy.id,5),false);
+assert.equal(campusCell(pharmacy.position),4);
+assert.equal(canPlaceFacility(g,pharmacy.id,5),true);
+assert.equal(canPlaceFacility(g,pharmacy.id,1),false);
+assert.equal(canPlaceFacility(g,pharmacy.id,24),false);
+assert.equal(moveFacility(g,pharmacy.id,5),true);
+assert.deepEqual(pharmacy.position,{x:5,y:0});
+assert.equal(moveFacility(g,pharmacy.id,1),false);
+assert.equal(builtFacilityCount(g),4);
 
 g.market=[{kind:'staff',key:'nursingAssistant'}];
 g.money+=10;
@@ -467,4 +477,3 @@ assert.ok(helipadGame.log.some(message=>message.includes('additional revealed Co
 assert.ok([...helipadGame.facilities.flatMap(f=>f.patients),...helipadGame.queue].some(p=>p.category==='complex'&&p.revealed));
 assert.equal(helipadGame.analytics.facilityAbilities.helipadArrivals,1);
 console.log('engine tests passed');
-

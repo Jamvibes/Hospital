@@ -1,12 +1,11 @@
-
 <!doctype html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Hospital â€” Prototype</title>
+  <title>Hospital — Prototype</title>
   <link rel="stylesheet" href="styles.css?v=4">
-  <link rel="stylesheet" href="interaction.css?v=28">
+  <link rel="stylesheet" href="interaction.css?v=29">
 </head>
 <body>
   <header class="topbar">
@@ -18,13 +17,13 @@
     <section class="map-panel panel">
       <div class="section-heading">
         <div><span class="eyebrow">HOSPITAL MAP</span><h2>Your clinical engine</h2></div>
-        <div class="map-help">Select a staff card, then choose a compatible room.</div>
+        <div class="map-tools"><span id="campusCount"></span><button class="text-button" id="mapScaleToggle" data-action="toggleMapScale">Compact view</button></div>
       </div>
       <div class="arrival-area">
         <div><span class="eyebrow">ARRIVALS</span><strong>Patient queue</strong></div>
         <div class="arrival-queue" id="arrivalQueue"></div>
       </div>
-      <div class="hospital-map" id="hospitalMap"></div>
+      <div class="campus-viewport"><div class="hospital-map" id="hospitalMap"></div></div>
     </section>
     <section class="lower-grid">
       <section class="panel staff-panel">
@@ -53,6 +52,6 @@
   <div class="toast" id="toast" role="status"></div>
   <div class="rules-overlay" id="rulesPanel" hidden></div>
   <div class="victory-overlay" id="victoryScreen" hidden></div>
-  <script type="module" src="src/app-v57.js"></script>
+  <script type="module" src="src/app-v58.js"></script>
 </body>
 </html>

@@ -1,9 +1,10 @@
 export const GAME_CONFIG = {
-  roundLimit: 12
+  roundLimit: 12,
+  campus: {columns:6,rows:4,maxFacilities:12}
 };
 
 export const PATIENTS = [
-  // Quick patients: 1â€“2 initial needs.
+  // Quick patients: 1–2 initial needs.
   {id:'p01',portrait:'A',art:'patient-feverish-alone.webp',needs:{nursing:0,medication:1,surgery:0}},
   {id:'p02',portrait:'B',art:'patient-leaning-forward-alone.webp',needs:{nursing:1,medication:0,surgery:0}},
   {id:'p03',portrait:'C',needs:{nursing:0,medication:2,surgery:0}},
@@ -12,7 +13,7 @@ export const PATIENTS = [
   {id:'p06',portrait:'F',art:'patient-broken-arm-with-partner.webp',needs:{nursing:1,medication:0,surgery:1}},
   {id:'p07',portrait:'G',needs:{nursing:0,medication:1,surgery:1}},
 
-  // Standard patients: 3â€“4 initial needs.
+  // Standard patients: 3–4 initial needs.
   {id:'p08',portrait:'H',art:'patient-older-with-niece.webp',needs:{nursing:3,medication:0,surgery:0}},
   {id:'p09',portrait:'I',art:'patient-teen-reclining-with-mother.webp',needs:{nursing:2,medication:1,surgery:0}},
   {id:'p10',portrait:'J',needs:{nursing:1,medication:2,surgery:0}},
@@ -29,7 +30,7 @@ export const PATIENTS = [
   {id:'p21',portrait:'U',needs:{nursing:2,medication:1,surgery:1}},
   {id:'p22',portrait:'V',needs:{nursing:1,medication:2,surgery:1}},
 
-  // Complex patients: 5â€“6 initial needs.
+  // Complex patients: 5–6 initial needs.
   {id:'p23',portrait:'W',needs:{nursing:4,medication:1,surgery:0}},
   {id:'p24',portrait:'X',needs:{nursing:3,medication:2,surgery:0}},
   {id:'p25',portrait:'Y',art:'patient-dizzy-with-son.webp',needs:{nursing:3,medication:1,surgery:1}},
@@ -70,7 +71,7 @@ export const FACILITIES = {
   radiology:{name:'Radiology Department',short:'RAD',cost:10,upkeep:2,kind:'support',beds:0,slots:[],colour:'blue',effect:'Investigate any 1 patient in ED or a ward each round.'},
   helipad:{name:'Helipad',short:'H',cost:11,upkeep:2,kind:'support',beds:0,slots:[],colour:'amber',effect:'One additional revealed Complex patient arrives at the start of each round.'},
   hospitalHome:{name:'Hospital in the Home',short:'HITH',cost:12,upkeep:2,kind:'support',beds:0,slots:[],colour:'sage',effect:'Once per round, discharge 1 investigated patient with no more than 1 unmet need for their full reward.'},
-  cafe:{name:'CafÃ©',short:'CAF',cost:6,upkeep:1,kind:'support',beds:0,slots:[],colour:'amber',income:2,effect:'Generates $2 automatically at the start of each round.'},
+  cafe:{name:'Café',short:'CAF',cost:6,upkeep:1,kind:'support',beds:0,slots:[],colour:'amber',income:2,effect:'Generates $2 automatically at the start of each round.'},
   staffLounge:{name:'Staff Lounge',short:'SL',cost:7,upkeep:1,kind:'support',beds:0,slots:[],colour:'sage',appeal:1,effect:'Provides +1 Appeal, increasing the number of staff candidates offered during Purchasing.'},
   hospitalLibrary:{name:'Hospital Library',short:'LIB',cost:12,upkeep:2,kind:'support',beds:0,slots:[],colour:'blue',appeal:2,effect:'Provides +2 Appeal, increasing the number of staff candidates offered during Purchasing.'},
   walkInCentre:{name:'Walk-in Centre',short:'WIC',cost:9,upkeep:2,kind:'support',beds:0,slots:[],colour:'mint',quickArrivals:1,effect:'One additional investigated Quick patient arrives at the start of each round.'},
@@ -84,4 +85,3 @@ export const MARKET = [
   {kind:'facility',key:'pharmacy'},{kind:'facility',key:'radiology'},{kind:'facility',key:'helipad'},{kind:'facility',key:'hospitalHome'},
   {kind:'facility',key:'cafe'},{kind:'facility',key:'staffLounge'},{kind:'facility',key:'hospitalLibrary'},{kind:'facility',key:'walkInCentre'},{kind:'facility',key:'theatre'}
 ];
-

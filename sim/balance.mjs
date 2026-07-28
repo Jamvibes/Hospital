@@ -1,6 +1,7 @@
 import {
   createGame, advancePhase, assignStaff, returnStaff, investigate, treat, admit,
   scheduleSurgery, surgeryEligibility, placePostoperativePatient, buy, placeFacility,
+  CAMPUS, campusCell, builtFacilityCount,
   unmetNeeds, canEnterWard, radiologyInvestigate, hospitalHomeDischarge, appealLevel
 } from '../src/engine.js';
 import {STAFF, FACILITIES, MARKET} from '../src/data.js';
@@ -185,15 +186,15 @@ function purchase(game, policy, rng, metrics) {
   for (const offer of offers) {
     const def = offer.kind === 'staff' ? STAFF[offer.key] : FACILITIES[offer.key];
     if (game.money < def.cost) continue;
-    if (offer.kind === 'facility' && game.facilities.filter(f => f.slotIndex !== null).length >= 6) continue;
+    if (offer.kind === 'facility' && builtFacilityCount(game) >= CAMPUS.maxFacilities) continue;
     if (offer.kind === 'staff' && !canUseStaff(game, offer.key)) continue;
     if (!buy(game, offer.kind, offer.key)) continue;
     metrics.purchases[`${offer.kind}:${offer.key}`] =
       (metrics.purchases[`${offer.kind}:${offer.key}`] || 0) + 1;
     if (offer.kind === 'facility') {
-      const facility = game.facilities.find(f => f.slotIndex === null);
-      const free = Array.from({length: 6}, (_, i) => i)
-        .find(i => !game.facilities.some(f => f.slotIndex === i));
+      const facility = game.facilities.find(f => !f.position);
+      const free = Array.from({length: CAMPUS.columns * CAMPUS.rows}, (_, i) => i)
+        .find(i => !game.facilities.some(f => campusCell(f.position) === i));
       if (facility && free !== undefined) placeFacility(game, facility.id, free);
     }
   }

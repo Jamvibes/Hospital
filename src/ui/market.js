@@ -1,10 +1,10 @@
-import {STAFF, FACILITIES, STAFF_GROUPS} from '../data.js?v=16';
+import {STAFF, FACILITIES, STAFF_GROUPS} from '../data.js?v=17';
 
 export function renderMarket(game,options){
-  if(!game.market.length)return '<div class="market-empty">All of this roundâ€™s offers have been purchased.</div>';
+  if(!game.market.length)return '<div class="market-empty">All of this round’s offers have been purchased.</div>';
   const staff=game.market.filter(card=>card.kind==='staff');
   const facilities=game.market.filter(card=>card.kind==='facility');
-  return `${heading('Staff candidates',`${options.appealLevel(game)} Appeal Â· ${options.staffOfferCount(game)} offered`)}
+  return `${heading('Staff candidates',`${options.appealLevel(game)} Appeal · ${options.staffOfferCount(game)} offered`)}
     ${staff.map(card=>marketCard(game,card,options)).join('')}
     ${heading('Facility projects','3 offered')}
     ${facilities.map(card=>marketCard(game,card,options)).join('')}`;

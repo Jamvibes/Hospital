@@ -1,4 +1,4 @@
-import {FACILITIES, STAFF, MARKET} from '../data.js?v=16';
+import {FACILITIES, STAFF, MARKET} from '../data.js?v=17';
 
 export function appealLevel(state){
   return state.facilities.reduce((total,facility)=>total+(FACILITIES[facility.key].appeal||0),0);
