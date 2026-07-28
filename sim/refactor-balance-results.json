@@ -1,0 +1,745 @@
+{
+  "simulatorVersion": 3,
+  "generatedAt": "2026-07-28T01:18:26.049Z",
+  "runsPerPolicy": 1000,
+  "horizon": 12,
+  "assumptions": [
+    "Automated policies use only information visible after investigation.",
+    "Staff are reassigned each round to the facility where their role has the most immediate work.",
+    "Radiology is used before Doctor actions; Hospital in the Home targets patients with exactly one unmet need.",
+    "Rehabilitation restrictions, Helipad Complex arrivals, and Walk-in Centre Quick arrivals are resolved by the game engine.",
+    "Appeal changes the number of staff offers; passive-income cards generate Money at round start.",
+    "Purchases follow fixed policy priorities and never exceed available staff slots or map plots.",
+    "Results measure system pressure, not player enjoyment or optimal human play."
+  ],
+  "policies": [
+    {
+      "policy": "balanced",
+      "games": 1000,
+      "survivedHorizonPct": 35.2,
+      "averageRounds": 9.97,
+      "averageFinalReputation": 4.78,
+      "averageFinalMoney": 3.65,
+      "averageDischarges": 6,
+      "averageDeaths": 3.28,
+      "averageDeteriorations": 16.09,
+      "averageUnmetNeedsAtResolution": 17.82,
+      "averageMoneyEarned": 44.57,
+      "averagePassiveIncome": 4.91,
+      "averageMoneySpent": 28.19,
+      "averageFinalAppeal": 0.2,
+      "averageAppeal": 0.11,
+      "averageStaffOffers": 2,
+      "averageInvestigations": 12.02,
+      "averageNursingDelivered": 10.88,
+      "averageMedicationDelivered": 10.43,
+      "averageSurgeryDelivered": 5.7,
+      "averageUpkeepPaid": 22.74,
+      "averageUpkeepUnpaid": 5.21,
+      "averageUpkeepReputationLoss": 3.28,
+      "averageUnusedMedication": 1.06,
+      "averageUnusedNursing": 17.81,
+      "averageQueuePenalty": 18.96,
+      "averagePeakQueue": 10.78,
+      "averageEdOccupancyPct": 80.7,
+      "averageWardOccupancyPct": 33.4,
+      "averageTheatreOccupancyPct": 62,
+      "facilityPerformance": {
+        "radiology": {
+          "purchaseRatePct": 26.5,
+          "averagePurchases": 0.32,
+          "averageOwnedRounds": 2.5,
+          "averageAbilityUses": 2.38
+        },
+        "rehabilitation": {
+          "purchaseRatePct": 5.7,
+          "averagePurchases": 0.06,
+          "averageOwnedRounds": 0.34,
+          "averageAbilityUses": 0.12
+        },
+        "hospitalHome": {
+          "purchaseRatePct": 9.4,
+          "averagePurchases": 0.1,
+          "averageOwnedRounds": 0.5,
+          "averageAbilityUses": 0.29,
+          "averageMoneyGenerated": 2.15,
+          "averageReputationGenerated": 1.15
+        },
+        "helipad": {
+          "purchaseRatePct": 0.1,
+          "averagePurchases": 0,
+          "averageOwnedRounds": 0,
+          "averageAbilityUses": 0
+        },
+        "walkInCentre": {
+          "purchaseRatePct": 2.2,
+          "averagePurchases": 0.02,
+          "averageOwnedRounds": 0.13,
+          "averageAbilityUses": 0.08
+        },
+        "cafe": {
+          "purchaseRatePct": 18.9,
+          "averagePurchases": 0.21,
+          "averageOwnedRounds": 1.22,
+          "averageIncomeGenerated": 2.43
+        },
+        "staffLounge": {
+          "purchaseRatePct": 17.9,
+          "averagePurchases": 0.19,
+          "averageOwnedRounds": 1.11,
+          "averageAppealRoundValue": 1.11
+        },
+        "hospitalLibrary": {
+          "purchaseRatePct": 0.3,
+          "averagePurchases": 0,
+          "averageOwnedRounds": 0.02,
+          "averageAppealRoundValue": 0.04
+        }
+      },
+      "volunteerPerformance": {
+        "purchaseRatePct": 37.1,
+        "averagePurchases": 0.52,
+        "averageOwnedRounds": 2.48,
+        "averageIncomeGenerated": 2.48
+      },
+      "topPurchases": [
+        "facility:ward 0.60/game",
+        "staff:volunteer 0.52/game",
+        "staff:nursingAssistant 0.45/game",
+        "staff:nurse 0.38/game",
+        "staff:doctor 0.33/game"
+      ],
+      "leastPurchases": [
+        "staff:surgeon 0.00/game",
+        "facility:helipad 0.00/game",
+        "facility:hospitalLibrary 0.00/game",
+        "facility:icu 0.01/game",
+        "facility:theatre 0.02/game"
+      ]
+    },
+    {
+      "policy": "nursing",
+      "games": 1000,
+      "survivedHorizonPct": 39.3,
+      "averageRounds": 10.36,
+      "averageFinalReputation": 4.35,
+      "averageFinalMoney": 3.39,
+      "averageDischarges": 6.43,
+      "averageDeaths": 3.09,
+      "averageDeteriorations": 16.04,
+      "averageUnmetNeedsAtResolution": 17.13,
+      "averageMoneyEarned": 50.83,
+      "averagePassiveIncome": 5.39,
+      "averageMoneySpent": 31.31,
+      "averageFinalAppeal": 0.19,
+      "averageAppeal": 0.1,
+      "averageStaffOffers": 2,
+      "averageInvestigations": 11.53,
+      "averageNursingDelivered": 12.46,
+      "averageMedicationDelivered": 10.64,
+      "averageSurgeryDelivered": 5.74,
+      "averageUpkeepPaid": 26.13,
+      "averageUpkeepUnpaid": 7.11,
+      "averageUpkeepReputationLoss": 4.45,
+      "averageUnusedMedication": 1.04,
+      "averageUnusedNursing": 21.77,
+      "averageQueuePenalty": 22.78,
+      "averagePeakQueue": 11.94,
+      "averageEdOccupancyPct": 82.5,
+      "averageWardOccupancyPct": 29.5,
+      "averageTheatreOccupancyPct": 60.1,
+      "facilityPerformance": {
+        "radiology": {
+          "purchaseRatePct": 16.6,
+          "averagePurchases": 0.18,
+          "averageOwnedRounds": 1.34,
+          "averageAbilityUses": 1.3
+        },
+        "rehabilitation": {
+          "purchaseRatePct": 33.4,
+          "averagePurchases": 0.35,
+          "averageOwnedRounds": 2.15,
+          "averageAbilityUses": 0.73
+        },
+        "hospitalHome": {
+          "purchaseRatePct": 9.9,
+          "averagePurchases": 0.1,
+          "averageOwnedRounds": 0.6,
+          "averageAbilityUses": 0.32,
+          "averageMoneyGenerated": 2.49,
+          "averageReputationGenerated": 1.33
+        },
+        "helipad": {
+          "purchaseRatePct": 0.3,
+          "averagePurchases": 0,
+          "averageOwnedRounds": 0.01,
+          "averageAbilityUses": 0
+        },
+        "walkInCentre": {
+          "purchaseRatePct": 3.1,
+          "averagePurchases": 0.03,
+          "averageOwnedRounds": 0.17,
+          "averageAbilityUses": 0.09
+        },
+        "cafe": {
+          "purchaseRatePct": 20.3,
+          "averagePurchases": 0.22,
+          "averageOwnedRounds": 1.3,
+          "averageIncomeGenerated": 2.59
+        },
+        "staffLounge": {
+          "purchaseRatePct": 17.3,
+          "averagePurchases": 0.18,
+          "averageOwnedRounds": 1.01,
+          "averageAppealRoundValue": 1.01
+        },
+        "hospitalLibrary": {
+          "purchaseRatePct": 0.4,
+          "averagePurchases": 0,
+          "averageOwnedRounds": 0.03,
+          "averageAppealRoundValue": 0.05
+        }
+      },
+      "volunteerPerformance": {
+        "purchaseRatePct": 39.4,
+        "averagePurchases": 0.55,
+        "averageOwnedRounds": 2.79,
+        "averageIncomeGenerated": 2.79
+      },
+      "topPurchases": [
+        "staff:volunteer 0.55/game",
+        "staff:nursingAssistant 0.47/game",
+        "staff:nurse 0.42/game",
+        "facility:ward 0.42/game",
+        "facility:rehabilitation 0.35/game"
+      ],
+      "leastPurchases": [
+        "staff:surgeon 0.00/game",
+        "facility:helipad 0.00/game",
+        "facility:hospitalLibrary 0.00/game",
+        "facility:icu 0.01/game",
+        "facility:theatre 0.02/game"
+      ]
+    },
+    {
+      "policy": "surgery",
+      "games": 1000,
+      "survivedHorizonPct": 28.4,
+      "averageRounds": 9.78,
+      "averageFinalReputation": 3.52,
+      "averageFinalMoney": 2.87,
+      "averageDischarges": 5.49,
+      "averageDeaths": 3.11,
+      "averageDeteriorations": 14.94,
+      "averageUnmetNeedsAtResolution": 17.52,
+      "averageMoneyEarned": 40.51,
+      "averagePassiveIncome": 3.64,
+      "averageMoneySpent": 26.4,
+      "averageFinalAppeal": 0.16,
+      "averageAppeal": 0.08,
+      "averageStaffOffers": 2,
+      "averageInvestigations": 11.33,
+      "averageNursingDelivered": 10.01,
+      "averageMedicationDelivered": 9.88,
+      "averageSurgeryDelivered": 5.39,
+      "averageUpkeepPaid": 21.23,
+      "averageUpkeepUnpaid": 6.78,
+      "averageUpkeepReputationLoss": 4.07,
+      "averageUnusedMedication": 0.9,
+      "averageUnusedNursing": 15.79,
+      "averageQueuePenalty": 19.24,
+      "averagePeakQueue": 11.15,
+      "averageEdOccupancyPct": 80.3,
+      "averageWardOccupancyPct": 37.6,
+      "averageTheatreOccupancyPct": 57.6,
+      "facilityPerformance": {
+        "radiology": {
+          "purchaseRatePct": 23,
+          "averagePurchases": 0.26,
+          "averageOwnedRounds": 2.08,
+          "averageAbilityUses": 1.97
+        },
+        "rehabilitation": {
+          "purchaseRatePct": 2.6,
+          "averagePurchases": 0.03,
+          "averageOwnedRounds": 0.15,
+          "averageAbilityUses": 0.05
+        },
+        "hospitalHome": {
+          "purchaseRatePct": 12.2,
+          "averagePurchases": 0.13,
+          "averageOwnedRounds": 0.67,
+          "averageAbilityUses": 0.37,
+          "averageMoneyGenerated": 2.89,
+          "averageReputationGenerated": 1.54
+        },
+        "helipad": {
+          "purchaseRatePct": 11.9,
+          "averagePurchases": 0.13,
+          "averageOwnedRounds": 0.53,
+          "averageAbilityUses": 0.24
+        },
+        "walkInCentre": {
+          "purchaseRatePct": 1.8,
+          "averagePurchases": 0.02,
+          "averageOwnedRounds": 0.1,
+          "averageAbilityUses": 0.06
+        },
+        "cafe": {
+          "purchaseRatePct": 14.2,
+          "averagePurchases": 0.15,
+          "averageOwnedRounds": 0.85,
+          "averageIncomeGenerated": 1.7
+        },
+        "staffLounge": {
+          "purchaseRatePct": 14.6,
+          "averagePurchases": 0.15,
+          "averageOwnedRounds": 0.78,
+          "averageAppealRoundValue": 0.78
+        },
+        "hospitalLibrary": {
+          "purchaseRatePct": 0.2,
+          "averagePurchases": 0,
+          "averageOwnedRounds": 0.01,
+          "averageAppealRoundValue": 0.02
+        }
+      },
+      "volunteerPerformance": {
+        "purchaseRatePct": 31.4,
+        "averagePurchases": 0.4,
+        "averageOwnedRounds": 1.94,
+        "averageIncomeGenerated": 1.94
+      },
+      "topPurchases": [
+        "staff:theatreNurse 0.42/game",
+        "staff:volunteer 0.40/game",
+        "facility:ward 0.39/game",
+        "staff:nursingAssistant 0.32/game",
+        "staff:doctor 0.31/game"
+      ],
+      "leastPurchases": [
+        "facility:hospitalLibrary 0.00/game",
+        "facility:icu 0.00/game",
+        "facility:walkInCentre 0.02/game",
+        "staff:surgeon 0.02/game",
+        "facility:rehabilitation 0.03/game"
+      ]
+    },
+    {
+      "policy": "capacity",
+      "games": 1000,
+      "survivedHorizonPct": 21,
+      "averageRounds": 9.28,
+      "averageFinalReputation": 2.7,
+      "averageFinalMoney": 2.79,
+      "averageDischarges": 4.6,
+      "averageDeaths": 3.16,
+      "averageDeteriorations": 14.74,
+      "averageUnmetNeedsAtResolution": 18.03,
+      "averageMoneyEarned": 31.32,
+      "averagePassiveIncome": 2.7,
+      "averageMoneySpent": 23.21,
+      "averageFinalAppeal": 0.12,
+      "averageAppeal": 0.06,
+      "averageStaffOffers": 2,
+      "averageInvestigations": 10.68,
+      "averageNursingDelivered": 7.95,
+      "averageMedicationDelivered": 9.23,
+      "averageSurgeryDelivered": 5.11,
+      "averageUpkeepPaid": 15.32,
+      "averageUpkeepUnpaid": 4.89,
+      "averageUpkeepReputationLoss": 3.36,
+      "averageUnusedMedication": 0.77,
+      "averageUnusedNursing": 16.61,
+      "averageQueuePenalty": 15.6,
+      "averagePeakQueue": 10.02,
+      "averageEdOccupancyPct": 79.1,
+      "averageWardOccupancyPct": 33.1,
+      "averageTheatreOccupancyPct": 59.6,
+      "facilityPerformance": {
+        "radiology": {
+          "purchaseRatePct": 17.3,
+          "averagePurchases": 0.19,
+          "averageOwnedRounds": 1.66,
+          "averageAbilityUses": 1.6
+        },
+        "rehabilitation": {
+          "purchaseRatePct": 24.8,
+          "averagePurchases": 0.26,
+          "averageOwnedRounds": 1.61,
+          "averageAbilityUses": 0.47
+        },
+        "hospitalHome": {
+          "purchaseRatePct": 5.4,
+          "averagePurchases": 0.05,
+          "averageOwnedRounds": 0.26,
+          "averageAbilityUses": 0.15,
+          "averageMoneyGenerated": 1.07,
+          "averageReputationGenerated": 0.57
+        },
+        "helipad": {
+          "purchaseRatePct": 0,
+          "averagePurchases": 0,
+          "averageOwnedRounds": 0,
+          "averageAbilityUses": 0
+        },
+        "walkInCentre": {
+          "purchaseRatePct": 1.2,
+          "averagePurchases": 0.01,
+          "averageOwnedRounds": 0.07,
+          "averageAbilityUses": 0.04
+        },
+        "cafe": {
+          "purchaseRatePct": 10.6,
+          "averagePurchases": 0.11,
+          "averageOwnedRounds": 0.62,
+          "averageIncomeGenerated": 1.23
+        },
+        "staffLounge": {
+          "purchaseRatePct": 11,
+          "averagePurchases": 0.11,
+          "averageOwnedRounds": 0.63,
+          "averageAppealRoundValue": 0.63
+        },
+        "hospitalLibrary": {
+          "purchaseRatePct": 0.2,
+          "averagePurchases": 0,
+          "averageOwnedRounds": 0.01,
+          "averageAppealRoundValue": 0.03
+        }
+      },
+      "volunteerPerformance": {
+        "purchaseRatePct": 26.6,
+        "averagePurchases": 0.34,
+        "averageOwnedRounds": 1.46,
+        "averageIncomeGenerated": 1.46
+      },
+      "topPurchases": [
+        "facility:ward 0.47/game",
+        "staff:nursingAssistant 0.36/game",
+        "facility:shortStay 0.35/game",
+        "staff:volunteer 0.34/game",
+        "facility:rehabilitation 0.26/game"
+      ],
+      "leastPurchases": [
+        "staff:surgeon 0.00/game",
+        "facility:helipad 0.00/game",
+        "facility:hospitalLibrary 0.00/game",
+        "facility:walkInCentre 0.01/game",
+        "staff:seniorDoctor 0.03/game"
+      ]
+    },
+    {
+      "policy": "economy",
+      "games": 1000,
+      "survivedHorizonPct": 25.1,
+      "averageRounds": 10.01,
+      "averageFinalReputation": 3.09,
+      "averageFinalMoney": 6.3,
+      "averageDischarges": 6.03,
+      "averageDeaths": 3.38,
+      "averageDeteriorations": 15.5,
+      "averageUnmetNeedsAtResolution": 17.4,
+      "averageMoneyEarned": 50.97,
+      "averagePassiveIncome": 12.5,
+      "averageMoneySpent": 30.22,
+      "averageFinalAppeal": 0.64,
+      "averageAppeal": 0.33,
+      "averageStaffOffers": 2.01,
+      "averageInvestigations": 11.44,
+      "averageNursingDelivered": 10.24,
+      "averageMedicationDelivered": 10.02,
+      "averageSurgeryDelivered": 5.44,
+      "averageUpkeepPaid": 24.44,
+      "averageUpkeepUnpaid": 4.02,
+      "averageUpkeepReputationLoss": 2.39,
+      "averageUnusedMedication": 0.93,
+      "averageUnusedNursing": 15.94,
+      "averageQueuePenalty": 20.2,
+      "averagePeakQueue": 11.6,
+      "averageEdOccupancyPct": 81.2,
+      "averageWardOccupancyPct": 39.2,
+      "averageTheatreOccupancyPct": 59.1,
+      "facilityPerformance": {
+        "radiology": {
+          "purchaseRatePct": 19.3,
+          "averagePurchases": 0.21,
+          "averageOwnedRounds": 1.76,
+          "averageAbilityUses": 1.69
+        },
+        "rehabilitation": {
+          "purchaseRatePct": 3.2,
+          "averagePurchases": 0.03,
+          "averageOwnedRounds": 0.15,
+          "averageAbilityUses": 0.06
+        },
+        "hospitalHome": {
+          "purchaseRatePct": 7.8,
+          "averagePurchases": 0.08,
+          "averageOwnedRounds": 0.4,
+          "averageAbilityUses": 0.22,
+          "averageMoneyGenerated": 1.58,
+          "averageReputationGenerated": 0.84
+        },
+        "helipad": {
+          "purchaseRatePct": 0.1,
+          "averagePurchases": 0,
+          "averageOwnedRounds": 0.01,
+          "averageAbilityUses": 0
+        },
+        "walkInCentre": {
+          "purchaseRatePct": 2.3,
+          "averagePurchases": 0.02,
+          "averageOwnedRounds": 0.11,
+          "averageAbilityUses": 0.06
+        },
+        "cafe": {
+          "purchaseRatePct": 47.5,
+          "averagePurchases": 0.67,
+          "averageOwnedRounds": 3.97,
+          "averageIncomeGenerated": 7.94
+        },
+        "staffLounge": {
+          "purchaseRatePct": 37.7,
+          "averagePurchases": 0.44,
+          "averageOwnedRounds": 2.54,
+          "averageAppealRoundValue": 2.54
+        },
+        "hospitalLibrary": {
+          "purchaseRatePct": 9.9,
+          "averagePurchases": 0.1,
+          "averageOwnedRounds": 0.43,
+          "averageAppealRoundValue": 0.87
+        }
+      },
+      "volunteerPerformance": {
+        "purchaseRatePct": 55.1,
+        "averagePurchases": 0.91,
+        "averageOwnedRounds": 4.56,
+        "averageIncomeGenerated": 4.56
+      },
+      "topPurchases": [
+        "staff:volunteer 0.91/game",
+        "facility:cafe 0.67/game",
+        "staff:administrator 0.56/game",
+        "staff:nursingAssistant 0.45/game",
+        "facility:staffLounge 0.44/game"
+      ],
+      "leastPurchases": [
+        "staff:surgeon 0.00/game",
+        "facility:helipad 0.00/game",
+        "facility:icu 0.00/game",
+        "facility:theatre 0.01/game",
+        "staff:seniorNurse 0.01/game"
+      ]
+    },
+    {
+      "policy": "appeal",
+      "games": 1000,
+      "survivedHorizonPct": 29,
+      "averageRounds": 10.33,
+      "averageFinalReputation": 2.98,
+      "averageFinalMoney": 5.28,
+      "averageDischarges": 6.42,
+      "averageDeaths": 3.23,
+      "averageDeteriorations": 15.92,
+      "averageUnmetNeedsAtResolution": 17.01,
+      "averageMoneyEarned": 52.95,
+      "averagePassiveIncome": 9.82,
+      "averageMoneySpent": 31.43,
+      "averageFinalAppeal": 1.06,
+      "averageAppeal": 0.58,
+      "averageStaffOffers": 2.04,
+      "averageInvestigations": 11.29,
+      "averageNursingDelivered": 11.62,
+      "averageMedicationDelivered": 10.47,
+      "averageSurgeryDelivered": 5.67,
+      "averageUpkeepPaid": 26.24,
+      "averageUpkeepUnpaid": 4.48,
+      "averageUpkeepReputationLoss": 2.77,
+      "averageUnusedMedication": 0.97,
+      "averageUnusedNursing": 18.74,
+      "averageQueuePenalty": 23.02,
+      "averagePeakQueue": 12.37,
+      "averageEdOccupancyPct": 82.7,
+      "averageWardOccupancyPct": 35.7,
+      "averageTheatreOccupancyPct": 59.8,
+      "facilityPerformance": {
+        "radiology": {
+          "purchaseRatePct": 15.4,
+          "averagePurchases": 0.17,
+          "averageOwnedRounds": 1.13,
+          "averageAbilityUses": 1.1
+        },
+        "rehabilitation": {
+          "purchaseRatePct": 5.9,
+          "averagePurchases": 0.06,
+          "averageOwnedRounds": 0.32,
+          "averageAbilityUses": 0.12
+        },
+        "hospitalHome": {
+          "purchaseRatePct": 1.9,
+          "averagePurchases": 0.02,
+          "averageOwnedRounds": 0.1,
+          "averageAbilityUses": 0.05,
+          "averageMoneyGenerated": 0.4,
+          "averageReputationGenerated": 0.21
+        },
+        "helipad": {
+          "purchaseRatePct": 0.1,
+          "averagePurchases": 0,
+          "averageOwnedRounds": 0,
+          "averageAbilityUses": 0
+        },
+        "walkInCentre": {
+          "purchaseRatePct": 3.5,
+          "averagePurchases": 0.04,
+          "averageOwnedRounds": 0.18,
+          "averageAbilityUses": 0.1
+        },
+        "cafe": {
+          "purchaseRatePct": 37.2,
+          "averagePurchases": 0.46,
+          "averageOwnedRounds": 2.74,
+          "averageIncomeGenerated": 5.48
+        },
+        "staffLounge": {
+          "purchaseRatePct": 55.8,
+          "averagePurchases": 0.69,
+          "averageOwnedRounds": 4.29,
+          "averageAppealRoundValue": 4.29
+        },
+        "hospitalLibrary": {
+          "purchaseRatePct": 17.2,
+          "averagePurchases": 0.18,
+          "averageOwnedRounds": 0.89,
+          "averageAppealRoundValue": 1.79
+        }
+      },
+      "volunteerPerformance": {
+        "purchaseRatePct": 54.2,
+        "averagePurchases": 0.87,
+        "averageOwnedRounds": 4.34,
+        "averageIncomeGenerated": 4.34
+      },
+      "topPurchases": [
+        "staff:volunteer 0.87/game",
+        "facility:staffLounge 0.69/game",
+        "staff:doctor 0.47/game",
+        "facility:cafe 0.46/game",
+        "staff:nursingAssistant 0.45/game"
+      ],
+      "leastPurchases": [
+        "staff:surgeon 0.00/game",
+        "facility:helipad 0.00/game",
+        "facility:icu 0.01/game",
+        "facility:theatre 0.01/game",
+        "facility:hospitalHome 0.02/game"
+      ]
+    },
+    {
+      "policy": "random",
+      "games": 1000,
+      "survivedHorizonPct": 4.3,
+      "averageRounds": 7.94,
+      "averageFinalReputation": 0.49,
+      "averageFinalMoney": 2.81,
+      "averageDischarges": 2.76,
+      "averageDeaths": 1.94,
+      "averageDeteriorations": 8.09,
+      "averageUnmetNeedsAtResolution": 13.99,
+      "averageMoneyEarned": 24.04,
+      "averagePassiveIncome": 4,
+      "averageMoneySpent": 19.94,
+      "averageFinalAppeal": 0.24,
+      "averageAppeal": 0.13,
+      "averageStaffOffers": 2,
+      "averageInvestigations": 5.1,
+      "averageNursingDelivered": 6.14,
+      "averageMedicationDelivered": 5.39,
+      "averageSurgeryDelivered": 2.53,
+      "averageUpkeepPaid": 11.29,
+      "averageUpkeepUnpaid": 5.14,
+      "averageUpkeepReputationLoss": 3.19,
+      "averageUnusedMedication": 2.99,
+      "averageUnusedNursing": 14.18,
+      "averageQueuePenalty": 16.18,
+      "averagePeakQueue": 10.96,
+      "averageEdOccupancyPct": 84.7,
+      "averageWardOccupancyPct": 19.6,
+      "averageTheatreOccupancyPct": 32.7,
+      "facilityPerformance": {
+        "radiology": {
+          "purchaseRatePct": 11.4,
+          "averagePurchases": 0.12,
+          "averageOwnedRounds": 0.83,
+          "averageAbilityUses": 0.78
+        },
+        "rehabilitation": {
+          "purchaseRatePct": 11.1,
+          "averagePurchases": 0.11,
+          "averageOwnedRounds": 0.63,
+          "averageAbilityUses": 0.14
+        },
+        "hospitalHome": {
+          "purchaseRatePct": 3.2,
+          "averagePurchases": 0.03,
+          "averageOwnedRounds": 0.16,
+          "averageAbilityUses": 0.07,
+          "averageMoneyGenerated": 0.56,
+          "averageReputationGenerated": 0.3
+        },
+        "helipad": {
+          "purchaseRatePct": 3.8,
+          "averagePurchases": 0.04,
+          "averageOwnedRounds": 0.15,
+          "averageAbilityUses": 0.1
+        },
+        "walkInCentre": {
+          "purchaseRatePct": 12.7,
+          "averagePurchases": 0.13,
+          "averageOwnedRounds": 0.6,
+          "averageAbilityUses": 0.5
+        },
+        "cafe": {
+          "purchaseRatePct": 20.4,
+          "averagePurchases": 0.22,
+          "averageOwnedRounds": 1.17,
+          "averageIncomeGenerated": 2.34
+        },
+        "staffLounge": {
+          "purchaseRatePct": 16.8,
+          "averagePurchases": 0.18,
+          "averageOwnedRounds": 0.94,
+          "averageAppealRoundValue": 0.94
+        },
+        "hospitalLibrary": {
+          "purchaseRatePct": 2.8,
+          "averagePurchases": 0.03,
+          "averageOwnedRounds": 0.11,
+          "averageAppealRoundValue": 0.23
+        }
+      },
+      "volunteerPerformance": {
+        "purchaseRatePct": 28.6,
+        "averagePurchases": 0.37,
+        "averageOwnedRounds": 1.66,
+        "averageIncomeGenerated": 1.66
+      },
+      "topPurchases": [
+        "staff:volunteer 0.37/game",
+        "staff:nursingAssistant 0.25/game",
+        "facility:cafe 0.22/game",
+        "facility:staffLounge 0.18/game",
+        "facility:pharmacy 0.18/game"
+      ],
+      "leastPurchases": [
+        "staff:surgeon 0.00/game",
+        "facility:icu 0.02/game",
+        "staff:pharmacist 0.02/game",
+        "staff:seniorDoctor 0.03/game",
+        "facility:hospitalLibrary 0.03/game"
+      ]
+    }
+  ]
+}
