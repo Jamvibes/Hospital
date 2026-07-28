@@ -74,6 +74,17 @@ assert.equal(ward.patients.length,0);
 assert.equal((await import('../src/data.js')).FACILITIES.ward.beds,4);
 assert.equal((await import('../src/data.js')).FACILITIES.theatre.patientSpaces,1);
 assert.deepEqual(startingTheatre.position,{x:2,y:0});
+
+const multiCareGame=createGame(811);
+const multiCareWard=multiCareGame.facilities.find(f=>f.key==='ward');
+const multiCareNurse=multiCareGame.staff.find(s=>STAFF[s.key].role==='nurse');
+const carePatients=multiCareGame.deck.splice(0,2);
+for(const patient of carePatients){patient.revealed=true;patient.needs={nursing:1,medication:0,surgery:0};patient.completed={nursing:0,medication:0,surgery:0};multiCareWard.patients.push(patient)}
+assert.equal(treat(multiCareGame,carePatients[0].id,'nursing',multiCareNurse.id),true);
+assert.equal(multiCareNurse.used,true);
+assert.equal(multiCareNurse.resourceRemaining,1);
+assert.equal(treat(multiCareGame,carePatients[1].id,'nursing',multiCareNurse.id),true);
+assert.equal(multiCareNurse.resourceRemaining,0);
 assert.equal(g.staff.filter(s=>s.key==='surgeon'&&s.facilityId===startingTheatre.id).length,1);
 assert.deepEqual(g.staff.map(s=>s.key),['doctor','nurse','pharmacist','surgeon']);
 assert.equal(g.phase,'operations');
